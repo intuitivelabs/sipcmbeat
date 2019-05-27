@@ -1,0 +1,108 @@
+// Use these for links to issue and pulls. Note issues and pulls redirect one to
+// each other on Github, so don't worry too much on using the right prefix.
+:issue: https://github.com/elastic/beats/issues/
+:pull: https://github.com/elastic/beats/pull/
+
+=== Beats version HEAD
+https://github.com/elastic/beats/compare/v7.0.0...7.1[Check the HEAD diff]
+
+==== Breaking changes
+
+*Affecting all Beats*
+
+*Auditbeat*
+
+*Filebeat*
+
+*Heartbeat*
+
+*Journalbeat*
+
+*Metricbeat*
+
+*Packetbeat*
+
+*Winlogbeat*
+
+*Functionbeat*
+
+==== Bugfixes
+
+*Affecting all Beats*
+
+*Auditbeat*
+
+- Package dataset: Log error when Homebrew is not installed. {pull}11667[11667]
+
+*Filebeat*
+
+*Heartbeat*
+
+*Journalbeat*
+
+*Metricbeat*
+
+- Update documentation with cloudwatch:ListMetrics permission. {pull}11987[11987]
+
+*Packetbeat*
+
+*Winlogbeat*
+
+*Functionbeat*
+
+==== Added
+
+*Affecting all Beats*
+
+*Auditbeat*
+
+*Filebeat*
+
+*Heartbeat*
+
+*Journalbeat*
+
+*Metricbeat*
+
+*Packetbeat*
+
+*Functionbeat*
+
+==== Deprecated
+
+*Affecting all Beats*
+
+*Filebeat*
+
+*Heartbeat*
+
+*Journalbeat*
+
+*Metricbeat*
+
+*Packetbeat*
+
+*Winlogbeat*
+
+*Functionbeat*
+
+==== Known Issue
+
+*Affecting all Beats*
+
+*Filebeat*
+
+*Heartbeat*
+
+*Journalbeat*
+
+*Metricbeat*
+
+*Packetbeat*
+
+*Winlogbeat*
+
+*Functionbeat*
+
+*Journalbeat*
+
