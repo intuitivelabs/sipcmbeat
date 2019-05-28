@@ -1,9 +1,152 @@
 - key: sipcmbeat
   title: sipcmbeat
-  description:
+  description: event fields for SIP calls
   fields:
-    - name: counter
-      type: long
-      required: true
+    - name: type
+      type: keyword
       description: >
-        PLEASE UPDATE DOCUMENTATION
+          Event Type
+      example: call-start
+    - name: sip
+      type: group
+      fields:
+          - name: from
+            type: keyword
+            description: >
+                from uri
+            example: sip:foo@bar.com
+          - name: to
+            type: keyword
+            description: >
+                to uri
+            example: sip:foo@bar.com
+          - name: contact
+            type: keyword
+            description: >
+                TODO: contact uri or full contact
+          - name: sip_reason
+            type: keyword
+            description: >
+                replay reason
+            example: OK
+          - name: call_id
+            type: keyword
+            description: >
+                CallID
+          - name: terminator
+            type: keyword
+            description: >
+                who originated hangup
+          - name: request
+            type: group
+            fields:
+                - name: method
+                  type: keyword
+                  description: >
+                      sip request method
+                  example: INVITE
+          - name: response
+            type: group
+            fields:
+                - name: status
+                  type: keyword
+                  description: >
+                      sip response status
+                  example: 200
+    - name: user_agent
+      type: group
+      fields:
+          - name: original
+            type: keyword
+            description: >
+                SIP User Agent signature
+    - name: uas
+      type: group
+      fields:
+          - name: original
+            type: keyword
+            description: >
+                SIP Server User Agent signature
+    - name: event
+      type: group
+      fields:
+          - name: duration
+            type: long
+            description: >
+                call duration
+    - name: uri
+      type: group
+      fields:
+          - name: original
+            type: keyword
+            description: >
+                sip request uri
+            example: sip:foo@bar.
+    - name: client
+      type: group
+      fields:
+          - name: ip
+            type: keyword
+            description: >
+                source ip
+          - name: port
+            type: keyword
+            description: >
+                source port
+          - name: transport
+            type: keyword
+            description: >
+                transport
+            example: TCP
+    - name: server
+      type: group
+      fields:
+          - name: ip
+            type: keyword
+            description: >
+                dst ip
+          - name: port
+            type: keyword
+            description: >
+                dst port
+    - name: dbg
+      type: group
+      fields:
+          - name: state
+            type: keyword
+            description: >
+                internal state
+          - name: prev_state
+            type: keyword
+            description: >
+                previous internal state
+          - name: fromtag
+            type: keyword
+            description: >
+                From tag
+          - name: totag
+            type: keyword
+            description: >
+                To tag
+          - name: lastev
+            type: keyword
+            description: >
+                last generated event
+          - name: evflags
+            type: keyword
+            description: >
+                generated events list
+          - name: evgen
+            type: keyword
+            description: >
+                where was the event generated
+          - name: created
+            type: string
+            description: >
+                call entry creation timestamp
+          - name: call_start
+            type: string
+            description: >
+                call start timestamp
+
+

@@ -3523,17 +3523,301 @@ alias to: process.executable
 [[exported-fields-sipcmbeat]]
 == sipcmbeat fields
 
-None
+event fields for SIP calls
 
 
-*`counter`*::
+*`type`*::
++
+--
+type: keyword
+
+example: call-start
+
+Event Type
+
+
+--
+
+
+*`sip.from`*::
++
+--
+type: keyword
+
+example: sip:foo@bar.com
+
+from uri
+
+
+--
+
+*`sip.to`*::
++
+--
+type: keyword
+
+example: sip:foo@bar.com
+
+to uri
+
+
+--
+
+*`sip.contact`*::
++
+--
+type: keyword
+
+TODO: contact uri or full contact
+
+
+--
+
+*`sip.sip_reason`*::
++
+--
+type: keyword
+
+example: OK
+
+replay reason
+
+
+--
+
+*`sip.call_id`*::
++
+--
+type: keyword
+
+CallID
+
+
+--
+
+*`sip.terminator`*::
++
+--
+type: keyword
+
+who originated hangup
+
+
+--
+
+
+*`sip.request.method`*::
++
+--
+type: keyword
+
+example: INVITE
+
+sip request method
+
+
+--
+
+
+*`sip.response.status`*::
++
+--
+type: keyword
+
+example: 200
+
+sip response status
+
+
+--
+
+
+*`user_agent.original`*::
++
+--
+type: keyword
+
+SIP User Agent signature
+
+
+--
+
+
+*`uas.original`*::
++
+--
+type: keyword
+
+SIP Server User Agent signature
+
+
+--
+
+
+*`event.duration`*::
 +
 --
 type: long
 
-required: True
+call duration
 
-PLEASE UPDATE DOCUMENTATION
+
+--
+
+
+*`uri.original`*::
++
+--
+type: keyword
+
+example: sip:foo@bar.
+
+sip request uri
+
+
+--
+
+
+*`client.ip`*::
++
+--
+type: keyword
+
+source ip
+
+
+--
+
+*`client.port`*::
++
+--
+type: keyword
+
+source port
+
+
+--
+
+*`client.transport`*::
++
+--
+type: keyword
+
+example: TCP
+
+transport
+
+
+--
+
+
+*`server.ip`*::
++
+--
+type: keyword
+
+dst ip
+
+
+--
+
+*`server.port`*::
++
+--
+type: keyword
+
+dst port
+
+
+--
+
+
+*`dbg.state`*::
++
+--
+type: keyword
+
+internal state
+
+
+--
+
+*`dbg.prev_state`*::
++
+--
+type: keyword
+
+previous internal state
+
+
+--
+
+*`dbg.fromtag`*::
++
+--
+type: keyword
+
+From tag
+
+
+--
+
+*`dbg.totag`*::
++
+--
+type: keyword
+
+To tag
+
+
+--
+
+*`dbg.lastev`*::
++
+--
+type: keyword
+
+last generated event
+
+
+--
+
+*`dbg.evflags`*::
++
+--
+type: keyword
+
+generated events list
+
+
+--
+
+*`dbg.evgen`*::
++
+--
+type: keyword
+
+where was the event generated
+
+
+--
+
+*`dbg.created`*::
++
+--
+type: string
+
+call entry creation timestamp
+
+
+--
+
+*`dbg.call_start`*::
++
+--
+type: string
+
+call start timestamp
 
 
 --
