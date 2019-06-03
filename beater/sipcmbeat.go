@@ -39,10 +39,12 @@ var cntEvPub counters.Handle
 var cntEvSkipped counters.Handle
 var cntEvBusy counters.Handle
 var cntEvInvalid counters.Handle
-var cntEvNil counters.Handle
+var cntEvNilTotal counters.Handle
+var cntEvNilConsec counters.Handle
 var cntEvSigs counters.Handle
 var cntEvTrunc counters.Handle
 var cntEvErr counters.Handle
+var cntEvMaxQ counters.Handle
 
 func init() {
 	cntDefs := [...]counters.Def{
@@ -54,14 +56,18 @@ func init() {
 			"busy event entries"},
 		{&cntEvInvalid, 0, nil, nil, "invalid",
 			"invalid events entries, skipped"},
-		{&cntEvNil, 0, nil, nil, "nil",
+		{&cntEvNilTotal, 0, nil, nil, "nil_total",
 			"emtpy events received (debugging)"},
+		{&cntEvNilConsec, counters.CntMaxF, nil, nil, "nil_crt",
+			"emtpy events received consecutively (debugging)"},
 		{&cntEvSigs, 0, nil, nil, "signals",
 			"new events signals received"},
 		{&cntEvTrunc, 0, nil, nil, "truncated",
 			"truncated event"},
 		{&cntEvErr, 0, nil, nil, "error",
 			"error preparing to send event"},
+		{&cntEvMaxQ, 0, nil, nil, "max_queued",
+			"maximum number of queued events"},
 	}
 	stats.Init("events", nil, len(cntDefs))
 	if !stats.RegisterDefs(cntDefs[:]) {
@@ -146,7 +152,6 @@ func (bt *Sipcmbeat) Stop() {
 
 func (bt *Sipcmbeat) consumeEv() {
 	defer bt.wg.Done()
-	nilev := 0
 waitsig:
 	for {
 		select {
@@ -155,24 +160,25 @@ waitsig:
 		case <-bt.newEv:
 			stats.Inc(cntEvSigs)
 			last := bt.evRing.LastIdx()
+			stats.Max(cntEvMaxQ, counters.Val(last-bt.evIdx))
 			for bt.evIdx != last {
 				ev, nxtIdx, err := bt.evRing.Get(bt.evIdx)
 				if ev != nil {
 					bt.publishEv(ev)
 					bt.evRing.Put(bt.evIdx)
-					if nilev > 0 {
+					if stats.Get(cntEvNilConsec) != 0 {
 						fmt.Fprintf(os.Stderr, "recovered from NIL ev[%d]: %p (last %d:%d) - %d cycles\n",
-							bt.evIdx, ev, last, bt.evRing.LastIdx(), nilev)
+							bt.evIdx, ev, last, bt.evRing.LastIdx(),
+							stats.Get(cntEvNilConsec))
 					}
-					nilev = 0
+					stats.Set(cntEvNilConsec, 0)
 					bt.evIdx = nxtIdx
 				} else {
-					stats.Inc(cntEvNil)
-					if nilev == 0 {
+					stats.Inc(cntEvNilTotal)
+					if stats.Inc(cntEvNilConsec) == 1 {
 						fmt.Fprintf(os.Stderr, "GOT NIL ev[%d]: %p err %d (last %d:%d)\n",
 							bt.evIdx, ev, err, last, bt.evRing.LastIdx())
 					}
-					nilev++
 					switch err {
 					case sipcallmon.ErrBusy:
 						// busy (written on), wait for it (next signal)
