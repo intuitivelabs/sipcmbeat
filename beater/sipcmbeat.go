@@ -276,11 +276,19 @@ func (bt *Sipcmbeat) publishEv(srcEv *calltr.EventData) {
 		}
 	}
 	addFields(event.Fields, "sip.response.status", ed.ReplStatus)
-	if ed.Type == calltr.EvCallEnd {
-		// add duration only on call-end and use seconds
-		// (otherwise the current monitoring part will get confused)
-		addFields(event.Fields, "event.duration",
-			ed.TS.Sub(ed.StartTS)/time.Second)
+	switch ed.Type {
+	case calltr.EvCallEnd, calltr.EvRegDel, calltr.EvRegExpired:
+		// add duration only on events that make sense, and only
+		// if call-start is known. Use seconds.
+		if !ed.StartTS.IsZero() {
+			// (otherwise the current monitoring part will get confused)
+			addFields(event.Fields, "event.duration",
+				ed.TS.Sub(ed.StartTS)/time.Second)
+		} else {
+			// add a min_length field containing the minimum call duration^
+			addFields(event.Fields, "event.min_length",
+				ed.TS.Sub(sipcallmon.StartTS)/time.Second)
+		}
 	}
 	addFields(event.Fields, "event.call_start", ed.StartTS)
 	addFields(event.Fields, "client.transport", ed.ProtoF.ProtoName())
