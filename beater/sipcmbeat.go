@@ -144,9 +144,13 @@ func (bt *Sipcmbeat) Stop() {
 	sipcallmon.Stop()
 	if bt.client != nil {
 		bt.client.Close()
+		bt.client = nil
 	}
 	close(bt.done)
-	bt.wg.Wait()
+	if bt.wg != nil {
+		bt.wg.Wait()
+		bt.wg = nil
+	}
 	bt.evRing.CloseEvSignal() // safe, since sipcallmon is already stopped
 }
 
