@@ -272,7 +272,12 @@ func (bt *Sipcmbeat) publishEv(srcEv *calltr.EventData) {
 		}
 	}
 	addFields(event.Fields, "sip.response.status", ed.ReplStatus)
-	addFields(event.Fields, "event.duration", ed.TS.Sub(ed.StartTS))
+	if ed.Type == calltr.EvCallEnd {
+		// add duration only on call-end and use seconds
+		// (otherwise the current monitoring part will get confused)
+		addFields(event.Fields, "event.duration",
+			ed.TS.Sub(ed.StartTS)/time.Second)
+	}
 	addFields(event.Fields, "event.call_start", ed.StartTS)
 	addFields(event.Fields, "client.transport", ed.ProtoF.ProtoName())
 	addFields(event.Fields, "client.ip", ed.Src)
