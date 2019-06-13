@@ -98,7 +98,9 @@ func dbg_fileno() uintptr {
 // New creates an instance of sipcmbeat.
 func New(b *beat.Beat, cfg *common.Config) (beat.Beater, error) {
 	c := sipcallmon.DefaultConfig
-	c.MaxBlockedTo = 5 * time.Second // lower timeout to see Stop() sooner
+	if c.MaxBlockedTo > 5*time.Second {
+		c.MaxBlockedTo = 5 * time.Second // lower timeout to see Stop() sooner
+	}
 	if cfg != nil {
 		if err := cfg.Unpack(&c); err != nil {
 			return nil, fmt.Errorf("Error reading config file: %v", err)
