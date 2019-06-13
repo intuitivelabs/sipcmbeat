@@ -20,3 +20,4 @@ sipcmbeat:
   tcp_connection_timeout: 1800
   max_blocked_timeout: 5s
   event_buffer_size:  10240
+  reg_delta: 0

@@ -18,7 +18,9 @@ sipcmbeat:
   tcp_gc_int: 20s
   tcp_reorder_timeout: 60s
   tcp_connection_timeout: 1800
+  max_blocked_timeout: 5s
   event_buffer_size:  10240
+  reg_delta: 0
 
 #================================ General ======================================
 
