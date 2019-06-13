@@ -3664,6 +3664,36 @@ call duration
 
 --
 
+*`event.min_length`*::
++
+--
+type: long
+
+minimum call duration, added if duration cannot be computed
+
+
+--
+
+*`event.lifetime`*::
++
+--
+type: long
+
+register or sub duration / lifetime
+
+
+--
+
+*`event.min_lifetime`*::
++
+--
+type: long
+
+minimum register/sub duration, added if lifetime cannot be computed
+
+
+--
+
 
 *`uri.original`*::
 +

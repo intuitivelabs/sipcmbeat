@@ -2417,6 +2417,18 @@
             type: long
             description: >
                 call duration
+          - name: min_length
+            type: long
+            description: >
+                minimum call duration, added if duration cannot be computed
+          - name: lifetime
+            type: long
+            description: >
+                register or sub duration / lifetime
+          - name: min_lifetime
+            type: long
+            description: >
+                minimum register/sub duration, added if lifetime cannot be computed
     - name: uri
       type: group
       fields:
