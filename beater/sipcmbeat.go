@@ -277,7 +277,7 @@ func (bt *Sipcmbeat) publishEv(srcEv *calltr.EventData) {
 	}
 	addFields(event.Fields, "sip.response.status", ed.ReplStatus)
 	switch ed.Type {
-	case calltr.EvCallEnd, calltr.EvRegDel, calltr.EvRegExpired:
+	case calltr.EvCallEnd:
 		// add duration only on events that make sense, and only
 		// if call-start is known. Use seconds.
 		if !ed.StartTS.IsZero() {
@@ -287,6 +287,18 @@ func (bt *Sipcmbeat) publishEv(srcEv *calltr.EventData) {
 		} else {
 			// add a min_length field containing the minimum call duration^
 			addFields(event.Fields, "event.min_length",
+				ed.TS.Sub(sipcallmon.StartTS)/time.Second)
+		}
+	case calltr.EvRegDel, calltr.EvRegExpired:
+		// add duration only on events that make sense, and only
+		// if call-start is known. Use seconds.
+		if !ed.StartTS.IsZero() {
+			// (otherwise the current monitoring part will get confused)
+			addFields(event.Fields, "event.lifetime",
+				ed.TS.Sub(ed.StartTS)/time.Second)
+		} else {
+			// add a min_length field containing the minimum call duration^
+			addFields(event.Fields, "event.min_lifetime",
 				ed.TS.Sub(sipcallmon.StartTS)/time.Second)
 		}
 	}
@@ -308,8 +320,13 @@ func (bt *Sipcmbeat) publishEv(srcEv *calltr.EventData) {
 	addFields(event.Fields, "dbg.cseq", ed.CSeq)
 	addFields(event.Fields, "dbg.rcseq", ed.RCSeq)
 	addFields(event.Fields, "dbg.forked", ed.ForkedTS)
+	addFields(event.Fields, "dbg.call_flags", ed.CFlags)
 	addFields(event.Fields, "dbg.req_no", ed.Reqs)
 	addFields(event.Fields, "dbg.repl_no", ed.Repls)
+	addFields(event.Fields, "dbg.req_retr", ed.ReqsRetr)
+	addFields(event.Fields, "dbg.repl_retr", ed.ReplsRetr)
+	addFields(event.Fields, "dbg.last_method", ed.LastMethod)
+	addFields(event.Fields, "dbg.last_status", ed.LastStatus)
 
 	bt.client.Publish(event)
 	stats.Inc(cntEvPub)
