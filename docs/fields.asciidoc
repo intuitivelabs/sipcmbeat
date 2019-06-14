@@ -3568,7 +3568,7 @@ to uri
 --
 type: keyword
 
-TODO: contact uri or full contact
+contact uri
 
 
 --
@@ -3600,7 +3600,17 @@ CallID
 --
 type: keyword
 
-who originated hangup
+TODO: who originated hangup - values?, not supported yet
+
+
+--
+
+*`sip.unmatched_invite`*::
++
+--
+type: boolean
+
+added only for call-end if no INVITE was seen (call-end generated on BYE, no call-start)
 
 
 --
@@ -3626,7 +3636,17 @@ type: keyword
 
 example: 200
 
-sip response status
+sip response status, added only for call-attempt
+
+
+--
+
+*`sip.response.last`*::
++
+--
+type: keyword
+
+sip response status, for the last response matching the call (added for every event, except call-attempt)
 
 
 --
@@ -3835,7 +3855,7 @@ where was the event generated
 *`dbg.created`*::
 +
 --
-type: string
+type: date
 
 call entry creation timestamp
 
@@ -3845,9 +3865,109 @@ call entry creation timestamp
 *`dbg.call_start`*::
 +
 --
-type: string
+type: date
 
 call start timestamp
+
+
+--
+
+*`dbg.cseq`*::
++
+--
+type: string
+
+caller-callee request cseq value when the event was generated
+
+
+--
+
+*`dbg.rcseq`*::
++
+--
+type: string
+
+callee-caller reply cseq value when the event was generated
+
+
+--
+
+*`dbg.forked`*::
++
+--
+type: date
+
+time stamp when the call entry was forked, 0 otherwise
+
+
+--
+
+*`dbg.call_flags`*::
++
+--
+type: string
+
+internal call flags
+
+
+--
+
+*`dbg.req_no`*::
++
+--
+type: array
+
+non retransmissions requests seen in both directions
+
+
+--
+
+*`dbg.repl_no`*::
++
+--
+type: array
+
+non retransmissions replies seen in both directions
+
+
+--
+
+*`dbg.req_retr`*::
++
+--
+type: array
+
+request retransmissions seen in both directions
+
+
+--
+
+*`dbg.repl_retr`*::
++
+--
+type: array
+
+reply retransmissions seen in both directions
+
+
+--
+
+*`dbg.last_method`*::
++
+--
+type: string
+
+last message method seen, before the current one
+
+
+--
+
+*`dbg.last_status`*::
++
+--
+type: string
+
+last reply status seen, before the current one
 
 
 --

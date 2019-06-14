@@ -23,7 +23,7 @@
           - name: contact
             type: keyword
             description: >
-                TODO: contact uri or full contact
+                contact uri
           - name: sip_reason
             type: keyword
             description: >
@@ -36,7 +36,12 @@
           - name: terminator
             type: keyword
             description: >
-                who originated hangup
+                TODO: who originated hangup - values?, not supported yet
+          - name: unmatched_invite
+            type: boolean
+            description: >
+                added only for call-end if no INVITE was seen
+                (call-end generated on BYE, no call-start)
           - name: request
             type: group
             fields:
@@ -51,8 +56,13 @@
                 - name: status
                   type: keyword
                   description: >
-                      sip response status
+                      sip response status, added only for call-attempt
                   example: 200
+                - name: last
+                  type: keyword
+                  description: >
+                      sip response status, for the last response matching the
+                      call (added for every event, except call-attempt)
     - name: user_agent
       type: group
       fields:
@@ -153,12 +163,52 @@
             description: >
                 where was the event generated
           - name: created
-            type: string
+            type: date
             description: >
                 call entry creation timestamp
           - name: call_start
-            type: string
+            type: date
             description: >
                 call start timestamp
+          - name: cseq
+            type: string
+            description: >
+                caller-callee request cseq value when the event was generated
+          - name: rcseq
+            type: string
+            description: >
+                callee-caller reply cseq value when the event was generated
+          - name: forked
+            type: date
+            description: >
+                time stamp when the call entry was forked, 0 otherwise
+          - name: call_flags
+            type: string
+            description: >
+                internal call flags
+          - name: req_no
+            type: array
+            description: >
+                non retransmissions requests seen in both directions
+          - name: repl_no
+            type: array
+            description: >
+                non retransmissions replies seen in both directions
+          - name: req_retr
+            type: array
+            description: >
+                request retransmissions seen in both directions
+          - name: repl_retr
+            type: array
+            description: >
+                reply retransmissions seen in both directions
+          - name: last_method
+            type: string
+            description: >
+                last message method seen, before the current one
+          - name: last_status
+            type: string
+            description: >
+                last reply status seen, before the current one
 
 

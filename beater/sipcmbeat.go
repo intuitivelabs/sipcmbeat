@@ -277,7 +277,7 @@ func (bt *Sipcmbeat) publishEv(srcEv *calltr.EventData) {
 			//		str(ed.Attrs[i].Get(ed.Buf))
 		}
 	}
-	addFields(event.Fields, "sip.response.status", ed.ReplStatus)
+	// some fields are added only to some events: handle this below
 	switch ed.Type {
 	case calltr.EvCallEnd:
 		// add duration only on events that make sense, and only
@@ -291,7 +291,14 @@ func (bt *Sipcmbeat) publishEv(srcEv *calltr.EventData) {
 			addFields(event.Fields, "event.min_length",
 				ed.TS.Sub(sipcallmon.StartTS)/time.Second)
 		}
-	case calltr.EvRegDel, calltr.EvRegExpired:
+		if ed.ReplStatus == 0 {
+			// created by a BYE, no INVITE seen (no call-start)
+			addFields(event.Fields, "sip.unmatched_invite", true)
+		} else {
+			// for CallEnd we do not add sip.response.status
+			addFields(event.Fields, "sip.response.last", ed.ReplStatus)
+		}
+	case calltr.EvRegDel, calltr.EvRegExpired, calltr.EvSubDel:
 		// add duration only on events that make sense, and only
 		// if call-start is known. Use seconds.
 		if !ed.StartTS.IsZero() {
@@ -303,6 +310,11 @@ func (bt *Sipcmbeat) publishEv(srcEv *calltr.EventData) {
 			addFields(event.Fields, "event.min_lifetime",
 				ed.TS.Sub(sipcallmon.StartTS)/time.Second)
 		}
+		addFields(event.Fields, "sip.response.last", ed.ReplStatus)
+	case calltr.EvCallAttempt, calltr.EvCallStart, calltr.EvRegNew, calltr.EvSubNew:
+		addFields(event.Fields, "sip.response.status", ed.ReplStatus)
+	default:
+		addFields(event.Fields, "sip.response.last", ed.ReplStatus)
 	}
 	addFields(event.Fields, "event.call_start", ed.StartTS)
 	addFields(event.Fields, "client.transport", ed.ProtoF.ProtoName())
