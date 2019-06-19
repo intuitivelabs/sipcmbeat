@@ -2482,9 +2482,9 @@
             description: >
                 internal state
           - name: prev_state
-            type: keyword
+            type: string
             description: >
-                previous internal state
+                previous internal states
           - name: fromtag
             type: keyword
             description: >
@@ -2546,12 +2546,16 @@
             description: >
                 reply retransmissions seen in both directions
           - name: last_method
-            type: string
+            type: array
             description: >
                 last message method seen, before the current one
           - name: last_status
-            type: string
+            type: array
             description: >
                 last reply status seen, before the current one
+          - name: msg_trace
+            type: string
+            description: >
+                message trace (last messages seen)
 
 

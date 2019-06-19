@@ -3795,9 +3795,9 @@ internal state
 *`dbg.prev_state`*::
 +
 --
-type: keyword
+type: string
 
-previous internal state
+previous internal states
 
 
 --
@@ -3955,7 +3955,7 @@ reply retransmissions seen in both directions
 *`dbg.last_method`*::
 +
 --
-type: string
+type: array
 
 last message method seen, before the current one
 
@@ -3965,9 +3965,19 @@ last message method seen, before the current one
 *`dbg.last_status`*::
 +
 --
-type: string
+type: array
 
 last reply status seen, before the current one
+
+
+--
+
+*`dbg.msg_trace`*::
++
+--
+type: string
+
+message trace (last messages seen)
 
 
 --

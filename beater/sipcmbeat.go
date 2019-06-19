@@ -341,6 +341,7 @@ func (bt *Sipcmbeat) publishEv(srcEv *calltr.EventData) {
 	addFields(event.Fields, "dbg.repl_retr", ed.ReplsRetr)
 	addFields(event.Fields, "dbg.last_method", ed.LastMethod)
 	addFields(event.Fields, "dbg.last_status", ed.LastStatus)
+	addFields(event.Fields, "dbg.msg_trace", ed.LastMsgs.String())
 
 	bt.client.Publish(event)
 	stats.Inc(cntEvPub)
