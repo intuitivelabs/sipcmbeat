@@ -21,3 +21,4 @@ sipcmbeat:
   max_blocked_timeout: 5s
   event_buffer_size:  10240
   reg_delta: 0
+  contact_ignore_port: false
