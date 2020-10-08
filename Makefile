@@ -1,5 +1,5 @@
 BEAT_NAME=sipcmbeat
-BEAT_PATH=andrei/sipcmbeat
+BEAT_PATH=github.com/intuitivelabs/sipcmbeat
 BEAT_GOPATH=$(firstword $(subst :, ,${GOPATH}))
 SYSTEM_TESTS=false
 TEST_ENVIRONMENT=false

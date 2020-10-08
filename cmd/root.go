@@ -1,7 +1,7 @@
 package cmd
 
 import (
-	"andrei/sipcmbeat/beater"
+	"github.com/intuitivelabs/sipcmbeat/beater"
 
 	cmd "github.com/elastic/beats/libbeat/cmd"
 	"github.com/elastic/beats/libbeat/cmd/instance"

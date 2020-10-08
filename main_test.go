@@ -6,7 +6,7 @@ import (
 	"flag"
 	"testing"
 
-	"andrei/sipcmbeat/cmd"
+	"github.com/intuitivelabs/sipcmbeat/cmd"
 )
 
 var systemTest *bool

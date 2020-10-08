@@ -4,11 +4,11 @@ import (
 	//	"fmt"
 	"os"
 
-	//	"andrei/sipcallmon"
-	//	"andrei/sipcmbeat/beater"
-	"andrei/sipcmbeat/cmd"
+	// "github.com/intuitivelabs/sipcallmon"
+	//"github.com/intuitivelabs/sipcmbeat/beater"
+	"github.com/intuitivelabs/sipcmbeat/cmd"
 
-	_ "andrei/sipcmbeat/include"
+	_ "github.com/intuitivelabs/sipcmbeat/include"
 )
 
 func main() {
