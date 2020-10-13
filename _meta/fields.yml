@@ -139,7 +139,7 @@
             description: >
                 internal state
           - name: prev_state
-            type: string
+            type: keyword
             description: >
                 previous internal states
           - name: fromtag
@@ -171,11 +171,11 @@
             description: >
                 call start timestamp
           - name: cseq
-            type: string
+            type: keyword
             description: >
                 caller-callee request cseq value when the event was generated
           - name: rcseq
-            type: string
+            type: keyword
             description: >
                 callee-caller reply cseq value when the event was generated
           - name: forked
@@ -183,7 +183,7 @@
             description: >
                 time stamp when the call entry was forked, 0 otherwise
           - name: call_flags
-            type: string
+            type: keyword
             description: >
                 internal call flags
           - name: req_no
@@ -211,7 +211,7 @@
             description: >
                 last reply status seen, before the current one
           - name: msg_trace
-            type: string
+            type: keyword
             description: >
                 message trace (last messages seen)
 
