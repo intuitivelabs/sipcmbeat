@@ -6,6 +6,6 @@ REM
 REM After running this once you may invoke mage.exe directly.
 
 WHERE mage
-IF %ERRORLEVEL% NEQ 0 go install andrei/sipcmbeat/vendor/github.com/magefile/mage
+IF %ERRORLEVEL% NEQ 0 go install github/intuitivelabs/sipcmbeat/vendor/github.com/magefile/mage
 
 mage %*

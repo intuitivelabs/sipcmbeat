@@ -1,0 +1,24 @@
+################### Sipcmbeat Configuration Example #########################
+
+############################# Sipcmbeat ######################################
+
+sipcmbeat:
+  # Defines how often an event is sent to the output
+  verbose: false
+  pcap: ""
+  replay: false
+  replay_min_delay: 275ms
+  replay_max_delay: 0
+  replay_scale: 0
+  run_forever: false
+  iface: ""
+  bpf: ""
+  http_port: 0
+  http_addr: ""
+  tcp_gc_int: 20s
+  tcp_reorder_timeout: 60s
+  tcp_connection_timeout: 1800
+  max_blocked_timeout: 5s
+  event_buffer_size:  10240
+  reg_delta: 0
+  contact_ignore_port: false

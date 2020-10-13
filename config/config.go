@@ -1,5 +1,6 @@
 // Config is put into a different package to prevent cyclic imports in case
 // it is needed in several locations
+// FIXME: not used by sipcmbeat (it uses sipcallmon.Config)
 
 package config
 

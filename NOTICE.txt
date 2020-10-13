@@ -1,5 +1,5 @@
 sipcmbeat
-Copyright 2019 Firstname Lastname
+Copyright 2020 Intuitive Labs GmbH
 
 This product includes software developed by The Apache Software
 Foundation (http://www.apache.org/).
