@@ -1,5 +1,5 @@
-= Sipcmbeat Docs
+= {Beat} Docs
 
-Welcome to the Sipcmbeat documentation.
+Welcome to the {Beat} documentation.
 
 
