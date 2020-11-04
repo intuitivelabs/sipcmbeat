@@ -14,9 +14,9 @@ import (
 	"github.com/elastic/beats/v7/libbeat/common"
 	"github.com/elastic/beats/v7/libbeat/logp"
 
+	"github.com/intuitivelabs/calltr"
 	"github.com/intuitivelabs/counters"
 	"github.com/intuitivelabs/sipcallmon"
-	"github.com/intuitivelabs/sipsp/calltr"
 )
 
 /*

@@ -27,9 +27,11 @@ require (
 	github.com/elastic/go-sysinfo v1.4.0 // indirect
 	github.com/fatih/color v1.9.0 // indirect
 	github.com/go-sourcemap/sourcemap v2.1.3+incompatible // indirect
+	github.com/google/gopacket v1.1.19 // indirect
 	github.com/hashicorp/errwrap v1.1.0 // indirect
+	github.com/intuitivelabs/calltr v0.0.0-20201104161854-a13ecf91782b
 	github.com/intuitivelabs/counters v0.1.0
-	github.com/intuitivelabs/sipcallmon v0.6.12
+	github.com/intuitivelabs/sipcallmon v0.6.13-0.20201104162730-e5cda9449e1d
 	github.com/intuitivelabs/sipsp v1.0.0
 	github.com/josephspurrier/goversioninfo v1.2.0 // indirect
 	github.com/magefile/mage v1.10.0
@@ -50,7 +52,7 @@ require (
 	golang.org/x/crypto v0.0.0-20201012173705-84dcc777aaee // indirect
 	golang.org/x/lint v0.0.0-20200302205851-738671d3881b
 	golang.org/x/net v0.0.0-20201010224723-4f7140c49acb // indirect
-	golang.org/x/sys v0.0.0-20201009025420-dfb3f7c4e634 // indirect
+	golang.org/x/sys v0.0.0-20201101102859-da207088b7d1 // indirect
 	golang.org/x/tools v0.0.0-20201011145850-ed2f50202694
 	honnef.co/go/tools v0.0.1-2020.1.6 // indirect
 	howett.net/plist v0.0.0-20200419221736-3b63eb3a43b5 // indirect
