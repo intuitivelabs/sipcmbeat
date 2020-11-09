@@ -12,11 +12,19 @@ replace (
 	github.com/dop251/goja_nodejs => github.com/dop251/goja_nodejs v0.0.0-20171011081505-adff31b136e6
 	github.com/fsnotify/fsevents => github.com/elastic/fsevents v0.0.0-20181029231046-e1d381a4d270
 	github.com/fsnotify/fsnotify => github.com/adriansr/fsnotify v0.0.0-20180417234312-c9bbe1f46f1d
-	github.com/google/gopacket => github.com/adriansr/gopacket v1.1.18-0.20200327165309-dd62abfa8a41
 	github.com/insomniacslk/dhcp => github.com/elastic/dhcp v0.0.0-20200227161230-57ec251c7eb3 // indirect
 	github.com/tonistiigi/fifo => github.com/containerd/fifo v0.0.0-20190816180239-bda0ff6ed73c
 	golang.org/x/tools => golang.org/x/tools v0.0.0-20200602230032-c00d67ef29d0 // release 1.14
 )
+
+// NOTE: following replace recommended by beats, but breaks sipcallmon
+//       (pcap OpenLive timeout seems to be ignored or set to very small
+//        value => continuosly exiting pcap.ZeroCopyReadPacketData() and
+//       eating 100% CPU.
+//        github.com/google/gopacket seems more up-to-date
+//  TODO: more checking for the best  version
+// --andrei
+// replace github.com/google/gopacket => github.com/adriansr/gopacket v1.1.18
 
 require (
 	github.com/akavel/rsrc v0.9.0 // indirect
@@ -27,7 +35,7 @@ require (
 	github.com/elastic/go-sysinfo v1.4.0 // indirect
 	github.com/fatih/color v1.9.0 // indirect
 	github.com/go-sourcemap/sourcemap v2.1.3+incompatible // indirect
-	github.com/google/gopacket v1.1.19 // indirect
+	github.com/google/gopacket v1.1.18 // indirect
 	github.com/hashicorp/errwrap v1.1.0 // indirect
 	github.com/intuitivelabs/calltr v0.0.0-20201104161854-a13ecf91782b
 	github.com/intuitivelabs/counters v0.1.0
