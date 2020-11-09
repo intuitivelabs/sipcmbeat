@@ -5,13 +5,14 @@ import (
 
 	cmd "github.com/elastic/beats/v7/libbeat/cmd"
 	"github.com/elastic/beats/v7/libbeat/cmd/instance"
-	//	"github.com/intuitivelabs/sipcallmon"
+	"github.com/intuitivelabs/sipcallmon"
 )
 
 // Name of this beat
-var Name = "sipcmbeat"
+const Name = "sipcmbeat"
 
-var Version = "0.6.12"
+const Version = "0.6.13"
+const FullVer = Version + " sipcallmon " + sipcallmon.Version
 
 // RootCmd to handle beats cli
-var RootCmd = cmd.GenRootCmdWithSettings(beater.New, instance.Settings{Name: Name, Version: Version})
+var RootCmd = cmd.GenRootCmdWithSettings(beater.New, instance.Settings{Name: Name, Version: FullVer})
