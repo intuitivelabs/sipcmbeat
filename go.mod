@@ -1,6 +1,6 @@
 module github.com/intuitivelabs/sipcmbeat
 
-go 1.15
+go 1.13
 
 replace (
 	github.com/Azure/go-autorest => github.com/Azure/go-autorest v12.2.0+incompatible
@@ -35,12 +35,10 @@ require (
 	github.com/elastic/go-sysinfo v1.4.0 // indirect
 	github.com/fatih/color v1.9.0 // indirect
 	github.com/go-sourcemap/sourcemap v2.1.3+incompatible // indirect
-	github.com/google/gopacket v1.1.18 // indirect
 	github.com/hashicorp/errwrap v1.1.0 // indirect
-	github.com/intuitivelabs/calltr v0.0.0-20201104161854-a13ecf91782b
-	github.com/intuitivelabs/counters v0.1.0
-	github.com/intuitivelabs/sipcallmon v0.6.13-0.20201104162730-e5cda9449e1d
-	github.com/intuitivelabs/sipsp v1.0.0
+	github.com/intuitivelabs/calltr v1.0.1
+	github.com/intuitivelabs/counters v0.1.1
+	github.com/intuitivelabs/sipcallmon v0.6.13
 	github.com/josephspurrier/goversioninfo v1.2.0 // indirect
 	github.com/magefile/mage v1.10.0
 	github.com/mattn/go-colorable v0.1.8 // indirect
