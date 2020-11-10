@@ -1,0 +1,49 @@
+
+intuitivelabs packages that sipcmbeat depends on:
+
+sipcallmon (-> calltr, sipsp, counters, bytescase)
+calltr     (-> sipsp, bytescase)
+counters
+
+indirect:
+sipsp (-> bytescase)
+bytescase
+
+
+
+Recommended push new tags and update dependencies order:
+
+bytescase :   go build
+              git tag ... ; git push origin ...
+
+counters  :   go build
+              git tag ... ; git push origin ...
+
+sipsp    :    go get github.com/intuitivelabs/bytescase
+              go build
+              go mod tidy
+              git tag ... ; git push origin ...
+
+calltr   :    go get github.com/intuitivelabs/bytescase
+              go get github.com/intuitivelabs/sipsp
+              go build
+              go mod tidy
+              git tag ... ; git push origin ...
+
+sipcallmon :  go get github.com/intuitivelabs/bytescase
+              go get github.com/intuitivelabs/counters
+              go get github.com/intuitivelabs/sips
+              go get github.com/intuitivelabs/calltr
+              optional lastest gopacket: go get github.com/google/gopacket
+              go build
+              go mod tidy
+              git tag ... ; git push origin ...
+
+sipcmbeat :
+              go get github.com/intuitivelabs/counters
+              go get github.com/intuitivelabs/calltr
+              go get github.com/intuitivelabs/sipcallmon
+              go build
+              go mod tidy
+              git tag ... ; git push origin ...
+
