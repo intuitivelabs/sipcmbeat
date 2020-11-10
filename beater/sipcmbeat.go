@@ -317,7 +317,7 @@ func (bt *Sipcmbeat) publishEv(srcEv *calltr.EventData) {
 				ed.TS.Sub(sipcallmon.StartTS)/time.Second)
 		}
 		addFields(event.Fields, "sip.response.last", ed.ReplStatus)
-	case calltr.EvCallAttempt, calltr.EvCallStart, calltr.EvRegNew, calltr.EvSubNew:
+	case calltr.EvCallAttempt, calltr.EvCallStart, calltr.EvRegNew, calltr.EvSubNew, calltr.EvAuthFailed:
 		addFields(event.Fields, "sip.response.status", ed.ReplStatus)
 	default:
 		addFields(event.Fields, "sip.response.last", ed.ReplStatus)
