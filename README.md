@@ -116,6 +116,27 @@ To run sipcmbeat with debugging output enabled, run:
 ./sipcmbeat -c sipcmbeat.yml -e -d "*"
 ```
 
+To overwrite some config file settings from the command line use
+ -E sipcmbeat.\<option\_name\>, but make sure that the option is overwritten
+ adter loading the config file: all the -E must come in the command line
+ after -c config_file.yml.
+
+```
+./sipcmbeat -c sipcmbeat.yml -E sipcmbeat.event_buffer_size=1024
+```
+
+For replaying a pcap file, instead of live capture run:
+
+```
+./sipcmbeat -c sipcmbeat.yml ./sipcmbeat -c sipmcbeat_test.yml -E sipcmbeat.replay=true -E sipcmbeat.pcap="test.pcap" -E sipcmbeat.run_forever=true
+```
+
+To overwrite the output, writing the events to a file instead of sending
+ them to ES, use something like:
+
+```
+./sipcmbeat -c sipcmbeat.yml -E output.logstash.enabled=false -E output.file.enabled=true -E output.file.path="/tmp" -E output.file.filename="sipcmbeat_log" -E output.file.pretty=true
+```
 
 ### Test
 
