@@ -1,8 +1,8 @@
-// // Copyright 2019-2020 Intuitive Labs GmbH. All rights reserved.
-// //
-// // Use of this source code is governed by source-available license
-// // that can be found in the LICENSE file in the root of the source
-// // tree.
+// Copyright 2019-2020 Intuitive Labs GmbH. All rights reserved.
+//
+// Use of this source code is governed by a source-available license
+// that can be found in the INTUITIVE_LABS-LICENSE.txt file in the
+// root of the source tree.
 
 package beater
 
@@ -24,19 +24,6 @@ import (
 	"github.com/intuitivelabs/counters"
 	"github.com/intuitivelabs/sipcallmon"
 )
-
-/*
-type CounterIdx uint8
-
-const (
-	CntEvSkipped CounterIdx = iota
-	CntEvNil
-	CntEvSigs
-	CntLast
-)
-
-type counters []expvar.Int
-*/
 
 // stats
 var stats counters.Group
