@@ -90,7 +90,7 @@ func dbg_fileno() uintptr {
 
 // New creates an instance of sipcmbeat.
 func New(b *beat.Beat, cfg *common.Config) (beat.Beater, error) {
-	c := sipcallmon.DefaultConfig
+	c := sipcallmon.GetDefaultCfg()
 	if c.MaxBlockedTo > 5*time.Second {
 		c.MaxBlockedTo = 5 * time.Second // lower timeout to see Stop() sooner
 	}
