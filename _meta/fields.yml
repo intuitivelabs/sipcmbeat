@@ -131,6 +131,36 @@
             type: keyword
             description: >
                 dst port
+    - name: rate
+      type: group
+      fields:
+          - name: exceeded
+            type: long
+            description: >
+                how many events exceeded the rate limit, including this one
+          - name: crt
+            type: double
+            description: >
+                current rate for the events matching key (first exceeded
+                rate if exceeded is non zero or first non-zero rate if
+                exceeded is zero)
+          - name: lim
+            type: double
+            description: >
+                rate limit for the events matching key
+          - name: period
+            type: long
+            description: >
+                period on which the rate was calculated, in ms
+          - name: since
+            type: date
+            description: >
+                last state change time
+          - name: key
+            type: keyword
+            description: >
+                key used for rate computation (all events having the same
+                key will be used for computing the rate)
     - name: dbg
       type: group
       fields:
