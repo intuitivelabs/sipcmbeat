@@ -315,6 +315,16 @@ func (bt *Sipcmbeat) publishEv(srcEv *calltr.EventData) {
 	addFields(event.Fields, "client.port", ed.SPort)
 	addFields(event.Fields, "server.ip", ed.Dst)
 	addFields(event.Fields, "server.port", ed.DPort)
+	// rate
+	addFields(event.Fields, "rate.exceeded", ed.Rate.ExCnt)
+	addFields(event.Fields, "rate.crt", ed.Rate.Rate)
+	addFields(event.Fields, "rate.lim", ed.Rate.MaxR)
+	// rate.period is stored in milliseconds (epoch_millis)
+	addFields(event.Fields, "rate.period", ed.Rate.Intvl.Nanoseconds()/1000000)
+	addFields(event.Fields, "rate.since", ed.Rate.T)
+	addFields(event.Fields, "rate.key", ed.Type.String()+":"+ed.Src.String())
+
+	// dbg
 	addFields(event.Fields, "dbg.state", ed.State.String())
 	addFields(event.Fields, "dbg.prev_state", ed.PrevState.String())
 	addFields(event.Fields, "dbg.fromtag", str(ed.FromTag.Get(ed.Buf)))
