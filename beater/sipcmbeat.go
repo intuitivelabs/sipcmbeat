@@ -20,6 +20,7 @@ import (
 	"github.com/elastic/beats/v7/libbeat/common"
 	"github.com/elastic/beats/v7/libbeat/logp"
 
+	"github.com/intuitivelabs/anonymization"
 	"github.com/intuitivelabs/calltr"
 	"github.com/intuitivelabs/counters"
 	"github.com/intuitivelabs/sipcallmon"
@@ -315,9 +316,21 @@ func (bt *Sipcmbeat) publishEv(srcEv *calltr.EventData) {
 	}
 	addFields(event.Fields, "event.call_start", ed.StartTS)
 	addFields(event.Fields, "client.transport", ed.ProtoF.ProtoName())
-	addFields(event.Fields, "client.ip", ed.Src)
+	if c, err := anonymization.EncryptIP(bt.anonymKey, ed.Src); err != nil {
+		addFields(event.Fields, "client.ip", c[:])
+	} else {
+		logp.Err("ERROR: client.ip encryption failed: %s \n", err)
+		stats.Inc(cntEvErr)
+		return
+	}
 	addFields(event.Fields, "client.port", ed.SPort)
-	addFields(event.Fields, "server.ip", ed.Dst)
+	if c, err := anonymization.EncryptIP(bt.anonymKey, ed.Dst); err != nil {
+		addFields(event.Fields, "server.ip", c[:])
+	} else {
+		logp.Err("ERROR: server.ip encryption failed: %s \n", err)
+		stats.Inc(cntEvErr)
+		return
+	}
 	addFields(event.Fields, "server.port", ed.DPort)
 	addFields(event.Fields, "dbg.state", ed.State.String())
 	addFields(event.Fields, "dbg.prev_state", ed.PrevState.String())
