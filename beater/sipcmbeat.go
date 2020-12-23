@@ -70,13 +70,14 @@ func init() {
 
 // Sipcmbeat configuration.
 type Sipcmbeat struct {
-	done   chan struct{}
-	newEv  chan struct{}        // new events are signalled here
-	evIdx  sipcallmon.EvRingIdx // curent position in the ring
-	evRing *sipcallmon.EvRing
-	wg     *sync.WaitGroup
-	Config sipcallmon.Config
-	client beat.Client
+	done      chan struct{}
+	newEv     chan struct{}        // new events are signalled here
+	evIdx     sipcallmon.EvRingIdx // curent position in the ring
+	evRing    *sipcallmon.EvRing
+	wg        *sync.WaitGroup
+	Config    sipcallmon.Config
+	anonymKey [16]byte // key used for anonymization
+	client    beat.Client
 }
 
 /*
@@ -163,6 +164,9 @@ waitsig:
 			for bt.evIdx != last {
 				ev, nxtIdx, err := bt.evRing.Get(bt.evIdx)
 				if ev != nil {
+					if err := ev.EncryptIP(bt.anonymKey); err != nil {
+						fmt.Fprintf(os.Stderr, "could not anonymize IP address; error: %s\n", err)
+					}
 					bt.publishEv(ev)
 					bt.evRing.Put(bt.evIdx)
 					if stats.Get(cntEvNilConsec) != 0 {
