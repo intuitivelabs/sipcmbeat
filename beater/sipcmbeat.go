@@ -71,14 +71,14 @@ func init() {
 
 // Sipcmbeat configuration.
 type Sipcmbeat struct {
-	done      chan struct{}
-	newEv     chan struct{}        // new events are signalled here
-	evIdx     sipcallmon.EvRingIdx // curent position in the ring
-	evRing    *sipcallmon.EvRing
-	wg        *sync.WaitGroup
-	Config    sipcallmon.Config
-	anonymKey [16]byte // key used for anonymization
-	client    beat.Client
+	done   chan struct{}
+	newEv  chan struct{}        // new events are signalled here
+	evIdx  sipcallmon.EvRingIdx // curent position in the ring
+	evRing *sipcallmon.EvRing
+	wg     *sync.WaitGroup
+	Config sipcallmon.Config
+	encKey [16]byte // key used for anonymization/encryption
+	client beat.Client
 }
 
 /*
@@ -165,9 +165,6 @@ waitsig:
 			for bt.evIdx != last {
 				ev, nxtIdx, err := bt.evRing.Get(bt.evIdx)
 				if ev != nil {
-					if err := ev.EncryptIP(bt.anonymKey); err != nil {
-						fmt.Fprintf(os.Stderr, "could not anonymize IP address; error: %s\n", err)
-					}
 					bt.publishEv(ev)
 					bt.evRing.Put(bt.evIdx)
 					if stats.Get(cntEvNilConsec) != 0 {
@@ -316,7 +313,7 @@ func (bt *Sipcmbeat) publishEv(srcEv *calltr.EventData) {
 	}
 	addFields(event.Fields, "event.call_start", ed.StartTS)
 	addFields(event.Fields, "client.transport", ed.ProtoF.ProtoName())
-	if c, err := anonymization.EncryptIP(bt.anonymKey, ed.Src); err != nil {
+	if c, err := anonymization.EncryptIP(bt.encKey, ed.Src); err != nil {
 		addFields(event.Fields, "client.ip", c[:])
 	} else {
 		logp.Err("ERROR: client.ip encryption failed: %s \n", err)
@@ -324,7 +321,7 @@ func (bt *Sipcmbeat) publishEv(srcEv *calltr.EventData) {
 		return
 	}
 	addFields(event.Fields, "client.port", ed.SPort)
-	if c, err := anonymization.EncryptIP(bt.anonymKey, ed.Dst); err != nil {
+	if c, err := anonymization.EncryptIP(bt.encKey, ed.Dst); err != nil {
 		addFields(event.Fields, "server.ip", c[:])
 	} else {
 		logp.Err("ERROR: server.ip encryption failed: %s \n", err)
