@@ -11,6 +11,7 @@ import (
 	//	"strconv"
 	"os"
 	//	"runtime/pprof"
+	"crypto/subtle"
 	"strings"
 	"sync"
 	"time"
@@ -77,7 +78,7 @@ type Sipcmbeat struct {
 	evRing *sipcallmon.EvRing
 	wg     *sync.WaitGroup
 	Config sipcallmon.Config
-	encKey [16]byte // key used for anonymization/encryption
+	encKey [anonymization.EncryptionKeyLen]byte // key used for anonymization/encryption
 	client beat.Client
 }
 
@@ -89,6 +90,17 @@ func dbg_fileno() uintptr {
 	return fd
 }
 */
+
+func (bt *Sipcmbeat) initEncryption() {
+	if len(bt.Config.EncryptionPassphrase) > 0 {
+		// generate encryption key from passphrase
+		anonymization.GenerateKeyFromPassphraseAndCopy(bt.Config.EncryptionPassphrase, bt.encKey[:])
+	} else {
+		// copy the configured key into the one used during realtime processing
+		subtle.ConstantTimeCopy(1, bt.encKey[:], bt.Config.EncryptionKey[:])
+	}
+	return
+}
 
 // New creates an instance of sipcmbeat.
 func New(b *beat.Beat, cfg *common.Config) (beat.Beater, error) {
@@ -114,6 +126,7 @@ func New(b *beat.Beat, cfg *common.Config) (beat.Beater, error) {
 	bt.evRing = &sipcallmon.EventsRing
 	bt.evRing.Init(bt.Config.EvBufferSz)
 	bt.evRing.SetEvSignal(bt.newEv)
+	bt.initEncryption()
 	return bt, nil
 }
 

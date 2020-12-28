@@ -13,8 +13,9 @@ replace (
 	github.com/fsnotify/fsevents => github.com/elastic/fsevents v0.0.0-20181029231046-e1d381a4d270
 	github.com/fsnotify/fsnotify => github.com/adriansr/fsnotify v0.0.0-20180417234312-c9bbe1f46f1d
 	github.com/insomniacslk/dhcp => github.com/elastic/dhcp v0.0.0-20200227161230-57ec251c7eb3 // indirect
-	github.com/intuitivelabs/anonymization => github.com/intuitivelabs/anonymization v0.0.0-20201223212522-19b355f07be7
+	github.com/intuitivelabs/anonymization => github.com/intuitivelabs/anonymization v0.0.0-20201228200806-d8c4518904ea
 	github.com/intuitivelabs/calltr => github.com/intuitivelabs/calltr v1.0.2-0.20201223174449-4497f145578d
+	github.com/intuitivelabs/sipcallmon => github.com/intuitivelabs/sipcallmon v0.6.14-0.20201228202802-a0722266207b
 	github.com/tonistiigi/fifo => github.com/containerd/fifo v0.0.0-20190816180239-bda0ff6ed73c
 	golang.org/x/tools => golang.org/x/tools v0.0.0-20200602230032-c00d67ef29d0 // release 1.14
 )
@@ -58,7 +59,6 @@ require (
 	go.elastic.co/fastjson v1.1.0 // indirect
 	go.uber.org/multierr v1.6.0 // indirect
 	go.uber.org/zap v1.16.0 // indirect
-	golang.org/x/crypto v0.0.0-20201012173705-84dcc777aaee // indirect
 	golang.org/x/lint v0.0.0-20200302205851-738671d3881b
 	golang.org/x/net v0.0.0-20201010224723-4f7140c49acb // indirect
 	golang.org/x/sys v0.0.0-20201101102859-da207088b7d1 // indirect
