@@ -336,23 +336,27 @@ func (bt *Sipcmbeat) publishEv(srcEv *calltr.EventData) {
 	addFields(event.Fields, "event.call_start", ed.StartTS)
 	addFields(event.Fields, "client.transport", ed.ProtoF.ProtoName())
 	if bt.Config.UseIPAnonymization() {
-		if c, err := anonymization.EncryptIP(bt.encKey, ed.Src); err != nil {
+		if c, err := anonymization.EncryptIP(bt.encKey, ed.Src); err == nil {
 			addFields(event.Fields, "client.ip", c[:])
 		} else {
 			logp.Err("ERROR: client.ip encryption failed: %s \n", err)
 			stats.Inc(cntEvErr)
 			return
 		}
+	} else {
+		addFields(event.Fields, "client.ip", ed.Src)
 	}
 	addFields(event.Fields, "client.port", ed.SPort)
 	if bt.Config.UseIPAnonymization() {
-		if c, err := anonymization.EncryptIP(bt.encKey, ed.Dst); err != nil {
+		if c, err := anonymization.EncryptIP(bt.encKey, ed.Dst); err == nil {
 			addFields(event.Fields, "server.ip", c[:])
 		} else {
 			logp.Err("ERROR: server.ip encryption failed: %s \n", err)
 			stats.Inc(cntEvErr)
 			return
 		}
+	} else {
+		addFields(event.Fields, "server.ip", ed.Dst)
 	}
 	addFields(event.Fields, "server.port", ed.DPort)
 	addFields(event.Fields, "dbg.state", ed.State.String())

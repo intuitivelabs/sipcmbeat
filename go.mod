@@ -13,7 +13,7 @@ replace (
 	github.com/fsnotify/fsevents => github.com/elastic/fsevents v0.0.0-20181029231046-e1d381a4d270
 	github.com/fsnotify/fsnotify => github.com/adriansr/fsnotify v0.0.0-20180417234312-c9bbe1f46f1d
 	github.com/insomniacslk/dhcp => github.com/elastic/dhcp v0.0.0-20200227161230-57ec251c7eb3 // indirect
-	github.com/intuitivelabs/anonymization => github.com/intuitivelabs/anonymization v0.0.0-20210105185125-6eea31bf2104
+	github.com/intuitivelabs/anonymization => github.com/intuitivelabs/anonymization v0.0.0-20210105225511-a91c5e639b9a
 	github.com/intuitivelabs/calltr => github.com/intuitivelabs/calltr v1.0.2-0.20201223174449-4497f145578d
 	github.com/intuitivelabs/sipcallmon => github.com/intuitivelabs/sipcallmon v0.6.14-0.20210105171235-e2dbe7ca9463
 	github.com/tonistiigi/fifo => github.com/containerd/fifo v0.0.0-20190816180239-bda0ff6ed73c
