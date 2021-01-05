@@ -7,6 +7,7 @@
 package beater
 
 import (
+	"encoding/hex"
 	"fmt"
 	//	"strconv"
 	"os"
@@ -91,15 +92,19 @@ func dbg_fileno() uintptr {
 }
 */
 
-func (bt *Sipcmbeat) initEncryption() {
+func (bt *Sipcmbeat) initEncryption() error {
 	if len(bt.Config.EncryptionPassphrase) > 0 {
 		// generate encryption key from passphrase
 		anonymization.GenerateKeyFromPassphraseAndCopy(bt.Config.EncryptionPassphrase, bt.encKey[:])
 	} else {
 		// copy the configured key into the one used during realtime processing
-		subtle.ConstantTimeCopy(1, bt.encKey[:], bt.Config.EncryptionKey[:])
+		if decoded, err := hex.DecodeString(bt.Config.EncryptionKey); err != nil {
+			return err
+		} else {
+			subtle.ConstantTimeCopy(1, bt.encKey[:], decoded)
+		}
 	}
-	return
+	return nil
 }
 
 // New creates an instance of sipcmbeat.
@@ -126,7 +131,11 @@ func New(b *beat.Beat, cfg *common.Config) (beat.Beater, error) {
 	bt.evRing = &sipcallmon.EventsRing
 	bt.evRing.Init(bt.Config.EvBufferSz)
 	bt.evRing.SetEvSignal(bt.newEv)
-	bt.initEncryption()
+	if bt.Config.UseAnonymization() {
+		if err := bt.initEncryption(); err != nil {
+			return nil, fmt.Errorf("Invalid configuration for encryption: %v", err)
+		}
+	}
 	return bt, nil
 }
 
@@ -326,20 +335,24 @@ func (bt *Sipcmbeat) publishEv(srcEv *calltr.EventData) {
 	}
 	addFields(event.Fields, "event.call_start", ed.StartTS)
 	addFields(event.Fields, "client.transport", ed.ProtoF.ProtoName())
-	if c, err := anonymization.EncryptIP(bt.encKey, ed.Src); err != nil {
-		addFields(event.Fields, "client.ip", c[:])
-	} else {
-		logp.Err("ERROR: client.ip encryption failed: %s \n", err)
-		stats.Inc(cntEvErr)
-		return
+	if bt.Config.UseIPAnonymization() {
+		if c, err := anonymization.EncryptIP(bt.encKey, ed.Src); err != nil {
+			addFields(event.Fields, "client.ip", c[:])
+		} else {
+			logp.Err("ERROR: client.ip encryption failed: %s \n", err)
+			stats.Inc(cntEvErr)
+			return
+		}
 	}
 	addFields(event.Fields, "client.port", ed.SPort)
-	if c, err := anonymization.EncryptIP(bt.encKey, ed.Dst); err != nil {
-		addFields(event.Fields, "server.ip", c[:])
-	} else {
-		logp.Err("ERROR: server.ip encryption failed: %s \n", err)
-		stats.Inc(cntEvErr)
-		return
+	if bt.Config.UseIPAnonymization() {
+		if c, err := anonymization.EncryptIP(bt.encKey, ed.Dst); err != nil {
+			addFields(event.Fields, "server.ip", c[:])
+		} else {
+			logp.Err("ERROR: server.ip encryption failed: %s \n", err)
+			stats.Inc(cntEvErr)
+			return
+		}
 	}
 	addFields(event.Fields, "server.port", ed.DPort)
 	addFields(event.Fields, "dbg.state", ed.State.String())

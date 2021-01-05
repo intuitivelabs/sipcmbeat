@@ -15,7 +15,7 @@ replace (
 	github.com/insomniacslk/dhcp => github.com/elastic/dhcp v0.0.0-20200227161230-57ec251c7eb3 // indirect
 	github.com/intuitivelabs/anonymization => github.com/intuitivelabs/anonymization v0.0.0-20201228200806-d8c4518904ea
 	github.com/intuitivelabs/calltr => github.com/intuitivelabs/calltr v1.0.2-0.20201223174449-4497f145578d
-	github.com/intuitivelabs/sipcallmon => github.com/intuitivelabs/sipcallmon v0.6.14-0.20201228202802-a0722266207b
+	github.com/intuitivelabs/sipcallmon => github.com/intuitivelabs/sipcallmon v0.6.14-0.20210105171235-e2dbe7ca9463
 	github.com/tonistiigi/fifo => github.com/containerd/fifo v0.0.0-20190816180239-bda0ff6ed73c
 	golang.org/x/tools => golang.org/x/tools v0.0.0-20200602230032-c00d67ef29d0 // release 1.14
 )
