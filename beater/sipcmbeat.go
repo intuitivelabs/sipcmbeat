@@ -13,6 +13,7 @@ import (
 	"os"
 	//	"runtime/pprof"
 	"crypto/subtle"
+	"net"
 	"strings"
 	"sync"
 	"time"
@@ -73,14 +74,14 @@ func init() {
 
 // Sipcmbeat configuration.
 type Sipcmbeat struct {
-	done   chan struct{}
-	newEv  chan struct{}        // new events are signalled here
-	evIdx  sipcallmon.EvRingIdx // curent position in the ring
-	evRing *sipcallmon.EvRing
-	wg     *sync.WaitGroup
-	Config sipcallmon.Config
-	encKey [anonymization.EncryptionKeyLen]byte // key used for anonymization/encryption
-	client beat.Client
+	done     chan struct{}
+	newEv    chan struct{}        // new events are signalled here
+	evIdx    sipcallmon.EvRingIdx // curent position in the ring
+	evRing   *sipcallmon.EvRing
+	wg       *sync.WaitGroup
+	Config   sipcallmon.Config
+	ipcipher *anonymization.Ipcipher
+	client   beat.Client
 }
 
 /*
@@ -93,17 +94,26 @@ func dbg_fileno() uintptr {
 */
 
 func (bt *Sipcmbeat) initEncryption() error {
+	var key [16]byte
+
 	if len(bt.Config.EncryptionPassphrase) > 0 {
 		// generate encryption key from passphrase
-		anonymization.GenerateKeyFromPassphraseAndCopy(bt.Config.EncryptionPassphrase, bt.encKey[:])
+		anonymization.GenerateKeyFromPassphraseAndCopy(bt.Config.EncryptionPassphrase, key[:])
 	} else {
 		// copy the configured key into the one used during realtime processing
 		if decoded, err := hex.DecodeString(bt.Config.EncryptionKey); err != nil {
 			return err
 		} else {
-			subtle.ConstantTimeCopy(1, bt.encKey[:], decoded)
+			subtle.ConstantTimeCopy(1, key[:], decoded)
 		}
 	}
+
+	if ipcipher, err := anonymization.NewCipher(key[:]); err != nil {
+		return err
+	} else {
+		bt.ipcipher = ipcipher.(*anonymization.Ipcipher)
+	}
+
 	return nil
 }
 
@@ -336,25 +346,17 @@ func (bt *Sipcmbeat) publishEv(srcEv *calltr.EventData) {
 	addFields(event.Fields, "event.call_start", ed.StartTS)
 	addFields(event.Fields, "client.transport", ed.ProtoF.ProtoName())
 	if bt.Config.UseIPAnonymization() {
-		if c, err := anonymization.EncryptIP(bt.encKey, ed.Src); err == nil {
-			addFields(event.Fields, "client.ip", c[:])
-		} else {
-			logp.Err("ERROR: client.ip encryption failed: %s \n", err)
-			stats.Inc(cntEvErr)
-			return
-		}
+		c := make([]byte, len(ed.Src))
+		bt.ipcipher.Encrypt(c, ed.Src)
+		addFields(event.Fields, "client.ip", net.IP(c[:]))
 	} else {
 		addFields(event.Fields, "client.ip", ed.Src)
 	}
 	addFields(event.Fields, "client.port", ed.SPort)
 	if bt.Config.UseIPAnonymization() {
-		if c, err := anonymization.EncryptIP(bt.encKey, ed.Dst); err == nil {
-			addFields(event.Fields, "server.ip", c[:])
-		} else {
-			logp.Err("ERROR: server.ip encryption failed: %s \n", err)
-			stats.Inc(cntEvErr)
-			return
-		}
+		c := make([]byte, len(ed.Dst))
+		bt.ipcipher.Encrypt(c, ed.Dst)
+		addFields(event.Fields, "server.ip", net.IP(c[:]))
 	} else {
 		addFields(event.Fields, "server.ip", ed.Dst)
 	}

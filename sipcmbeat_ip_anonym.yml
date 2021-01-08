@@ -11,8 +11,8 @@ sipcmbeat:
   replay_max_delay: 0
   replay_scale: 0
   run_forever: false
-  iface: "any"
-  bpf: "udp"
+  #iface: "any"
+  #bpf: "udp"
   http_port: 8080
   http_addr: "127.0.0.1"
   tcp_gc_int: 20s
