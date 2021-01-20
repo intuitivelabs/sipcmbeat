@@ -183,15 +183,34 @@ waitsig:
 						// busy (written on), wait for it (next signal)
 						stats.Inc(cntEvBusy)
 						continue waitsig
-					case sipcallmon.ErrOutOfRange:
+					case sipcallmon.ErrOutOfRangeLow:
 						skipped := nxtIdx - bt.evIdx
 						fmt.Fprintf(os.Stderr, "WARNING: missed %d events"+
 							" (%d:%d:%d)\n",
 							skipped, bt.evIdx, last, bt.evRing.LastIdx())
 						stats.Add(cntEvSkipped, counters.Val(skipped))
+					case sipcallmon.ErrOutOfRangeHigh:
+						fmt.Fprintf(os.Stderr, "ERROR: ouf of range high:"+
+							" (%d:%d:%d, nxt: %d)\n",
+							bt.evIdx, last, bt.evRing.LastIdx(), nxtIdx)
+					case sipcallmon.ErrLast:
+						fmt.Fprintf(os.Stderr, "ERROR: ring end:"+
+							" (%d:%d:%d, nxt: %d)\n",
+							bt.evIdx, last, bt.evRing.LastIdx(), nxtIdx)
 					case sipcallmon.ErrInvalid:
 						// just ignore it
 						stats.Inc(cntEvInvalid)
+					default:
+						fmt.Fprintf(os.Stderr, "BUG: error %d not handled"+
+							" (%d:%d/%d, nxt: %d)\n",
+							err, bt.evIdx, last, bt.evRing.LastIdx(), nxtIdx)
+					}
+					if (bt.evIdx + 1) != nxtIdx {
+						// skipped some indexes, make sure last is updated
+						// (in case nxtIdx point past the original "last")
+						// Note:  could be moved to the above error checks
+						//        for ErrOutOfRangeHigh and ErrLast
+						last = bt.evRing.LastIdx()
 					}
 					bt.evIdx = nxtIdx
 				}

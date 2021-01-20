@@ -38,7 +38,7 @@ require (
 	github.com/hashicorp/errwrap v1.1.0 // indirect
 	github.com/intuitivelabs/calltr v1.0.1
 	github.com/intuitivelabs/counters v0.1.1
-	github.com/intuitivelabs/sipcallmon v0.6.13
+	github.com/intuitivelabs/sipcallmon v0.7.0
 	github.com/josephspurrier/goversioninfo v1.2.0 // indirect
 	github.com/magefile/mage v1.10.0
 	github.com/mattn/go-colorable v0.1.8 // indirect
