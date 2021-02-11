@@ -112,6 +112,11 @@ func New(b *beat.Beat, cfg *common.Config) (beat.Beater, error) {
 	bt.evRing = &sipcallmon.EventsRing
 	bt.evRing.Init(bt.Config.EvBufferSz)
 	bt.evRing.SetEvSignal(bt.newEv)
+
+	if err := sipcallmon.Init(&c); err != nil {
+		return nil, fmt.Errorf("sipcallmon: %v", err)
+	}
+
 	return bt, nil
 }
 
@@ -128,7 +133,10 @@ func (bt *Sipcmbeat) Run(b *beat.Beat) error {
 	//pprof.StartCPUProfile(f)
 	bt.wg.Add(1)
 	go bt.consumeEv()
-	sipcallmon.Run(&bt.Config)
+	err = sipcallmon.Run(&bt.Config)
+	if err != nil {
+		return err
+	}
 	//pprof.StopCPUProfile()
 	return nil
 }
