@@ -325,6 +325,7 @@ func (bt *Sipcmbeat) publishEv(srcEv *calltr.EventData) {
 	addFields(event.Fields, "server.port", ed.DPort)
 	// rate
 	addFields(event.Fields, "rate.exceeded", ed.Rate.ExCnt)
+	addFields(event.Fields, "rate.ex_diff", ed.Rate.ExCntDiff)
 	addFields(event.Fields, "rate.crt", ed.Rate.Rate)
 	addFields(event.Fields, "rate.lim", ed.Rate.MaxR)
 	// rate.period is stored in milliseconds (epoch_millis)

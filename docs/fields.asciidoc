@@ -7573,6 +7573,16 @@ type: long
 
 --
 
+*`rate.ex_diff`*::
++
+--
+difference in events exceeded the rate limit since last report
+
+
+type: long
+
+--
+
 *`rate.crt`*::
 +
 --
