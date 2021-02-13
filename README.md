@@ -143,6 +143,13 @@ To overwrite the output, writing the events to a file instead of sending
 
 * [Default Config](https://raw.githubusercontent.com/intuitivelabs/sipcmbeat/master/_meta/config/beat.reference.yml.tmpl)
 
+### Built-in Web Interface
+
+The built-in web interface runs by default on 127.0.0.1:8080. It can be
+ disabled by setting  http\_port to 0 in the config.
+
+Documentation for the web interface is available [here](https://github.com/intuitivelabs/sipcallmon/tree/master/cmd/sipcm#http-url-paths).
+
 ### Test
 
 To test sipcmbeat, run the following command:
