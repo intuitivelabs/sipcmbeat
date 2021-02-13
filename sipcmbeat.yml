@@ -3,28 +3,63 @@
 ############################# Sipcmbeat ######################################
 
 sipcmbeat:
-  # Defines how often an event is sent to the output
   verbose: false
+  # read packets from pcap files instead of the network
   pcap: ""
+  # replay packets from pcap keeping recorded delays between packets
+  # (at the recorded "speed").
   replay: false
+  # minimum delay when replaying pcaps, valid only in pcap replay mode
   replay_min_delay: 275ms
+  # maximum delay when replaying pcaps, valid only in pcap replay mode
   replay_max_delay: 0
+  # scale factor for inter packet delay intervals (0 means disabled)
   replay_scale: 0
+  # keep web server running after the pcap file was fully "replayed"
   run_forever: false
+  # interface to capture packets from
   iface: ""
+  # berkley packet filter for capture
   bpf: ""
+  # port for the internal http server, 0 == disable
   http_port: 8080
+  # listen address for the internal http server
   http_addr: "127.0.0.1"
+  # tcp connections garbage collection interval
   tcp_gc_int: 20s
   tcp_reorder_timeout: 60s
   tcp_connection_timeout: 1800s
   max_blocked_timeout: 5s
+  # how many events will be buffered
   event_buffer_size:  10240
-  reg_delta: 0
-  contact_ignore_port: false
-  event_rate_max_sz: 100000
+  # maximum tracked event rates
+  event_rate_max_sz: 1048576
+  # event rate max values list (if any exceeded the event will be blacklisted)
   event_rate_values: [20,240,3600]
+  # event rate max values corresponding intervals for the rate calculation
   event_rate_intervals: [1s,1m,1h]
+  # report blacklisted events only if the number of "repetitions" is a multiple
+  # of this value  and 2^k and n < evr_conseq_report_max
+  # To disable exponential back-off for the blacklist re-reporting, set the
+  # value to 0 or to evr_conseq_report_max.
+  evr_conseq_report_min: 100
+  # report blacklisted events only if the number of "repetitions" is a multiple
+  # of this value (use 0 to disable)
+  evr_conseq_report_max: 10000
+  # event rate periodic GC interval
+  evr_gc_interval: 10s
+  # event rate old age: non-blst. entries idle for more then this value
+  # will be GCed
+  evr_gc_old_age: 300s
+  # maximum runtime for each periodic GC run
+  evr_gc_max_run_time: 1s
+  # event rate periodic GC target: GC will stop if the number of
+  # remaining entries is less then this value
+  evr_gc_target: 10
+  # extra REGISTER expiration delta for absorbing delayed re-REGISTERs
+  reg_delta: 30s
+  # ignore port number when comparing contacts (but not AORs)
+  contact_ignore_port: false
 
 # ================================== General ===================================
 
