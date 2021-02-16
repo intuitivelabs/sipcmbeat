@@ -33,11 +33,13 @@ sipcmbeat:
   # how many events will be buffered
   event_buffer_size:  10240
   # maximum tracked event rates
-  event_rate_max_sz: 1048576
+  evr_max_entries: 1048576
   # event rate max values list (if any exceeded the event will be blacklisted)
-  event_rate_values: [20,240,3600]
-  # event rate max values corresponding intervals for the rate calculation
-  event_rate_intervals: [1s,1m,1h]
+  # 0 disables a rate (e.g. for 2 rates: [20,240,0])
+  evr_limits: [20,240,3600]
+  # event rate time intervals for the corresponding limits and also intervals
+  # on which the rates will be calculated (0 disables)
+  evr_intervals: [1s,1m,1h]
   # report blacklisted events only if the number of "repetitions" is a multiple
   # of this value  and 2^k and n < evr_conseq_report_max
   # To disable exponential back-off for the blacklist re-reporting, set the
