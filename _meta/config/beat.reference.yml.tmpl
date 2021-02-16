@@ -32,6 +32,10 @@ sipcmbeat:
   max_blocked_timeout: 5s
   # how many events will be buffered
   event_buffer_size:  10240
+  # list of event types that should be blacklisted : [ event1, event2...]
+  # e.g.: [[msg-probe, other-failed, other-timeout, other-ok, parse-error]
+  # blacklisted events will not be generated
+  event_types_blst: ["msg-probe", "other-failed", "other-timeout", "other-ok", "parse-error"]
   # maximum tracked event rates
   evr_max_entries: 1048576
   # event rate max values list (if any exceeded the event will be blacklisted)
