@@ -109,13 +109,12 @@ func New(b *beat.Beat, cfg *common.Config) (beat.Beater, error) {
 		Config: c,
 		wg:     &sync.WaitGroup{},
 	}
-	bt.evRing = &sipcallmon.EventsRing
-	bt.evRing.Init(bt.Config.EvBufferSz)
-	bt.evRing.SetEvSignal(bt.newEv)
 
-	if err := sipcallmon.Init(&c); err != nil {
+	if err := sipcallmon.Init(&bt.Config); err != nil {
 		return nil, fmt.Errorf("sipcallmon: %v", err)
 	}
+	bt.evRing = &sipcallmon.EventsRing
+	bt.evRing.SetEvSignal(bt.newEv)
 
 	return bt, nil
 }
