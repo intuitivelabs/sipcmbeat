@@ -11,6 +11,7 @@ import (
 	//	"strconv"
 	"os"
 	//	"runtime/pprof"
+	"reflect"
 	"strings"
 	"sync"
 	"time"
@@ -68,6 +69,53 @@ func init() {
 	}
 }
 
+// returns a list of all struct tags.
+// if no tag is found, the field name will be returned.
+// sub-structs tags will be of the form parent.child.tag1
+func getStructTags(t reflect.Type) []string {
+	if t.Kind() != reflect.Struct {
+		return nil
+	}
+	lst := make([]string, 0, 48)
+	for i := 0; i < t.NumField(); i++ {
+		f := t.Field(i)
+		tag := f.Tag.Get("config")
+		if len(tag) == 0 {
+			tag = f.Name
+		}
+		lst = append(lst, tag)
+		if f.Type.Kind() == reflect.Struct {
+			chldTags := getStructTags(f.Type)
+			for _, subtag := range chldTags {
+				lst = append(lst, tag+"."+subtag)
+			}
+		}
+	}
+	return lst
+}
+
+// check if all the options loaded from the configuration correspond
+// to defined config option.
+// Returns the first unknown option or "" if all are defined.
+func unknownCfgOption(cfg *common.Config) string {
+	cfgFlds := cfg.GetFields()
+	defFlds := getStructTags(reflect.TypeOf((*sipcallmon.Config)(nil)).Elem())
+	//fmt.Printf("DBG: loaded cfg fields(%d): %v\n", len(cfgFlds), cfgFlds)
+	//fmt.Printf("DBG: defined cfg fields(%d): %v\n", len(defFlds), defFlds)
+
+cfg_val_chk:
+	for _, o := range cfgFlds {
+		for _, d := range defFlds {
+			if o == d {
+				// found
+				continue cfg_val_chk
+			}
+		}
+		return o
+	}
+	return ""
+}
+
 // Sipcmbeat configuration.
 type Sipcmbeat struct {
 	done   chan struct{}
@@ -101,6 +149,10 @@ func New(b *beat.Beat, cfg *common.Config) (beat.Beater, error) {
 	}
 	if err := sipcallmon.CfgCheck(&c); err != nil && cfg != nil {
 		return nil, fmt.Errorf("Invalid Config: %v", err)
+	}
+
+	if o := unknownCfgOption(cfg); o != "" {
+		return nil, fmt.Errorf("Unknown config option: %q", o)
 	}
 
 	bt := &Sipcmbeat{
