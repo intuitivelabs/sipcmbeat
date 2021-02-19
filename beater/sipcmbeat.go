@@ -29,6 +29,19 @@ import (
 	"github.com/intuitivelabs/sipcallmon"
 )
 
+// FormatFlags defines event structure or field encoding flags.
+type FormatFlags uint8
+
+const FormatNoneF FormatFlags = iota
+
+// rest of the flags starting from 1
+const (
+	FormatCltIPencF = (FormatFlags)(1) << iota
+	FormatSrvIPencF
+	FormatCallIDencF
+	FormatURIencF
+)
+
 // stats
 var stats counters.Group
 
@@ -290,6 +303,7 @@ func (bt *Sipcmbeat) publishEv(srcEv *calltr.EventData) {
 			//		"sip.call_id": str(ed.CallID.Get(ed.Buf)),
 		},
 	}
+	var fFlags FormatFlags
 	addFields(event.Fields, "sip.call_id", str(ed.CallID.Get(ed.Buf)))
 	for i := 0; i < len(ed.Attrs); i++ {
 		if !ed.Attrs[i].Empty() {
@@ -349,6 +363,7 @@ func (bt *Sipcmbeat) publishEv(srcEv *calltr.EventData) {
 		c := make([]byte, len(ed.Src))
 		bt.ipcipher.Encrypt(c, ed.Src)
 		addFields(event.Fields, "client.ip", net.IP(c[:]))
+		fFlags |= FormatCltIPencF
 	} else {
 		addFields(event.Fields, "client.ip", ed.Src)
 	}
@@ -357,6 +372,7 @@ func (bt *Sipcmbeat) publishEv(srcEv *calltr.EventData) {
 		c := make([]byte, len(ed.Dst))
 		bt.ipcipher.Encrypt(c, ed.Dst)
 		addFields(event.Fields, "server.ip", net.IP(c[:]))
+		fFlags |= FormatSrvIPencF
 	} else {
 		addFields(event.Fields, "server.ip", ed.Dst)
 	}
@@ -381,6 +397,8 @@ func (bt *Sipcmbeat) publishEv(srcEv *calltr.EventData) {
 	addFields(event.Fields, "dbg.last_method", ed.LastMethod)
 	addFields(event.Fields, "dbg.last_status", ed.LastStatus)
 	addFields(event.Fields, "dbg.msg_trace", ed.LastMsgs.String())
+
+	addFields(event.Fields, "fflags", fFlags)
 
 	bt.client.Publish(event)
 	stats.Inc(cntEvPub)
