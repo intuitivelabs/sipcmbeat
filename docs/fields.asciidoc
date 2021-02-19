@@ -7563,6 +7563,77 @@ type: keyword
 --
 
 
+*`rate.exceeded`*::
++
+--
+how many events exceeded the rate limit, including this one
+
+
+type: long
+
+--
+
+*`rate.ex_diff`*::
++
+--
+difference in events exceeded the rate limit since last report
+
+
+type: long
+
+--
+
+*`rate.crt`*::
++
+--
+current rate for the events matching key (first exceeded rate if exceeded is non zero or first non-zero rate if exceeded is zero)
+
+
+type: double
+
+--
+
+*`rate.lim`*::
++
+--
+rate limit for the events matching key
+
+
+type: double
+
+--
+
+*`rate.period`*::
++
+--
+period on which the rate was calculated, in ms
+
+
+type: long
+
+--
+
+*`rate.since`*::
++
+--
+last state change time
+
+
+type: date
+
+--
+
+*`rate.key`*::
++
+--
+key used for rate computation (all events having the same key will be used for computing the rate)
+
+
+type: keyword
+
+--
+
+
 *`dbg.state`*::
 +
 --

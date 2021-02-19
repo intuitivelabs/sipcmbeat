@@ -90,7 +90,7 @@ func dbg_fileno() uintptr {
 
 // New creates an instance of sipcmbeat.
 func New(b *beat.Beat, cfg *common.Config) (beat.Beater, error) {
-	c := sipcallmon.DefaultConfig
+	c := sipcallmon.GetDefaultCfg()
 	if c.MaxBlockedTo > 5*time.Second {
 		c.MaxBlockedTo = 5 * time.Second // lower timeout to see Stop() sooner
 	}
@@ -112,6 +112,11 @@ func New(b *beat.Beat, cfg *common.Config) (beat.Beater, error) {
 	bt.evRing = &sipcallmon.EventsRing
 	bt.evRing.Init(bt.Config.EvBufferSz)
 	bt.evRing.SetEvSignal(bt.newEv)
+
+	if err := sipcallmon.Init(&c); err != nil {
+		return nil, fmt.Errorf("sipcallmon: %v", err)
+	}
+
 	return bt, nil
 }
 
@@ -128,7 +133,10 @@ func (bt *Sipcmbeat) Run(b *beat.Beat) error {
 	//pprof.StartCPUProfile(f)
 	bt.wg.Add(1)
 	go bt.consumeEv()
-	sipcallmon.Run(&bt.Config)
+	err = sipcallmon.Run(&bt.Config)
+	if err != nil {
+		return err
+	}
 	//pprof.StopCPUProfile()
 	return nil
 }
@@ -334,6 +342,17 @@ func (bt *Sipcmbeat) publishEv(srcEv *calltr.EventData) {
 	addFields(event.Fields, "client.port", ed.SPort)
 	addFields(event.Fields, "server.ip", ed.Dst)
 	addFields(event.Fields, "server.port", ed.DPort)
+	// rate
+	addFields(event.Fields, "rate.exceeded", ed.Rate.ExCnt)
+	addFields(event.Fields, "rate.ex_diff", ed.Rate.ExCntDiff)
+	addFields(event.Fields, "rate.crt", ed.Rate.Rate)
+	addFields(event.Fields, "rate.lim", ed.Rate.MaxR)
+	// rate.period is stored in milliseconds (epoch_millis)
+	addFields(event.Fields, "rate.period", ed.Rate.Intvl.Nanoseconds()/1000000)
+	addFields(event.Fields, "rate.since", ed.Rate.T)
+	addFields(event.Fields, "rate.key", ed.Type.String()+":"+ed.Src.String())
+
+	// dbg
 	addFields(event.Fields, "dbg.state", ed.State.String())
 	addFields(event.Fields, "dbg.prev_state", ed.PrevState.String())
 	addFields(event.Fields, "dbg.fromtag", str(ed.FromTag.Get(ed.Buf)))

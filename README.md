@@ -29,6 +29,7 @@ reliability handling. The following events are available:
   (the initial 401/407 without credentials doesn't count, only
    the subsequent request does)
 
+The event fields are documented [here](https://github.com/intuitivelabs/sipcmbeat/blob/master/docs/fields.asciidoc#sipcmbeat-fields).
 
 # Known limitations
 
@@ -89,14 +90,14 @@ contributions are welcome and subject to Contributor Licence
 Agreement (CLA).
 
 
-## Getting Started with sipcmbeat
+# Getting Started with sipcmbeat
 
 Ensure that this folder is at the following location:
 `${GOPATH}/src/github.com/intuitivelabs/sipcmbeat/`
 
 ### Requirements
 
-* [Golang](https://golang.org/dl/) 1.13
+* [Golang](https://golang.org/dl/) 1.15
 
 ### Build
 
@@ -137,6 +138,17 @@ To overwrite the output, writing the events to a file instead of sending
 ```
 ./sipcmbeat -c sipcmbeat.yml -E output.logstash.enabled=false -E output.file.enabled=true -E output.file.path="/tmp" -E output.file.filename="sipcmbeat_log" -E output.file.pretty=true
 ```
+
+### Config
+
+* [Default Config](https://raw.githubusercontent.com/intuitivelabs/sipcmbeat/master/_meta/config/beat.reference.yml.tmpl)
+
+### Built-in Web Interface
+
+The built-in web interface runs by default on 127.0.0.1:8080. It can be
+ disabled by setting  http\_port to 0 in the config.
+
+Documentation for the web interface is available [here](https://github.com/intuitivelabs/sipcallmon/tree/master/cmd/sipcm#http-url-paths).
 
 ### Test
 
