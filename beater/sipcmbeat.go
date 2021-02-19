@@ -7,10 +7,13 @@
 package beater
 
 import (
+	"encoding/hex"
 	"fmt"
 	//	"strconv"
 	"os"
 	//	"runtime/pprof"
+	"crypto/subtle"
+	"net"
 	"reflect"
 	"strings"
 	"sync"
@@ -21,9 +24,23 @@ import (
 	"github.com/elastic/beats/v7/libbeat/common"
 	"github.com/elastic/beats/v7/libbeat/logp"
 
+	"github.com/intuitivelabs/anonymization"
 	"github.com/intuitivelabs/calltr"
 	"github.com/intuitivelabs/counters"
 	"github.com/intuitivelabs/sipcallmon"
+)
+
+// FormatFlags defines event structure or field encoding flags.
+type FormatFlags uint8
+
+const FormatNoneF FormatFlags = iota
+
+// rest of the flags starting from 1
+const (
+	FormatCltIPencF = (FormatFlags)(1) << iota
+	FormatSrvIPencF
+	FormatCallIDencF
+	FormatURIencF
 )
 
 // stats
@@ -118,13 +135,14 @@ cfg_val_chk:
 
 // Sipcmbeat configuration.
 type Sipcmbeat struct {
-	done   chan struct{}
-	newEv  chan struct{}        // new events are signalled here
-	evIdx  sipcallmon.EvRingIdx // curent position in the ring
-	evRing *sipcallmon.EvRing
-	wg     *sync.WaitGroup
-	Config sipcallmon.Config
-	client beat.Client
+	done     chan struct{}
+	newEv    chan struct{}        // new events are signalled here
+	evIdx    sipcallmon.EvRingIdx // curent position in the ring
+	evRing   *sipcallmon.EvRing
+	wg       *sync.WaitGroup
+	Config   sipcallmon.Config
+	ipcipher *anonymization.Ipcipher
+	client   beat.Client
 }
 
 /*
@@ -135,6 +153,30 @@ func dbg_fileno() uintptr {
 	return fd
 }
 */
+
+func (bt *Sipcmbeat) initEncryption() error {
+	var key [16]byte
+
+	if len(bt.Config.EncryptionPassphrase) > 0 {
+		// generate encryption key from passphrase
+		anonymization.GenerateKeyFromPassphraseAndCopy(bt.Config.EncryptionPassphrase, key[:])
+	} else {
+		// copy the configured key into the one used during realtime processing
+		if decoded, err := hex.DecodeString(bt.Config.EncryptionKey); err != nil {
+			return err
+		} else {
+			subtle.ConstantTimeCopy(1, key[:], decoded)
+		}
+	}
+
+	if ipcipher, err := anonymization.NewCipher(key[:]); err != nil {
+		return err
+	} else {
+		bt.ipcipher = ipcipher.(*anonymization.Ipcipher)
+	}
+
+	return nil
+}
 
 // New creates an instance of sipcmbeat.
 func New(b *beat.Beat, cfg *common.Config) (beat.Beater, error) {
@@ -167,7 +209,11 @@ func New(b *beat.Beat, cfg *common.Config) (beat.Beater, error) {
 	}
 	bt.evRing = &sipcallmon.EventsRing
 	bt.evRing.SetEvSignal(bt.newEv)
-
+	if bt.Config.UseAnonymization() {
+		if err := bt.initEncryption(); err != nil {
+			return nil, fmt.Errorf("Invalid configuration for encryption: %v", err)
+		}
+	}
 	return bt, nil
 }
 
@@ -334,6 +380,7 @@ func (bt *Sipcmbeat) publishEv(srcEv *calltr.EventData) {
 			//		"sip.call_id": str(ed.CallID.Get(ed.Buf)),
 		},
 	}
+	var fFlags FormatFlags
 	addFields(event.Fields, "sip.call_id", str(ed.CallID.Get(ed.Buf)))
 	for i := 0; i < len(ed.Attrs); i++ {
 		if !ed.Attrs[i].Empty() {
@@ -389,9 +436,23 @@ func (bt *Sipcmbeat) publishEv(srcEv *calltr.EventData) {
 	}
 	addFields(event.Fields, "event.call_start", ed.StartTS)
 	addFields(event.Fields, "client.transport", ed.ProtoF.ProtoName())
-	addFields(event.Fields, "client.ip", ed.Src)
+	if bt.Config.UseIPAnonymization() {
+		c := make([]byte, len(ed.Src))
+		bt.ipcipher.Encrypt(c, ed.Src)
+		addFields(event.Fields, "client.ip", net.IP(c[:]))
+		fFlags |= FormatCltIPencF
+	} else {
+		addFields(event.Fields, "client.ip", ed.Src)
+	}
 	addFields(event.Fields, "client.port", ed.SPort)
-	addFields(event.Fields, "server.ip", ed.Dst)
+	if bt.Config.UseIPAnonymization() {
+		c := make([]byte, len(ed.Dst))
+		bt.ipcipher.Encrypt(c, ed.Dst)
+		addFields(event.Fields, "server.ip", net.IP(c[:]))
+		fFlags |= FormatSrvIPencF
+	} else {
+		addFields(event.Fields, "server.ip", ed.Dst)
+	}
 	addFields(event.Fields, "server.port", ed.DPort)
 	// rate
 	addFields(event.Fields, "rate.exceeded", ed.Rate.ExCnt)
@@ -424,6 +485,8 @@ func (bt *Sipcmbeat) publishEv(srcEv *calltr.EventData) {
 	addFields(event.Fields, "dbg.last_method", ed.LastMethod)
 	addFields(event.Fields, "dbg.last_status", ed.LastStatus)
 	addFields(event.Fields, "dbg.msg_trace", ed.LastMsgs.String())
+
+	addFields(event.Fields, "fflags", fFlags)
 
 	bt.client.Publish(event)
 	stats.Inc(cntEvPub)

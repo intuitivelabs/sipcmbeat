@@ -5156,6 +5156,13 @@
       description: >
           Event Type
       example: call-start
+    - name: fflags
+      type: long
+      description: >
+          Event structure and field encoding flags.
+          (0 for default, 1 encrypted client IP, 2 encrypted server IP,
+           4 encrypted CallID, 8 encrypted URIs)
+      example: 3  (encrypted client and server IPs)
     - name: sip
       type: group
       fields:

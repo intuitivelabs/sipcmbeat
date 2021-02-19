@@ -14,7 +14,7 @@ replace (
 	github.com/fsnotify/fsnotify => github.com/adriansr/fsnotify v0.0.0-20180417234312-c9bbe1f46f1d
 	github.com/insomniacslk/dhcp => github.com/elastic/dhcp v0.0.0-20200227161230-57ec251c7eb3 // indirect
 	github.com/tonistiigi/fifo => github.com/containerd/fifo v0.0.0-20190816180239-bda0ff6ed73c
-	golang.org/x/tools => golang.org/x/tools v0.0.0-20200602230032-c00d67ef29d0 // release 1.14
+//	golang.org/x/tools => golang.org/x/tools v0.0.0-20200602230032-c00d67ef29d0 // release 1.14
 )
 
 // NOTE: following replace recommended by beats, but breaks sipcallmon
@@ -36,6 +36,7 @@ require (
 	github.com/fatih/color v1.9.0 // indirect
 	github.com/go-sourcemap/sourcemap v2.1.3+incompatible // indirect
 	github.com/hashicorp/errwrap v1.1.0 // indirect
+	github.com/intuitivelabs/anonymization v1.0.2-0.20210219131702-0bfe8cdc045c
 	github.com/intuitivelabs/calltr v1.0.2-0.20210219152042-567985e89d34
 	github.com/intuitivelabs/counters v0.1.2-0.20210216181413-f773d9188db7
 	github.com/intuitivelabs/sipcallmon v0.7.1-0.20210219153526-d55b663146b5
@@ -55,11 +56,9 @@ require (
 	go.elastic.co/fastjson v1.1.0 // indirect
 	go.uber.org/multierr v1.6.0 // indirect
 	go.uber.org/zap v1.16.0 // indirect
-	golang.org/x/crypto v0.0.0-20201012173705-84dcc777aaee // indirect
 	golang.org/x/lint v0.0.0-20200302205851-738671d3881b
-	golang.org/x/net v0.0.0-20201010224723-4f7140c49acb // indirect
 	golang.org/x/sys v0.0.0-20201101102859-da207088b7d1 // indirect
-	golang.org/x/tools v0.0.0-20201011145850-ed2f50202694
+	golang.org/x/tools v0.0.0-20201218024724-ae774e9781d2
 	honnef.co/go/tools v0.0.1-2020.1.6 // indirect
 	howett.net/plist v0.0.0-20200419221736-3b63eb3a43b5 // indirect
 )
