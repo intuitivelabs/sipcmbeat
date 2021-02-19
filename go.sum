@@ -416,8 +416,8 @@ github.com/intuitivelabs/calltr v1.0.2-0.20210219152042-567985e89d34 h1:eDwVN79b
 github.com/intuitivelabs/calltr v1.0.2-0.20210219152042-567985e89d34/go.mod h1:qBLcsbhXihgAJkGuIpe0sOvZoj5eQACF8oPtfQjW4fM=
 github.com/intuitivelabs/counters v0.1.2-0.20210216181413-f773d9188db7 h1:M8DerTOMNz/vq5vDmcbf6LSFGF2yQC4YdSeKzH6CKoI=
 github.com/intuitivelabs/counters v0.1.2-0.20210216181413-f773d9188db7/go.mod h1:gg2mPscHiatkLfDWF7bSuUeHcmsiTazGQx1pW62uJ0w=
-github.com/intuitivelabs/sipcallmon v0.7.1-0.20210219152628-3abcdfd509c2 h1:j4knNYZTNQVUIf5F1J9tp8ayH0A6sdc6nirBX2PZPpc=
-github.com/intuitivelabs/sipcallmon v0.7.1-0.20210219152628-3abcdfd509c2/go.mod h1:MoBJuHxg+B8FRKmsL2sWHlxf4WrvydPK9X4T78ksa4A=
+github.com/intuitivelabs/sipcallmon v0.7.1-0.20210219153526-d55b663146b5 h1:tAF/I+PE2KhBxSqWgeFmo7WWTLYyTCLaSdqo+O2DUyw=
+github.com/intuitivelabs/sipcallmon v0.7.1-0.20210219153526-d55b663146b5/go.mod h1:MoBJuHxg+B8FRKmsL2sWHlxf4WrvydPK9X4T78ksa4A=
 github.com/intuitivelabs/sipsp v1.0.2-0.20201123190413-cdee4299e270 h1:/xDI2e4acDwU7Fzto31gktlC2qe3BghHwOYxwIMA/9Y=
 github.com/intuitivelabs/sipsp v1.0.2-0.20201123190413-cdee4299e270/go.mod h1:cQ5p5hsd+DeKu1XbCH7f7NN5wH2b8SOwuJBfk6VC0ms=
 github.com/jcmturner/gofork v1.0.0 h1:J7uCkflzTEhUZ64xqKnkDxq3kzc96ajM1Gli5ktUem8=
