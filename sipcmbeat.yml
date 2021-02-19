@@ -22,6 +22,24 @@ sipcmbeat:
   event_buffer_size:  10240
   reg_delta: 0
   contact_ignore_port: false
+  # set the encryption passphares (default empty), from which the
+  # encryption key will be derived.
+  # e.g.:  encryption_passphrase: "foobar"
+  # Note that only one of encryption_passphrase or encryption_key must be set.
+  encryption_passphrase: ""
+  # set encryption key (hex string, default empty)
+  # e.g. encryption_key: "000102030405060708090a0b0c0d0e0f"
+  # Note that only one of encryption_passphrase or encryption_key must be set.
+  encryption_key: ""
+  # turn on/off ip address encryption, default off
+  # (requires a set encryption_passphrase or encryption_key)
+  encrypt_ip_addresses: false
+  # turn on/off URIs encryption, default off
+  # (requires a set encryption_passphrase or encryption_key)
+  encrypt_uris: false
+  # turn on/off CallID encryption, default off
+  # (requires a set encryption_passphrase or encryption_key)
+  encrypt_call_ids: false
 
 # ================================== General ===================================
 
