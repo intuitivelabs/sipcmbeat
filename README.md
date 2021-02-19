@@ -28,6 +28,18 @@ reliability handling. The following events are available:
 - **auth-failed** -- a SIP request failed to authentication
   (the initial 401/407 without credentials doesn't count, only
    the subsequent request does)
+- **other-failed** -- a non-INVITE not covered by any of the above events,
+ failed with a negative reply
+- **other-timeout** - a non-INVITE not covered by any of the above events,
+ failed due to timeout (no final reply received)
+- **other-ok** - a non-INVITE not covered by any of the above events, succeeded
+ (2xx reply)
+- **parse-error** - a potential SIP message could not be parsed
+- **msg-probe** - non-SIP message (too small or starting with non-ASCII)
+
+Note that generation of any of the above events can be disabled via the config
+ file (e.g. ```event_types_blst: ["msg-probe"]```) or at runtime (e.g.
+ ```http://127.0.0.1:8080/events/blst```).
 
 The event fields are documented [here](https://github.com/intuitivelabs/sipcmbeat/blob/master/docs/fields.asciidoc#sipcmbeat-fields).
 

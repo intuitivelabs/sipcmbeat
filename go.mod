@@ -36,11 +36,11 @@ require (
 	github.com/fatih/color v1.9.0 // indirect
 	github.com/go-sourcemap/sourcemap v2.1.3+incompatible // indirect
 	github.com/hashicorp/errwrap v1.1.0 // indirect
-	github.com/intuitivelabs/calltr v1.0.2-0.20210219150139-06222a39a654
+	github.com/intuitivelabs/calltr v1.0.2-0.20210219152042-567985e89d34
 	github.com/intuitivelabs/counters v0.1.2-0.20210216181413-f773d9188db7
-	github.com/intuitivelabs/sipcallmon v0.7.1-0.20210219150920-f9da0fbbd091
+	github.com/intuitivelabs/sipcallmon v0.7.1-0.20210219152628-3abcdfd509c2
 	github.com/josephspurrier/goversioninfo v1.2.0 // indirect
-	github.com/magefile/mage v1.10.0
+	github.com/magefile/mage v1.11.0
 	github.com/mattn/go-colorable v0.1.8 // indirect
 	github.com/mitchellh/gox v1.0.1
 	github.com/mitchellh/hashstructure v1.0.0 // indirect
