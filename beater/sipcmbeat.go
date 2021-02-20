@@ -24,6 +24,8 @@ import (
 	"github.com/elastic/beats/v7/libbeat/common"
 	"github.com/elastic/beats/v7/libbeat/logp"
 
+	"github.com/pkg/errors"
+
 	"github.com/intuitivelabs/anonymization"
 	"github.com/intuitivelabs/calltr"
 	"github.com/intuitivelabs/counters"
@@ -43,47 +45,17 @@ const (
 	FormatURIencF
 )
 
-// stats
-var stats counters.Group
-
-var cntEvPub counters.Handle
-var cntEvSkipped counters.Handle
-var cntEvBusy counters.Handle
-var cntEvInvalid counters.Handle
-var cntEvNilTotal counters.Handle
-var cntEvNilConsec counters.Handle
-var cntEvSigs counters.Handle
-var cntEvTrunc counters.Handle
-var cntEvErr counters.Handle
-var cntEvMaxQ counters.Handle
-
-func init() {
-	cntDefs := [...]counters.Def{
-		{&cntEvPub, 0, nil, nil, "published",
-			"events sent/published"},
-		{&cntEvSkipped, 0, nil, nil, "skipped",
-			"events skipped due to slow output"},
-		{&cntEvBusy, 0, nil, nil, "busy",
-			"busy event entries"},
-		{&cntEvInvalid, 0, nil, nil, "invalid",
-			"invalid events entries, skipped"},
-		{&cntEvNilTotal, 0, nil, nil, "nil_total",
-			"emtpy events received (debugging)"},
-		{&cntEvNilConsec, counters.CntMaxF, nil, nil, "nil_crt",
-			"emtpy events received consecutively (debugging)"},
-		{&cntEvSigs, 0, nil, nil, "signals",
-			"new events signals received"},
-		{&cntEvTrunc, 0, nil, nil, "truncated",
-			"truncated event"},
-		{&cntEvErr, 0, nil, nil, "error",
-			"error preparing to send event"},
-		{&cntEvMaxQ, 0, nil, nil, "max_queued",
-			"maximum number of queued events"},
-	}
-	stats.Init("events", nil, len(cntDefs))
-	if !stats.RegisterDefs(cntDefs[:]) {
-		panic("failed to register stat counters")
-	}
+type statCounters struct {
+	EvPub       counters.Handle
+	EvSkipped   counters.Handle
+	EvBusy      counters.Handle
+	EvInvalid   counters.Handle
+	EvNilTotal  counters.Handle
+	EvNilConsec counters.Handle
+	EvSigs      counters.Handle
+	EvTrunc     counters.Handle
+	EvErr       counters.Handle
+	EvMaxQ      counters.Handle
 }
 
 // returns a list of all struct tags.
@@ -143,6 +115,9 @@ type Sipcmbeat struct {
 	Config   sipcallmon.Config
 	ipcipher *anonymization.Ipcipher
 	client   beat.Client
+	// stats
+	stats counters.Group
+	cnts  statCounters
 }
 
 /*
@@ -153,6 +128,35 @@ func dbg_fileno() uintptr {
 	return fd
 }
 */
+func (bt *Sipcmbeat) initCounters() error {
+	cntDefs := [...]counters.Def{
+		{&bt.cnts.EvPub, 0, nil, nil, "published",
+			"events sent/published"},
+		{&bt.cnts.EvSkipped, 0, nil, nil, "skipped",
+			"events skipped due to slow output"},
+		{&bt.cnts.EvBusy, 0, nil, nil, "busy",
+			"busy event entries"},
+		{&bt.cnts.EvInvalid, 0, nil, nil, "invalid",
+			"invalid events entries, skipped"},
+		{&bt.cnts.EvNilTotal, 0, nil, nil, "nil_total",
+			"emtpy events received (debugging)"},
+		{&bt.cnts.EvNilConsec, counters.CntMaxF, nil, nil, "nil_crt",
+			"emtpy events received consecutively (debugging)"},
+		{&bt.cnts.EvSigs, 0, nil, nil, "signals",
+			"new events signals received"},
+		{&bt.cnts.EvTrunc, 0, nil, nil, "truncated",
+			"truncated event"},
+		{&bt.cnts.EvErr, 0, nil, nil, "error",
+			"error preparing to send event"},
+		{&bt.cnts.EvMaxQ, 0, nil, nil, "max_queued",
+			"maximum number of queued events"},
+	}
+	bt.stats.Init("events", nil, len(cntDefs))
+	if !bt.stats.RegisterDefs(cntDefs[:]) {
+		return errors.New("initCounters: failed to register stat counters")
+	}
+	return nil
+}
 
 func (bt *Sipcmbeat) initEncryption() error {
 	var key [16]byte
@@ -214,6 +218,9 @@ func New(b *beat.Beat, cfg *common.Config) (beat.Beater, error) {
 			return nil, fmt.Errorf("Invalid configuration for encryption: %v", err)
 		}
 	}
+	if err := bt.initCounters(); err != nil {
+		return nil, errors.WithMessage(err, "sipcmbeat.New")
+	}
 	return bt, nil
 }
 
@@ -262,38 +269,38 @@ waitsig:
 		case <-bt.done:
 			return
 		case <-bt.newEv:
-			stats.Inc(cntEvSigs)
+			bt.stats.Inc(bt.cnts.EvSigs)
 			last := bt.evRing.LastIdx()
-			stats.Max(cntEvMaxQ, counters.Val(last-bt.evIdx))
+			bt.stats.Max(bt.cnts.EvMaxQ, counters.Val(last-bt.evIdx))
 			for bt.evIdx != last {
 				ev, nxtIdx, err := bt.evRing.Get(bt.evIdx)
 				if ev != nil {
 					bt.publishEv(ev)
 					bt.evRing.Put(bt.evIdx)
-					if stats.Get(cntEvNilConsec) != 0 {
+					if bt.stats.Get(bt.cnts.EvNilConsec) != 0 {
 						fmt.Fprintf(os.Stderr, "recovered from NIL ev[%d]: %p (last %d:%d) - %d cycles\n",
 							bt.evIdx, ev, last, bt.evRing.LastIdx(),
-							stats.Get(cntEvNilConsec))
+							bt.stats.Get(bt.cnts.EvNilConsec))
 					}
-					stats.Set(cntEvNilConsec, 0)
+					bt.stats.Set(bt.cnts.EvNilConsec, 0)
 					bt.evIdx = nxtIdx
 				} else {
-					stats.Inc(cntEvNilTotal)
-					if stats.Inc(cntEvNilConsec) == 1 {
+					bt.stats.Inc(bt.cnts.EvNilTotal)
+					if bt.stats.Inc(bt.cnts.EvNilConsec) == 1 {
 						fmt.Fprintf(os.Stderr, "GOT NIL ev[%d]: %p err %d (last %d:%d)\n",
 							bt.evIdx, ev, err, last, bt.evRing.LastIdx())
 					}
 					switch err {
 					case sipcallmon.ErrBusy:
 						// busy (written on), wait for it (next signal)
-						stats.Inc(cntEvBusy)
+						bt.stats.Inc(bt.cnts.EvBusy)
 						continue waitsig
 					case sipcallmon.ErrOutOfRangeLow:
 						skipped := nxtIdx - bt.evIdx
 						fmt.Fprintf(os.Stderr, "WARNING: missed %d events"+
 							" (%d:%d:%d)\n",
 							skipped, bt.evIdx, last, bt.evRing.LastIdx())
-						stats.Add(cntEvSkipped, counters.Val(skipped))
+						bt.stats.Add(bt.cnts.EvSkipped, counters.Val(skipped))
 					case sipcallmon.ErrOutOfRangeHigh:
 						fmt.Fprintf(os.Stderr, "ERROR: ouf of range high:"+
 							" (%d:%d:%d, nxt: %d)\n",
@@ -304,7 +311,7 @@ waitsig:
 							bt.evIdx, last, bt.evRing.LastIdx(), nxtIdx)
 					case sipcallmon.ErrInvalid:
 						// just ignore it
-						stats.Inc(cntEvInvalid)
+						bt.stats.Inc(bt.cnts.EvInvalid)
 					default:
 						fmt.Fprintf(os.Stderr, "BUG: error %d not handled"+
 							" (%d:%d/%d, nxt: %d)\n",
@@ -357,7 +364,7 @@ func (bt *Sipcmbeat) publishEv(srcEv *calltr.EventData) {
 		return
 	}
 	if srcEv.Truncated {
-		stats.Inc(cntEvTrunc)
+		bt.stats.Inc(bt.cnts.EvTrunc)
 	}
 	// It looks like even.Publish() does not copy all the strings passed to it
 	// and returns before consuming/building the message => all the strings
@@ -368,7 +375,7 @@ func (bt *Sipcmbeat) publishEv(srcEv *calltr.EventData) {
 	ed.Init(make([]byte, srcEv.Used)) // alloc a new buffer
 	if !ed.Copy(srcEv) {
 		logp.Err("ERROR: event copy failed (%d bytes)...\n", srcEv.Used)
-		stats.Inc(cntEvErr)
+		bt.stats.Inc(bt.cnts.EvErr)
 		return
 	}
 
@@ -389,7 +396,7 @@ func (bt *Sipcmbeat) publishEv(srcEv *calltr.EventData) {
 			if !ok {
 				logp.Err("failed to add %q to Fields\n",
 					calltr.CallAttrIdx(i).String())
-				stats.Inc(cntEvErr)
+				bt.stats.Inc(bt.cnts.EvErr)
 			}
 			//	event.Fields[calltr.CallAttrIdx(i).String()] =
 			//		str(ed.Attrs[i].Get(ed.Buf))
@@ -489,6 +496,6 @@ func (bt *Sipcmbeat) publishEv(srcEv *calltr.EventData) {
 	addFields(event.Fields, "fflags", fFlags)
 
 	bt.client.Publish(event)
-	stats.Inc(cntEvPub)
+	bt.stats.Inc(bt.cnts.EvPub)
 	//	logp.Info("Event sent")
 }
