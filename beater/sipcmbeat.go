@@ -58,6 +58,19 @@ type statCounters struct {
 	EvMaxQ      counters.Handle
 }
 
+type ackCounters struct {
+	EvPubAdd        counters.Handle
+	EvPubDropFilter counters.Handle
+	EvPubAck        counters.Handle
+	EvBatchAck      counters.Handle
+}
+
+type publishCounters struct {
+	EvPubOk       counters.Handle
+	EvPubFiltered counters.Handle
+	EvPubDropped  counters.Handle
+}
+
 // returns a list of all struct tags.
 // if no tag is found, the field name will be returned.
 // sub-structs tags will be of the form parent.child.tag1
@@ -105,6 +118,73 @@ cfg_val_chk:
 	return ""
 }
 
+// implements beat.ACKer interface, used for counting publish ACK stats
+type acker struct {
+	// some counters
+	stats counters.Group
+	cnts  ackCounters
+}
+
+// AddEvent is part of beat.ACKer interface: called after the processors
+// have handled the event (before output). If the event was dropped by
+// a processor, `published` will be set to _false_ (contrary to the docs)
+func (a acker) AddEvent(event beat.Event, published bool) {
+	if published {
+		a.stats.Inc(a.cnts.EvPubAdd)
+	} else {
+		a.stats.Inc(a.cnts.EvPubDropFilter)
+	}
+}
+
+// ACKEvents is part of beat.ACKer interface: number of ACKed events from
+// the output and the pipeline.
+// (total events - processor dropped events?)
+func (a acker) ACKEvents(n int) {
+	a.stats.Add(a.cnts.EvPubAck, counters.Val(n))
+	a.stats.Set(a.cnts.EvBatchAck, counters.Val(n))
+}
+
+// Close is part of beat.ACKer interface: informs that the client used to
+// publish _to_ the pipeline has been closed (in our case sipcmbeat?)
+func (a acker) Close() {
+}
+
+// implements beat.ClientEventer interface, used for various event publish
+// stats (some of them are very similar fo the ones from acker)
+type eventer struct {
+	// some counters
+	stats counters.Group
+	cnts  publishCounters
+}
+
+// Closing implements the  beat.ClientEventer interface:
+// indicates the client is being shutdown next
+func (p eventer) Closing() {
+}
+
+// Closed implements the  beat.ClientEventer interface:
+// indicates the client the client being fully shutdown
+func (p eventer) Closed() {
+}
+
+// Published implements the  beat.ClientEventer interface:
+// event has been successfully forwarded to the publisher pipeline
+func (p eventer) Published() {
+	p.stats.Inc(p.cnts.EvPubOk)
+}
+
+// FilteredOut implements the  beat.ClientEventer interface:
+// event has been filtered out/dropped by processors
+func (p eventer) FilteredOut(beat.Event) {
+	p.stats.Inc(p.cnts.EvPubFiltered)
+}
+
+// DroppedOnPublish implements the  beat.ClientEventer interface:
+// event has been dropped, while waiting for the queue
+func (p eventer) DroppedOnPublish(beat.Event) {
+	p.stats.Inc(p.cnts.EvPubDropped)
+}
+
 // Sipcmbeat configuration.
 type Sipcmbeat struct {
 	done     chan struct{}
@@ -116,8 +196,10 @@ type Sipcmbeat struct {
 	ipcipher *anonymization.Ipcipher
 	client   beat.Client
 	// stats
-	stats counters.Group
-	cnts  statCounters
+	stats   counters.Group
+	cnts    statCounters
+	ackCnts ackCounters
+	pubCnts publishCounters
 }
 
 /*
@@ -131,7 +213,8 @@ func dbg_fileno() uintptr {
 func (bt *Sipcmbeat) initCounters() error {
 	cntDefs := [...]counters.Def{
 		{&bt.cnts.EvPub, 0, nil, nil, "published",
-			"events sent/published"},
+			"events attempted to be published" +
+				" (see also published_ack)"},
 		{&bt.cnts.EvSkipped, 0, nil, nil, "skipped",
 			"events skipped due to slow output"},
 		{&bt.cnts.EvBusy, 0, nil, nil, "busy",
@@ -150,6 +233,22 @@ func (bt *Sipcmbeat) initCounters() error {
 			"error preparing to send event"},
 		{&bt.cnts.EvMaxQ, 0, nil, nil, "max_queued",
 			"maximum number of queued events"},
+		// acker based counters
+		{&bt.ackCnts.EvPubAdd, 0, nil, nil, "publish_add",
+			"events queued for transport/client publish"},
+		{&bt.ackCnts.EvPubDropFilter, 0, nil, nil, "publish_filtered",
+			"events filtered out by the output pipeline processors"},
+		{&bt.ackCnts.EvPubAck, 0, nil, nil, "publish_ack",
+			"events published and acknowledged"},
+		{&bt.pubCnts.EvPubOk, 0, nil, nil, "publish_ok",
+			"events published ok (should be equivalent to publish_ack)"},
+		{&bt.ackCnts.EvBatchAck, counters.CntMaxF, nil, nil, "batch_acks",
+			"event acks received in a batch (debugging)"},
+		{&bt.pubCnts.EvPubFiltered, 0, nil, nil, "publish_filtered2",
+			"events filtered out by the output pipeline processors" +
+				" (debugging)"},
+		{&bt.pubCnts.EvPubDropped, 0, nil, nil, "publish_dropped",
+			"events dropped waiting to be sent"},
 	}
 	bt.stats.Init("events", nil, len(cntDefs))
 	if !bt.stats.RegisterDefs(cntDefs[:]) {
@@ -229,7 +328,27 @@ func (bt *Sipcmbeat) Run(b *beat.Beat) error {
 	logp.Info("sipcmbeat is running! Hit CTRL-C to stop it.")
 
 	var err error
-	bt.client, err = b.Publisher.Connect()
+
+	// init ack "callback interface"
+	ackH := acker{
+		stats: bt.stats, // same counter group
+		cnts:  bt.ackCnts,
+	}
+	pubEventsH := eventer{
+		stats: bt.stats, // same counter group
+		cnts:  bt.pubCnts,
+	}
+
+	// beats config for creating the pipelin
+	clientCfg := beat.ClientConfig{
+		// possible values: DefaultGuarantees, OutputChooses,
+		// GuaranteedSend, DropIfFull
+		PublishMode: beat.GuaranteedSend, // retry unitl ACK
+		// WaitClose: max duration to wait for an ACK (req. some ACK cfg opt)
+		ACKHandler: ackH,
+		Events:     pubEventsH,
+	}
+	bt.client, err = b.Publisher.ConnectWith(clientCfg)
 	if err != nil {
 		return err
 	}
