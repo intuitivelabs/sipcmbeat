@@ -30,6 +30,10 @@ sipcmbeat:
   tcp_reorder_timeout: 60s
   tcp_connection_timeout: 1800s
   max_blocked_timeout: 5s
+  # maximum tracked calls (0 for unlimited)
+  calls_max_entries: 0
+  # maximum memory for keeping call state (0 for unlimited)
+  calls_max_mem: 0
   # how many events will be buffered
   event_buffer_size:  10240
   # list of event types that should be blacklisted : [ event1, event2...]
@@ -64,6 +68,10 @@ sipcmbeat:
   evr_gc_target: 10
   # extra REGISTER expiration delta for absorbing delayed re-REGISTERs
   reg_exp_delta: 30
+  # maximum tracked register bindings (0 for unlimited)
+  regs_max_entries: 0
+  # maximum memory for register bindings (0 for unlimited)
+  regs_max_mem: 0
   # ignore port number when comparing contacts (but not AORs)
   contact_ignore_port: false
   # set the encryption passphares (default empty), from which the
