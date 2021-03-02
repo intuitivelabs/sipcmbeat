@@ -412,6 +412,8 @@ github.com/inconshreveable/mousetrap v1.0.0 h1:Z8tu5sraLXCXIcARxBp/8cbvlwVa7Z1NH
 github.com/inconshreveable/mousetrap v1.0.0/go.mod h1:PxqpIevigyE2G7u3NXJIT2ANytuPF1OarO4DADm73n8=
 github.com/intuitivelabs/anonymization v1.0.2-0.20210219131702-0bfe8cdc045c h1:bs6ZGXh9hYK7WyBXuRxPJy+YdFgHagkTgofFvkcv6M8=
 github.com/intuitivelabs/anonymization v1.0.2-0.20210219131702-0bfe8cdc045c/go.mod h1:+2xY8USXztAU4KZ7e/HaCzPkDBwGASzVJqCZU7lDe/o=
+github.com/intuitivelabs/anonymization v1.0.3-0.20210301184926-c7d81836cb46 h1:VYMOf+JE8BosPs3xe3aa7QWnKk9a7M/T72s6ha9A6nI=
+github.com/intuitivelabs/anonymization v1.0.3-0.20210301184926-c7d81836cb46/go.mod h1:+2xY8USXztAU4KZ7e/HaCzPkDBwGASzVJqCZU7lDe/o=
 github.com/intuitivelabs/bytescase v1.0.1 h1:As9FoZOyQuaQa4StsNHGlMbweAf3rZ5Ku2U1QsXauhA=
 github.com/intuitivelabs/bytescase v1.0.1/go.mod h1:Gr+B79bV8+mDKvYr4hja6qPVHtYG4Knem0K8gzZKHHU=
 github.com/intuitivelabs/calltr v1.0.2-0.20210223170456-8b5d174076fb h1:O5Hd1XTycBVb4hihY4QaWU+HQUWdw+OaGJrlchEpzB8=
@@ -637,6 +639,8 @@ github.com/stretchr/testify v1.5.0/go.mod h1:5W2xD1RspED5o8YsWQXVCued0rvSQ+mT+I5
 github.com/stretchr/testify v1.5.1/go.mod h1:5W2xD1RspED5o8YsWQXVCued0rvSQ+mT+I5cxcmMvtA=
 github.com/stretchr/testify v1.6.1 h1:hDPOHmpOpP40lSULcqw7IrRb/u7w6RpDC9399XyoNd0=
 github.com/stretchr/testify v1.6.1/go.mod h1:6Fq8oRcR53rry900zMqJjRRixrwX3KX962/h/Wwjteg=
+github.com/stretchr/testify v1.7.0 h1:nwc3DEeHmmLAfoZucVR881uASk0Mfjw8xYJ99tb5CcY=
+github.com/stretchr/testify v1.7.0/go.mod h1:6Fq8oRcR53rry900zMqJjRRixrwX3KX962/h/Wwjteg=
 github.com/syndtr/gocapability v0.0.0-20170704070218-db04d3cc01c8/go.mod h1:hkRG7XYTFWNJGYcbNJQlaLq0fg1yr4J4t/NcTQtrfww=
 github.com/tarm/serial v0.0.0-20180830185346-98f6abe2eb07/go.mod h1:kDXzergiv9cbyO7IOYJZWg1U88JhDg3PB6klq9Hg2pA=
 github.com/tsg/go-daemon v0.0.0-20200207173439-e704b93fd89b h1:X/8hkb4rQq3+QuOxpJK7gWmAXmZucF0EI1s1BfBLq6U=

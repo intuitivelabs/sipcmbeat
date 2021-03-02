@@ -9,9 +9,10 @@ package beater
 import (
 	"encoding/hex"
 	"fmt"
-	//	"strconv"
 	"os"
+	"strconv"
 	//	"runtime/pprof"
+	"crypto"
 	"crypto/subtle"
 	"net"
 	"reflect"
@@ -187,14 +188,15 @@ func (p eventer) DroppedOnPublish(beat.Event) {
 
 // Sipcmbeat configuration.
 type Sipcmbeat struct {
-	done     chan struct{}
-	newEv    chan struct{}        // new events are signalled here
-	evIdx    sipcallmon.EvRingIdx // curent position in the ring
-	evRing   *sipcallmon.EvRing
-	wg       *sync.WaitGroup
-	Config   sipcallmon.Config
-	ipcipher *anonymization.Ipcipher
-	client   beat.Client
+	done      chan struct{}
+	newEv     chan struct{}        // new events are signalled here
+	evIdx     sipcallmon.EvRingIdx // curent position in the ring
+	evRing    *sipcallmon.EvRing
+	wg        *sync.WaitGroup
+	Config    sipcallmon.Config
+	ipcipher  *anonymization.Ipcipher
+	validator anonymization.Validator
+	client    beat.Client
 	// stats
 	stats   counters.Group
 	cnts    statCounters
@@ -277,7 +279,13 @@ func (bt *Sipcmbeat) initEncryption() error {
 	} else {
 		bt.ipcipher = ipcipher.(*anonymization.Ipcipher)
 	}
-
+	// validation code is the first 5 bytes of HMAC(SHA256) of random nonce; each thread needs its own validator!
+	if validator, err := anonymization.NewKeyValidator(crypto.SHA256, key[:],
+		5 /*length*/, true /*withNonce*/, true /*pre-allocated HMAC*/); err != nil {
+		return err
+	} else {
+		bt.validator = validator
+	}
 	return nil
 }
 
@@ -612,8 +620,7 @@ func (bt *Sipcmbeat) publishEv(srcEv *calltr.EventData) {
 	addFields(event.Fields, "dbg.last_status", ed.LastStatus)
 	addFields(event.Fields, "dbg.msg_trace", ed.LastMsgs.String())
 
-	addFields(event.Fields, "fflags", fFlags)
-
+	addFields(event.Fields, "encrypt", strconv.Itoa(int(fFlags))+"|"+bt.validator.Compute())
 	bt.client.Publish(event)
 	bt.stats.Inc(bt.cnts.EvPub)
 	//	logp.Info("Event sent")

@@ -7,6 +7,15 @@
       description: >
           Event Type
       example: call-start
+    - name: encrypt 
+      type: keyword 
+      description: >
+          Information about event encryption.
+          It has the following format "flags | key validation code"
+          "flags" values 0 for default, 1 encrypted client IP, 2 encrypted server IP,
+          4 encrypted CallID, 8 encrypted URIs.
+          "key validation code" has the format "hexadecimal code[:nonce]"
+      example: 3  (encrypted client and server IPs)
     - name: fflags
       type: long
       description: >
