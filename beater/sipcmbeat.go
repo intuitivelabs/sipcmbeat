@@ -620,7 +620,9 @@ func (bt *Sipcmbeat) publishEv(srcEv *calltr.EventData) {
 	addFields(event.Fields, "dbg.last_status", ed.LastStatus)
 	addFields(event.Fields, "dbg.msg_trace", ed.LastMsgs.String())
 
-	addFields(event.Fields, "encrypt", strconv.Itoa(int(fFlags))+"|"+bt.validator.Compute())
+	if bt.Config.UseIPAnonymization() {
+		addFields(event.Fields, "encrypt", strconv.Itoa(int(fFlags))+"|"+bt.validator.Compute())
+	}
 	bt.client.Publish(event)
 	bt.stats.Inc(bt.cnts.EvPub)
 	//	logp.Info("Event sent")
