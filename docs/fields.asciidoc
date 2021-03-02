@@ -7327,20 +7327,7 @@ Information about event encryption. It has the following format "flags | key val
 
 type: keyword
 
-example: 3  (encrypted client and server IPs)
-
---
-
-*`fflags`*::
-+
---
-Event structure and field encoding flags. (0 for default, 1 encrypted client IP, 2 encrypted server IP,
- 4 encrypted CallID, 8 encrypted URIs)
-
-
-type: long
-
-example: 3  (encrypted client and server IPs)
+example: 3|526bb:458414566  (encrypted client and server IPs, hexadecimal code and nonce)
 
 --
 

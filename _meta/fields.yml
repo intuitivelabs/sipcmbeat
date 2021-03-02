@@ -15,14 +15,7 @@
           "flags" values 0 for default, 1 encrypted client IP, 2 encrypted server IP,
           4 encrypted CallID, 8 encrypted URIs.
           "key validation code" has the format "hexadecimal code[:nonce]"
-      example: 3  (encrypted client and server IPs)
-    - name: fflags
-      type: long
-      description: >
-          Event structure and field encoding flags.
-          (0 for default, 1 encrypted client IP, 2 encrypted server IP,
-           4 encrypted CallID, 8 encrypted URIs)
-      example: 3  (encrypted client and server IPs)
+      example: 3|526bb:458414566  (encrypted client and server IPs, hexadecimal code and nonce)
     - name: sip
       type: group
       fields:
