@@ -7389,10 +7389,10 @@ type: keyword
 
 --
 
-*`sip.terminator`*::
+*`sip.originator`*::
 +
 --
-TODO: who originated hangup - values?, not supported yet
+who originated the hangup (bye) -  caller-terminated, callee-terminated or timeout-terminated
 
 
 type: keyword

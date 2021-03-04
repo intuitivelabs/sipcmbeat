@@ -542,6 +542,13 @@ func (bt *Sipcmbeat) publishEv(srcEv *calltr.EventData) {
 			// for CallEnd we do not add sip.response.status
 			addFields(event.Fields, "sip.response.last", ed.ReplStatus)
 		}
+		if ed.CFlags&calltr.CFForcedTimeout != 0 {
+			addFields(event.Fields, "sip.originator", "timeout-terminated")
+		} else if ed.CFlags&calltr.CFCalleeTerminated != 0 {
+			addFields(event.Fields, "sip.originator", "callee-terminated")
+		} else {
+			addFields(event.Fields, "sip.originator", "caller-terminated")
+		}
 	case calltr.EvRegDel, calltr.EvRegExpired, calltr.EvSubDel:
 		// add duration only on events that make sense, and only
 		// if call-start is known. Use seconds.

@@ -40,10 +40,11 @@
             type: keyword
             description: >
                 CallID
-          - name: terminator
+          - name: originator
             type: keyword
             description: >
-                TODO: who originated hangup - values?, not supported yet
+                who originated the hangup (bye) - 
+                caller-terminated, callee-terminated or timeout-terminated
           - name: unmatched_invite
             type: boolean
             description: >
