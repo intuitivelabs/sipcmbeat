@@ -262,6 +262,9 @@ func (bt *Sipcmbeat) initCounters() error {
 func (bt *Sipcmbeat) initEncryption() error {
 	var key [16]byte
 
+	if len(bt.Config.EncryptionValSalt) == 0 {
+		return errors.New("initEncryption: \"encryption_salt\" for password validation is invalid")
+	}
 	if len(bt.Config.EncryptionPassphrase) > 0 {
 		// generate encryption key from passphrase
 		anonymization.GenerateKeyFromPassphraseAndCopy(bt.Config.EncryptionPassphrase, key[:])
@@ -281,7 +284,7 @@ func (bt *Sipcmbeat) initEncryption() error {
 	}
 	// validation code is the first 5 bytes of HMAC(SHA256) of random nonce; each thread needs its own validator!
 	if validator, err := anonymization.NewKeyValidator(crypto.SHA256, key[:],
-		5 /*length*/, true /*withNonce*/, true /*pre-allocated HMAC*/); err != nil {
+		5 /*length*/, bt.Config.EncryptionValSalt, anonymization.NonceNone, false /*withNonce*/, true /*pre-allocated HMAC*/); err != nil {
 		return err
 	} else {
 		bt.validator = validator
@@ -514,7 +517,7 @@ func (bt *Sipcmbeat) publishEv(srcEv *calltr.EventData) {
 			//		"sip.call_id": str(ed.CallID.Get(ed.Buf)),
 		},
 	}
-	var fFlags FormatFlags
+	var encFlags FormatFlags
 	addFields(event.Fields, "sip.call_id", str(ed.CallID.Get(ed.Buf)))
 	for i := 0; i < len(ed.Attrs); i++ {
 		if !ed.Attrs[i].Empty() {
@@ -574,7 +577,7 @@ func (bt *Sipcmbeat) publishEv(srcEv *calltr.EventData) {
 		c := make([]byte, len(ed.Src))
 		bt.ipcipher.Encrypt(c, ed.Src)
 		addFields(event.Fields, "client.ip", net.IP(c[:]))
-		fFlags |= FormatCltIPencF
+		encFlags |= FormatCltIPencF
 	} else {
 		addFields(event.Fields, "client.ip", ed.Src)
 	}
@@ -583,7 +586,7 @@ func (bt *Sipcmbeat) publishEv(srcEv *calltr.EventData) {
 		c := make([]byte, len(ed.Dst))
 		bt.ipcipher.Encrypt(c, ed.Dst)
 		addFields(event.Fields, "server.ip", net.IP(c[:]))
-		fFlags |= FormatSrvIPencF
+		encFlags |= FormatSrvIPencF
 	} else {
 		addFields(event.Fields, "server.ip", ed.Dst)
 	}
@@ -620,8 +623,11 @@ func (bt *Sipcmbeat) publishEv(srcEv *calltr.EventData) {
 	addFields(event.Fields, "dbg.last_status", ed.LastStatus)
 	addFields(event.Fields, "dbg.msg_trace", ed.LastMsgs.String())
 
-	if bt.Config.UseIPAnonymization() {
-		addFields(event.Fields, "encrypt", strconv.Itoa(int(fFlags))+"|"+bt.validator.Compute())
+	if encFlags != 0 {
+		// the precomputed validation code cand be used as long nonce is NOT used
+		addFields(event.Fields, "encrypt", strconv.Itoa(int(encFlags))+"|"+bt.validator.Code())
+	} else {
+		addFields(event.Fields, "encrypt", "0")
 	}
 	bt.client.Publish(event)
 	bt.stats.Inc(bt.cnts.EvPub)

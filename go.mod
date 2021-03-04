@@ -14,7 +14,7 @@ replace (
 	github.com/fsnotify/fsnotify => github.com/adriansr/fsnotify v0.0.0-20180417234312-c9bbe1f46f1d
 	github.com/insomniacslk/dhcp => github.com/elastic/dhcp v0.0.0-20200227161230-57ec251c7eb3 // indirect
 	//	golang.org/x/tools => golang.org/x/tools v0.0.0-20200602230032-c00d67ef29d0 // release 1.14
-	github.com/intuitivelabs/anonymization => github.com/intuitivelabs/anonymization v1.0.3-0.20210301184926-c7d81836cb46
+	github.com/intuitivelabs/anonymization => github.com/intuitivelabs/anonymization v1.0.3-0.20210304154021-f595e69f5633
 	github.com/tonistiigi/fifo => github.com/containerd/fifo v0.0.0-20190816180239-bda0ff6ed73c
 )
 

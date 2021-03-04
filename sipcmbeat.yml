@@ -83,6 +83,8 @@ sipcmbeat:
   # e.g. encryption_key: "000102030405060708090a0b0c0d0e0f"
   # Note that only one of encryption_passphrase or encryption_key must be set.
   encryption_key: ""
+  # encryption key validation salt (default empty)
+  encryption_salt: ""
   # turn on/off ip address encryption, default off
   # (requires a set encryption_passphrase or encryption_key)
   encrypt_ip_addresses: false
