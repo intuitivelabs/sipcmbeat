@@ -257,15 +257,55 @@ func (bt *Sipcmbeat) initCounters() error {
 	return nil
 }
 
-func (bt *Sipcmbeat) initEncryption() error {
+// lookup key into the keystore and return the associated value or error
+func keystoreVal(b *beat.Beat, key string) (string, error) {
+	ks := b.Keystore
+	if ks == nil {
+		return "", errors.New("keystoreVal: un-intialized keystore")
+	}
+	ss, err := ks.Retrieve(key)
+	if err != nil {
+		return "", errors.WithMessage(err,
+			"keystoreVal: failed to retrieve keystore key "+key)
+	}
+	secret, err := ss.Get()
+	if err != nil {
+		return "", errors.WithMessage(err,
+			"keystoreVal:  failed to get secure string")
+	}
+	return string(secret), nil
+}
+
+func (bt *Sipcmbeat) initEncryption(b *beat.Beat) error {
 	var key [16]byte
+	const ksPrefix = "keystore:"
 
 	if len(bt.Config.EncryptionPassphrase) > 0 {
 		// generate encryption key from passphrase
-		anonymization.GenerateKeyFromPassphraseAndCopy(bt.Config.EncryptionPassphrase, key[:])
+		pass := bt.Config.EncryptionPassphrase
+		if len(pass) >= len(ksPrefix) && strings.HasPrefix(pass, ksPrefix) {
+			// starts with the keystore prefix -> look for the pass in the
+			// keystore
+			var err error
+			ksKey := pass[len(ksPrefix):]
+			if pass, err = keystoreVal(b, ksKey); err != nil {
+				return errors.WithMessage(err, "initEncryption: passphrase")
+			}
+		}
+		anonymization.GenerateKeyFromPassphraseAndCopy(pass, key[:])
 	} else {
+		encKey := bt.Config.EncryptionKey
+		if len(encKey) >= len(ksPrefix) && strings.HasPrefix(encKey, ksPrefix) {
+			// starts with the keystore prefix -> look for the key in the
+			// keystore
+			var err error
+			ksKey := encKey[len(ksPrefix):]
+			if encKey, err = keystoreVal(b, ksKey); err != nil {
+				return errors.WithMessage(err, "initEncryption: key")
+			}
+		}
 		// copy the configured key into the one used during realtime processing
-		if decoded, err := hex.DecodeString(bt.Config.EncryptionKey); err != nil {
+		if decoded, err := hex.DecodeString(encKey); err != nil {
 			return err
 		} else {
 			subtle.ConstantTimeCopy(1, key[:], decoded)
@@ -313,7 +353,7 @@ func New(b *beat.Beat, cfg *common.Config) (beat.Beater, error) {
 	bt.evRing = &sipcallmon.EventsRing
 	bt.evRing.SetEvSignal(bt.newEv)
 	if bt.Config.UseAnonymization() {
-		if err := bt.initEncryption(); err != nil {
+		if err := bt.initEncryption(b); err != nil {
 			return nil, fmt.Errorf("Invalid configuration for encryption: %v", err)
 		}
 	}
