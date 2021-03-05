@@ -7409,6 +7409,36 @@ type: boolean
 
 --
 
+*`sip.pdd`*::
++
+--
+post dial delay (in ms) - delay between the INVITE and the first 18x reply or final reply if no 18x is received Present only for call-start and call-attempt events.
+
+
+type: long
+
+--
+
+*`sip.ring_time`*::
++
+--
+delay (in ms) between the first 18x reply and the final reply. Can be 0 if no 18x is received. Present only for call-start and call-attempt events.
+
+
+type: long
+
+--
+
+*`sip.fr_delay`*::
++
+--
+delay (in ms) between the request and the final reply. Present only for reg-new and auth-failed events.
+
+
+type: long
+
+--
+
 
 *`sip.request.method`*::
 +

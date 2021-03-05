@@ -562,11 +562,39 @@ func (bt *Sipcmbeat) publishEv(srcEv *calltr.EventData) {
 				ed.TS.Sub(sipcallmon.StartTS)/time.Second)
 		}
 		addFields(event.Fields, "sip.response.last", ed.ReplStatus)
-	case calltr.EvCallAttempt, calltr.EvCallStart, calltr.EvRegNew, calltr.EvSubNew, calltr.EvAuthFailed:
+
+	case calltr.EvCallStart, calltr.EvCallAttempt:
 		addFields(event.Fields, "sip.response.status", ed.ReplStatus)
+		// post dial delay, time between request and 18x
+		pdd := time.Duration(0)
+		if !ed.EarlyDlgTS.IsZero() {
+			pdd = ed.EarlyDlgTS.Sub(ed.CreatedTS)
+		}
+		// ring time: delay between 18x and final response
+		rt := time.Duration(0)
+		if !ed.FinReplTS.IsZero() {
+			if !ed.EarlyDlgTS.IsZero() {
+				rt = ed.FinReplTS.Sub(ed.EarlyDlgTS)
+			} else {
+				// no 18x =>  0 ring time and pdd = final repl time
+				pdd = ed.FinReplTS.Sub(ed.CreatedTS)
+			}
+		}
+		addFields(event.Fields, "sip.pdd", pdd/time.Millisecond)
+		addFields(event.Fields, "sip.ring_time", rt/time.Millisecond)
+
+	case calltr.EvRegNew, calltr.EvSubNew, calltr.EvAuthFailed:
+		addFields(event.Fields, "sip.response.status", ed.ReplStatus)
+		frd := time.Duration(0) // final reply delay, time till final reply
+		if !ed.FinReplTS.IsZero() {
+			frd = ed.FinReplTS.Sub(ed.CreatedTS)
+		}
+		addFields(event.Fields, "sip.fr_delay", frd/time.Millisecond)
+
 	default:
 		addFields(event.Fields, "sip.response.last", ed.ReplStatus)
 	}
+
 	addFields(event.Fields, "event.call_start", ed.StartTS)
 	addFields(event.Fields, "client.transport", ed.ProtoF.ProtoName())
 	if bt.Config.UseIPAnonymization() {
