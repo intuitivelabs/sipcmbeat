@@ -526,10 +526,10 @@ func (bt *Sipcmbeat) publishEv(srcEv *calltr.EventData) {
 	case calltr.EvCallEnd:
 		// add duration only on events that make sense, and only
 		// if call-start is known. Use seconds.
-		if !ed.StartTS.IsZero() {
+		if !ed.FinReplTS.IsZero() {
 			// (otherwise the current monitoring part will get confused)
 			addFields(event.Fields, "event.duration",
-				ed.TS.Sub(ed.StartTS)/time.Second)
+				ed.TS.Sub(ed.FinReplTS)/time.Second)
 		} else {
 			// add a min_length field containing the minimum call duration^
 			addFields(event.Fields, "event.min_length",
@@ -552,10 +552,10 @@ func (bt *Sipcmbeat) publishEv(srcEv *calltr.EventData) {
 	case calltr.EvRegDel, calltr.EvRegExpired, calltr.EvSubDel:
 		// add duration only on events that make sense, and only
 		// if call-start is known. Use seconds.
-		if !ed.StartTS.IsZero() {
+		if !ed.FinReplTS.IsZero() {
 			// (otherwise the current monitoring part will get confused)
 			addFields(event.Fields, "event.lifetime",
-				ed.TS.Sub(ed.StartTS)/time.Second)
+				ed.TS.Sub(ed.FinReplTS)/time.Second)
 		} else {
 			// add a min_length field containing the minimum call duration^
 			addFields(event.Fields, "event.min_lifetime",
@@ -595,7 +595,7 @@ func (bt *Sipcmbeat) publishEv(srcEv *calltr.EventData) {
 		addFields(event.Fields, "sip.response.last", ed.ReplStatus)
 	}
 
-	addFields(event.Fields, "event.call_start", ed.StartTS)
+	addFields(event.Fields, "event.call_start", ed.FinReplTS)
 	addFields(event.Fields, "client.transport", ed.ProtoF.ProtoName())
 	if bt.Config.UseIPAnonymization() {
 		c := make([]byte, len(ed.Src))
@@ -634,7 +634,7 @@ func (bt *Sipcmbeat) publishEv(srcEv *calltr.EventData) {
 	addFields(event.Fields, "dbg.evflags", ed.EvFlags.String())
 	addFields(event.Fields, "dbg.evgen", ed.EvGen.String())
 	addFields(event.Fields, "dbg.created", ed.CreatedTS)
-	addFields(event.Fields, "dbg.call_start", ed.StartTS)
+	addFields(event.Fields, "dbg.call_start", ed.FinReplTS)
 	addFields(event.Fields, "dbg.cseq", ed.CSeq)
 	addFields(event.Fields, "dbg.rcseq", ed.RCSeq)
 	addFields(event.Fields, "dbg.forked", ed.ForkedTS)
