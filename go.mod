@@ -39,7 +39,7 @@ require (
 	github.com/intuitivelabs/anonymization v1.0.3-0.20210308102246-2c8fa401a5a5
 	github.com/intuitivelabs/calltr v1.0.2-0.20210305205942-9ccdfc173905
 	github.com/intuitivelabs/counters v0.1.2-0.20210223181853-f6621bba8b35
-	github.com/intuitivelabs/sipcallmon v0.7.1-0.20210304081620-39b33653cddf
+	github.com/intuitivelabs/sipcallmon v0.7.1-0.20210304190804-87865c2adf56
 	github.com/josephspurrier/goversioninfo v1.2.0 // indirect
 	github.com/magefile/mage v1.11.0
 	github.com/mattn/go-colorable v0.1.8 // indirect
