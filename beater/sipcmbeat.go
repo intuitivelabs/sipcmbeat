@@ -31,6 +31,7 @@ import (
 	"github.com/intuitivelabs/calltr"
 	"github.com/intuitivelabs/counters"
 	"github.com/intuitivelabs/sipcallmon"
+	"github.com/intuitivelabs/slog"
 )
 
 // FormatFlags defines event structure or field encoding flags.
@@ -72,6 +73,10 @@ type publishCounters struct {
 	EvPubDropped  counters.Handle
 }
 
+// "local" log, default options (pre-config)
+var Log slog.Log = slog.New(slog.LERR, slog.LbackTraceS|slog.LlocInfoS,
+	slog.LStdErr)
+
 // returns a list of all struct tags.
 // if no tag is found, the field name will be returned.
 // sub-structs tags will be of the form parent.child.tag1
@@ -103,8 +108,6 @@ func getStructTags(t reflect.Type) []string {
 func unknownCfgOption(cfg *common.Config) string {
 	cfgFlds := cfg.GetFields()
 	defFlds := getStructTags(reflect.TypeOf((*sipcallmon.Config)(nil)).Elem())
-	//fmt.Printf("DBG: loaded cfg fields(%d): %v\n", len(cfgFlds), cfgFlds)
-	//fmt.Printf("DBG: defined cfg fields(%d): %v\n", len(defFlds), defFlds)
 
 cfg_val_chk:
 	for _, o := range cfgFlds {
@@ -322,6 +325,10 @@ func New(b *beat.Beat, cfg *common.Config) (beat.Beater, error) {
 		wg:     &sync.WaitGroup{},
 	}
 
+	// init sipcmbeat logging
+	slog.Init(&Log, slog.LogLevel(c.LogLev), slog.LogOptions(c.LogOpt),
+		slog.LStdErr)
+
 	if err := sipcallmon.Init(&bt.Config); err != nil {
 		return nil, fmt.Errorf("sipcallmon: %v", err)
 	}
@@ -431,24 +438,22 @@ waitsig:
 						continue waitsig
 					case sipcallmon.ErrOutOfRangeLow:
 						skipped := nxtIdx - bt.evIdx
-						fmt.Fprintf(os.Stderr, "WARNING: missed %d events"+
-							" (%d:%d:%d)\n",
-							skipped, bt.evIdx, last, bt.evRing.LastIdx())
+						if Log.DBGon() {
+							Log.DBG("missed %d events (%d:%d:%d)\n",
+								skipped, bt.evIdx, last, bt.evRing.LastIdx())
+						}
 						bt.stats.Add(bt.cnts.EvSkipped, counters.Val(skipped))
 					case sipcallmon.ErrOutOfRangeHigh:
-						fmt.Fprintf(os.Stderr, "ERROR: ouf of range high:"+
-							" (%d:%d:%d, nxt: %d)\n",
+						Log.ERR("ouf of range high: (%d:%d:%d, nxt: %d)\n",
 							bt.evIdx, last, bt.evRing.LastIdx(), nxtIdx)
 					case sipcallmon.ErrLast:
-						fmt.Fprintf(os.Stderr, "ERROR: ring end:"+
-							" (%d:%d:%d, nxt: %d)\n",
+						Log.ERR("ring end: (%d:%d:%d, nxt: %d)\n",
 							bt.evIdx, last, bt.evRing.LastIdx(), nxtIdx)
 					case sipcallmon.ErrInvalid:
 						// just ignore it
 						bt.stats.Inc(bt.cnts.EvInvalid)
 					default:
-						fmt.Fprintf(os.Stderr, "BUG: error %d not handled"+
-							" (%d:%d/%d, nxt: %d)\n",
+						Log.BUG("error %d not handled (%d:%d/%d, nxt: %d)\n",
 							err, bt.evIdx, last, bt.evRing.LastIdx(), nxtIdx)
 					}
 					if (bt.evIdx + 1) != nxtIdx {
@@ -508,7 +513,7 @@ func (bt *Sipcmbeat) publishEv(srcEv *calltr.EventData) {
 	var ed calltr.EventData
 	ed.Init(make([]byte, srcEv.Used)) // alloc a new buffer
 	if !ed.Copy(srcEv) {
-		logp.Err("ERROR: event copy failed (%d bytes)...\n", srcEv.Used)
+		Log.ERR("event copy failed (%d bytes)...\n", srcEv.Used)
 		bt.stats.Inc(bt.cnts.EvErr)
 		return
 	}
