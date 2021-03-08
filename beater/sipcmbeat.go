@@ -9,9 +9,10 @@ package beater
 import (
 	"encoding/hex"
 	"fmt"
-	//	"strconv"
 	"os"
+	"strconv"
 	//	"runtime/pprof"
+	"crypto"
 	"crypto/subtle"
 	"net"
 	"reflect"
@@ -187,14 +188,15 @@ func (p eventer) DroppedOnPublish(beat.Event) {
 
 // Sipcmbeat configuration.
 type Sipcmbeat struct {
-	done     chan struct{}
-	newEv    chan struct{}        // new events are signalled here
-	evIdx    sipcallmon.EvRingIdx // curent position in the ring
-	evRing   *sipcallmon.EvRing
-	wg       *sync.WaitGroup
-	Config   sipcallmon.Config
-	ipcipher *anonymization.Ipcipher
-	client   beat.Client
+	done      chan struct{}
+	newEv     chan struct{}        // new events are signalled here
+	evIdx     sipcallmon.EvRingIdx // curent position in the ring
+	evRing    *sipcallmon.EvRing
+	wg        *sync.WaitGroup
+	Config    sipcallmon.Config
+	ipcipher  *anonymization.Ipcipher
+	validator anonymization.Validator
+	client    beat.Client
 	// stats
 	stats   counters.Group
 	cnts    statCounters
@@ -258,26 +260,39 @@ func (bt *Sipcmbeat) initCounters() error {
 }
 
 func (bt *Sipcmbeat) initEncryption() error {
-	var key [16]byte
+	var encKey [anonymization.EncryptionKeyLen]byte
+	var authKey [anonymization.AuthenticationKeyLen]byte
 
+	if len(bt.Config.EncryptionValSalt) == 0 {
+		return errors.New("initEncryption: \"encryption_salt\" for password validation is invalid")
+	}
 	if len(bt.Config.EncryptionPassphrase) > 0 {
 		// generate encryption key from passphrase
-		anonymization.GenerateKeyFromPassphraseAndCopy(bt.Config.EncryptionPassphrase, key[:])
+		anonymization.GenerateKeyFromPassphraseAndCopy(bt.Config.EncryptionPassphrase, anonymization.EncryptionKeyLen, encKey[:])
+		// key is authenticated only when it is generated from a passphrase
+		// generate authentication (HMAC) key from passphrase
+		anonymization.GenerateKeyFromPassphraseAndCopy(bt.Config.EncryptionPassphrase, anonymization.EncryptionKeyLen, authKey[:])
+		// validation code is the first 5 bytes of HMAC(SHA256) of random nonce; each thread needs its own validator!
+		if validator, err := anonymization.NewKeyValidator(crypto.SHA256, authKey[:],
+			5 /*length*/, bt.Config.EncryptionValSalt, anonymization.NonceNone, false /*withNonce*/, true /*pre-allocated HMAC*/); err != nil {
+			return err
+		} else {
+			bt.validator = validator
+		}
 	} else {
 		// copy the configured key into the one used during realtime processing
 		if decoded, err := hex.DecodeString(bt.Config.EncryptionKey); err != nil {
 			return err
 		} else {
-			subtle.ConstantTimeCopy(1, key[:], decoded)
+			subtle.ConstantTimeCopy(1, encKey[:], decoded)
 		}
 	}
 
-	if ipcipher, err := anonymization.NewCipher(key[:]); err != nil {
+	if ipcipher, err := anonymization.NewCipher(encKey[:]); err != nil {
 		return err
 	} else {
 		bt.ipcipher = ipcipher.(*anonymization.Ipcipher)
 	}
-
 	return nil
 }
 
@@ -506,7 +521,7 @@ func (bt *Sipcmbeat) publishEv(srcEv *calltr.EventData) {
 			//		"sip.call_id": str(ed.CallID.Get(ed.Buf)),
 		},
 	}
-	var fFlags FormatFlags
+	var encFlags FormatFlags
 	addFields(event.Fields, "sip.call_id", str(ed.CallID.Get(ed.Buf)))
 	for i := 0; i < len(ed.Attrs); i++ {
 		if !ed.Attrs[i].Empty() {
@@ -601,7 +616,7 @@ func (bt *Sipcmbeat) publishEv(srcEv *calltr.EventData) {
 		c := make([]byte, len(ed.Src))
 		bt.ipcipher.Encrypt(c, ed.Src)
 		addFields(event.Fields, "client.ip", net.IP(c[:]))
-		fFlags |= FormatCltIPencF
+		encFlags |= FormatCltIPencF
 	} else {
 		addFields(event.Fields, "client.ip", ed.Src)
 	}
@@ -610,7 +625,7 @@ func (bt *Sipcmbeat) publishEv(srcEv *calltr.EventData) {
 		c := make([]byte, len(ed.Dst))
 		bt.ipcipher.Encrypt(c, ed.Dst)
 		addFields(event.Fields, "server.ip", net.IP(c[:]))
-		fFlags |= FormatSrvIPencF
+		encFlags |= FormatSrvIPencF
 	} else {
 		addFields(event.Fields, "server.ip", ed.Dst)
 	}
@@ -647,8 +662,14 @@ func (bt *Sipcmbeat) publishEv(srcEv *calltr.EventData) {
 	addFields(event.Fields, "dbg.last_status", ed.LastStatus)
 	addFields(event.Fields, "dbg.msg_trace", ed.LastMsgs.String())
 
-	addFields(event.Fields, "fflags", fFlags)
-
+	if encFlags != 0 {
+		if bt.validator != nil {
+			// the precomputed validation code cand be used as long nonce is NOT used
+			addFields(event.Fields, "encrypt", strconv.Itoa(int(encFlags))+"|"+bt.validator.Code())
+		}
+	} else {
+		addFields(event.Fields, "encrypt", "0")
+	}
 	bt.client.Publish(event)
 	bt.stats.Inc(bt.cnts.EvPub)
 	//	logp.Info("Event sent")
