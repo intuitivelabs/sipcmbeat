@@ -427,6 +427,8 @@ github.com/intuitivelabs/bytescase v1.0.1 h1:As9FoZOyQuaQa4StsNHGlMbweAf3rZ5Ku2U
 github.com/intuitivelabs/bytescase v1.0.1/go.mod h1:Gr+B79bV8+mDKvYr4hja6qPVHtYG4Knem0K8gzZKHHU=
 github.com/intuitivelabs/calltr v1.0.2-0.20210223170456-8b5d174076fb h1:O5Hd1XTycBVb4hihY4QaWU+HQUWdw+OaGJrlchEpzB8=
 github.com/intuitivelabs/calltr v1.0.2-0.20210223170456-8b5d174076fb/go.mod h1:qBLcsbhXihgAJkGuIpe0sOvZoj5eQACF8oPtfQjW4fM=
+github.com/intuitivelabs/calltr v1.0.2-0.20210305205942-9ccdfc173905 h1:nIX9CfKAWeobnGGtjqio9P/GgLPCFZpD9LZYPuTEU+A=
+github.com/intuitivelabs/calltr v1.0.2-0.20210305205942-9ccdfc173905/go.mod h1:qBLcsbhXihgAJkGuIpe0sOvZoj5eQACF8oPtfQjW4fM=
 github.com/intuitivelabs/counters v0.1.2-0.20210216181413-f773d9188db7 h1:M8DerTOMNz/vq5vDmcbf6LSFGF2yQC4YdSeKzH6CKoI=
 github.com/intuitivelabs/counters v0.1.2-0.20210216181413-f773d9188db7/go.mod h1:gg2mPscHiatkLfDWF7bSuUeHcmsiTazGQx1pW62uJ0w=
 github.com/intuitivelabs/counters v0.1.2-0.20210223181853-f6621bba8b35 h1:9lapJCLXl1SbLP0DLUFRTQCRzyrVutcD1Et+M1M7iwg=
