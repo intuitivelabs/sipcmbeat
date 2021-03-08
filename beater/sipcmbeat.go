@@ -260,34 +260,38 @@ func (bt *Sipcmbeat) initCounters() error {
 }
 
 func (bt *Sipcmbeat) initEncryption() error {
-	var key [16]byte
+	var encKey [anonymization.EncryptionKeyLen]byte
+	var authKey [anonymization.AuthenticationKeyLen]byte
 
 	if len(bt.Config.EncryptionValSalt) == 0 {
 		return errors.New("initEncryption: \"encryption_salt\" for password validation is invalid")
 	}
 	if len(bt.Config.EncryptionPassphrase) > 0 {
 		// generate encryption key from passphrase
-		anonymization.GenerateKeyFromPassphraseAndCopy(bt.Config.EncryptionPassphrase, key[:])
+		anonymization.GenerateKeyFromPassphraseAndCopy(bt.Config.EncryptionPassphrase, anonymization.EncryptionKeyLen, encKey[:])
+		// key is authenticated only when it is generated from a passphrase
+		// generate authentication (HMAC) key from passphrase
+		anonymization.GenerateKeyFromPassphraseAndCopy(bt.Config.EncryptionPassphrase, anonymization.EncryptionKeyLen, authKey[:])
+		// validation code is the first 5 bytes of HMAC(SHA256) of random nonce; each thread needs its own validator!
+		if validator, err := anonymization.NewKeyValidator(crypto.SHA256, authKey[:],
+			5 /*length*/, bt.Config.EncryptionValSalt, anonymization.NonceNone, false /*withNonce*/, true /*pre-allocated HMAC*/); err != nil {
+			return err
+		} else {
+			bt.validator = validator
+		}
 	} else {
 		// copy the configured key into the one used during realtime processing
 		if decoded, err := hex.DecodeString(bt.Config.EncryptionKey); err != nil {
 			return err
 		} else {
-			subtle.ConstantTimeCopy(1, key[:], decoded)
+			subtle.ConstantTimeCopy(1, encKey[:], decoded)
 		}
 	}
 
-	if ipcipher, err := anonymization.NewCipher(key[:]); err != nil {
+	if ipcipher, err := anonymization.NewCipher(encKey[:]); err != nil {
 		return err
 	} else {
 		bt.ipcipher = ipcipher.(*anonymization.Ipcipher)
-	}
-	// validation code is the first 5 bytes of HMAC(SHA256) of random nonce; each thread needs its own validator!
-	if validator, err := anonymization.NewKeyValidator(crypto.SHA256, key[:],
-		5 /*length*/, bt.Config.EncryptionValSalt, anonymization.NonceNone, false /*withNonce*/, true /*pre-allocated HMAC*/); err != nil {
-		return err
-	} else {
-		bt.validator = validator
 	}
 	return nil
 }
@@ -624,8 +628,10 @@ func (bt *Sipcmbeat) publishEv(srcEv *calltr.EventData) {
 	addFields(event.Fields, "dbg.msg_trace", ed.LastMsgs.String())
 
 	if encFlags != 0 {
-		// the precomputed validation code cand be used as long nonce is NOT used
-		addFields(event.Fields, "encrypt", strconv.Itoa(int(encFlags))+"|"+bt.validator.Code())
+		if bt.validator != nil {
+			// the precomputed validation code cand be used as long nonce is NOT used
+			addFields(event.Fields, "encrypt", strconv.Itoa(int(encFlags))+"|"+bt.validator.Code())
+		}
 	} else {
 		addFields(event.Fields, "encrypt", "0")
 	}
