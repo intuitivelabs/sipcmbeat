@@ -271,7 +271,7 @@ func (bt *Sipcmbeat) initEncryption() error {
 		anonymization.GenerateKeyFromPassphraseAndCopy(bt.Config.EncryptionPassphrase, anonymization.EncryptionKeyLen, encKey[:])
 		// key is authenticated only when it is generated from a passphrase
 		// generate authentication (HMAC) key from passphrase
-		anonymization.GenerateKeyFromPassphraseAndCopy(bt.Config.EncryptionPassphrase, anonymization.EncryptionKeyLen, authKey[:])
+		anonymization.GenerateKeyFromPassphraseAndCopy(bt.Config.EncryptionPassphrase, anonymization.AuthenticationKeyLen, authKey[:])
 		// validation code is the first 5 bytes of HMAC(SHA256) of random nonce; each thread needs its own validator!
 		if validator, err := anonymization.NewKeyValidator(crypto.SHA256, authKey[:],
 			5 /*length*/, bt.Config.EncryptionValSalt, anonymization.NonceNone, false /*withNonce*/, true /*pre-allocated HMAC*/); err != nil {
