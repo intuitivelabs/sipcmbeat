@@ -3,7 +3,18 @@
 ############################# Sipcmbeat ######################################
 
 sipcmbeat:
+  # (very) verbose parser/ capture
   verbose: false
+  # general log level: BUG -3, CRIT -2; ERR -1; WARN 0, NOTICE 1, INFO 2, DBG 3
+  log_level: 2
+  # log message options, flags:
+  #    short filename:line - 1, long - 2, time stamp:  - 4,
+  #    back trace short - 8, long - 16
+  log_opt: 1
+  # parse / capture log level (same values as log_level above)
+  parse_log_level: 1
+  # parse / capture log message options (same values as log_opt above)
+  parse_log_opt: 4
   # read packets from pcap files instead of the network
   pcap: ""
   # replay packets from pcap keeping recorded delays between packets
