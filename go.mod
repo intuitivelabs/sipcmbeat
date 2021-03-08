@@ -14,7 +14,6 @@ replace (
 	github.com/fsnotify/fsnotify => github.com/adriansr/fsnotify v0.0.0-20180417234312-c9bbe1f46f1d
 	github.com/insomniacslk/dhcp => github.com/elastic/dhcp v0.0.0-20200227161230-57ec251c7eb3 // indirect
 	//	golang.org/x/tools => golang.org/x/tools v0.0.0-20200602230032-c00d67ef29d0 // release 1.14
-	github.com/intuitivelabs/anonymization => github.com/intuitivelabs/anonymization v1.0.3-0.20210304154021-f595e69f5633
 	github.com/tonistiigi/fifo => github.com/containerd/fifo v0.0.0-20190816180239-bda0ff6ed73c
 )
 
@@ -37,7 +36,7 @@ require (
 	github.com/fatih/color v1.9.0 // indirect
 	github.com/go-sourcemap/sourcemap v2.1.3+incompatible // indirect
 	github.com/hashicorp/errwrap v1.1.0 // indirect
-	github.com/intuitivelabs/anonymization v1.0.2-0.20210219131702-0bfe8cdc045c
+	github.com/intuitivelabs/anonymization v1.0.3-0.20210308102246-2c8fa401a5a5
 	github.com/intuitivelabs/calltr v1.0.2-0.20210223170456-8b5d174076fb
 	github.com/intuitivelabs/counters v0.1.2-0.20210223181853-f6621bba8b35
 	github.com/intuitivelabs/sipcallmon v0.7.1-0.20210304081620-39b33653cddf
