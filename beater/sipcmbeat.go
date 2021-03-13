@@ -286,8 +286,18 @@ func (bt *Sipcmbeat) initEncryption(b *beat.Beat) error {
 	var authKey [anonymization.AuthenticationKeyLen]byte
 	const ksPrefix = "keystore:"
 
-	if len(bt.Config.EncryptionValSalt) == 0 {
-		return errors.New("initEncryption: \"encryption_salt\" for password validation is invalid")
+	salt := bt.Config.EncryptionValSalt
+	if len(salt) == 0 {
+		return errors.New("initEncryption: \"encryption_salt\" for" +
+			" password validation is missing")
+	} else if len(salt) >= len(ksPrefix) && strings.HasPrefix(salt, ksPrefix) {
+		// starts with the keystore prefix -> look for the salt in the
+		// keystore
+		var err error
+		ksSalt := salt[len(ksPrefix):]
+		if salt, err = keystoreVal(b, ksSalt); err != nil {
+			return errors.WithMessage(err, "initEncryption: salt")
+		}
 	}
 	if len(bt.Config.EncryptionPassphrase) > 0 {
 		// generate encryption key from passphrase
@@ -308,8 +318,9 @@ func (bt *Sipcmbeat) initEncryption(b *beat.Beat) error {
 		anonymization.GenerateKeyFromPassphraseAndCopy(pass,
 			anonymization.AuthenticationKeyLen, authKey[:])
 		// validation code is the first 5 bytes of HMAC(SHA256) of random nonce; each thread needs its own validator!
-		if validator, err := anonymization.NewKeyValidator(crypto.SHA256, authKey[:],
-			5 /*length*/, bt.Config.EncryptionValSalt, anonymization.NonceNone, false /*withNonce*/, true /*pre-allocated HMAC*/); err != nil {
+		if validator, err := anonymization.NewKeyValidator(crypto.SHA256,
+			authKey[:], 5 /*length*/, salt, anonymization.NonceNone,
+			false /*withNonce*/, true /*pre-allocated HMAC*/); err != nil {
 			return err
 		} else {
 			bt.validator = validator
