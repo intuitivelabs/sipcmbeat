@@ -272,16 +272,6 @@ func (bt *Sipcmbeat) initEncryption() error {
 	if len(bt.Config.EncryptionPassphrase) > 0 {
 		// generate encryption key from passphrase
 		anonymization.GenerateKeyFromPassphraseAndCopy(bt.Config.EncryptionPassphrase, anonymization.EncryptionKeyLen, encKey[:])
-		// key is authenticated only when it is generated from a passphrase
-		// generate authentication (HMAC) key from passphrase
-		anonymization.GenerateKeyFromPassphraseAndCopy(bt.Config.EncryptionPassphrase, anonymization.AuthenticationKeyLen, authKey[:])
-		// validation code is the first 5 bytes of HMAC(SHA256) of random nonce; each thread needs its own validator!
-		if validator, err := anonymization.NewKeyValidator(crypto.SHA256, authKey[:],
-			5 /*length*/, bt.Config.EncryptionValSalt, anonymization.NonceNone, false /*withNonce*/, true /*pre-allocated HMAC*/); err != nil {
-			return err
-		} else {
-			bt.validator = validator
-		}
 	} else {
 		// copy the configured key into the one used during realtime processing
 		if decoded, err := hex.DecodeString(bt.Config.EncryptionKey); err != nil {
@@ -289,6 +279,16 @@ func (bt *Sipcmbeat) initEncryption() error {
 		} else {
 			subtle.ConstantTimeCopy(1, encKey[:], decoded)
 		}
+	}
+
+	// generate authentication (HMAC) key from encryption key
+	anonymization.GenerateKeyFromBytesAndCopy(encKey[:], anonymization.AuthenticationKeyLen, authKey[:])
+	// validation code is the first 5 bytes of HMAC(SHA256) of random nonce; each thread needs its own validator!
+	if validator, err := anonymization.NewKeyValidator(crypto.SHA256, authKey[:],
+		5 /*length*/, bt.Config.EncryptionValSalt, anonymization.NonceNone, false /*withNonce*/, true /*pre-allocated HMAC*/); err != nil {
+		return err
+	} else {
+		bt.validator = validator
 	}
 
 	if ipcipher, err := anonymization.NewCipher(encKey[:]); err != nil {
