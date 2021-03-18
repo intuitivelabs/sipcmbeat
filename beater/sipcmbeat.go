@@ -32,6 +32,7 @@ import (
 	"github.com/intuitivelabs/counters"
 	"github.com/intuitivelabs/sipcallmon"
 	"github.com/intuitivelabs/slog"
+	//	"github.com/intuitivelabs/timestamp"
 )
 
 // FormatFlags defines event structure or field encoding flags.
@@ -606,7 +607,7 @@ func (bt *Sipcmbeat) publishEv(srcEv *calltr.EventData) {
 		} else {
 			// add a min_length field containing the minimum call duration^
 			addFields(event.Fields, "event.min_length",
-				ed.TS.Sub(sipcallmon.StartTS)/time.Second)
+				ed.TS.SubTime(sipcallmon.StartTS)/time.Second)
 		}
 		if ed.ReplStatus == 0 {
 			// created by a BYE, no INVITE seen (no call-start)
@@ -632,7 +633,7 @@ func (bt *Sipcmbeat) publishEv(srcEv *calltr.EventData) {
 		} else {
 			// add a min_length field containing the minimum call duration^
 			addFields(event.Fields, "event.min_lifetime",
-				ed.TS.Sub(sipcallmon.StartTS)/time.Second)
+				ed.TS.SubTime(sipcallmon.StartTS)/time.Second)
 		}
 		addFields(event.Fields, "sip.response.last", ed.ReplStatus)
 
