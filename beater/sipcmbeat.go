@@ -724,10 +724,11 @@ func (bt *Sipcmbeat) publishEv(srcEv *calltr.EventData) {
 	if encFlags != 0 {
 		if bt.validator != nil {
 			// the precomputed validation code cand be used as long nonce is NOT used
-			addFields(event.Fields, "encrypt", strconv.Itoa(int(encFlags))+"|"+bt.validator.Code())
+			addFields(event.Fields, "encrypt_flags", strconv.Itoa(int(encFlags)))
+			addFields(event.Fields, "encrypt", bt.validator.Code())
 		}
 	} else {
-		addFields(event.Fields, "encrypt", "0")
+		addFields(event.Fields, "encrypt_flags", "0")
 	}
 	bt.client.Publish(event)
 	bt.stats.Inc(bt.cnts.EvPub)
