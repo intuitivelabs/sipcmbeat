@@ -7,15 +7,19 @@
       description: >
           Event Type
       example: call-start
+    - name: encrypt_flags
+      type: keyword 
+      description: >
+          Bit flags describing event encryption - 
+          0 for default, 1 encrypted client IP, 2 encrypted server IP,
+          4 encrypted CallID, 8 encrypted URIs.
+      example: 3 (encrypted client and server IPs)
     - name: encrypt 
       type: keyword 
       description: >
           Information about event encryption.
-          It has the following format "flags | key validation code"
-          "flags" values 0 for default, 1 encrypted client IP, 2 encrypted server IP,
-          4 encrypted CallID, 8 encrypted URIs.
-          "key validation code" has the format "hexadecimal code:salt[:nonce]"
-      example: 3|4bba8:foobar:706377213 (encrypted client and server IPs, hexadecimal code, salt and nonce)
+          It has the format "hexadecimal code:salt[:nonce]"
+      example: 4bba8:foobar:706377213 (hexadecimal code, salt and nonce)
     - name: sip
       type: group
       fields:
