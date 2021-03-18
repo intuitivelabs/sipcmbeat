@@ -32,6 +32,7 @@ import (
 	"github.com/intuitivelabs/counters"
 	"github.com/intuitivelabs/sipcallmon"
 	"github.com/intuitivelabs/slog"
+	//	"github.com/intuitivelabs/timestamp"
 )
 
 // FormatFlags defines event structure or field encoding flags.
@@ -604,7 +605,7 @@ func (bt *Sipcmbeat) publishEv(srcEv *calltr.EventData) {
 		} else {
 			// add a min_length field containing the minimum call duration^
 			addFields(event.Fields, "event.min_length",
-				ed.TS.Sub(sipcallmon.StartTS)/time.Second)
+				ed.TS.SubTime(sipcallmon.StartTS)/time.Second)
 		}
 		if ed.ReplStatus == 0 {
 			// created by a BYE, no INVITE seen (no call-start)
@@ -630,7 +631,7 @@ func (bt *Sipcmbeat) publishEv(srcEv *calltr.EventData) {
 		} else {
 			// add a min_length field containing the minimum call duration^
 			addFields(event.Fields, "event.min_lifetime",
-				ed.TS.Sub(sipcallmon.StartTS)/time.Second)
+				ed.TS.SubTime(sipcallmon.StartTS)/time.Second)
 		}
 		addFields(event.Fields, "sip.response.last", ed.ReplStatus)
 
@@ -721,10 +722,11 @@ func (bt *Sipcmbeat) publishEv(srcEv *calltr.EventData) {
 	if encFlags != 0 {
 		if bt.validator != nil {
 			// the precomputed validation code cand be used as long nonce is NOT used
-			addFields(event.Fields, "encrypt", strconv.Itoa(int(encFlags))+"|"+bt.validator.Code())
+			addFields(event.Fields, "encrypt_flags", strconv.Itoa(int(encFlags)))
+			addFields(event.Fields, "encrypt", bt.validator.Code())
 		}
 	} else {
-		addFields(event.Fields, "encrypt", "0")
+		addFields(event.Fields, "encrypt_flags", "0")
 	}
 	bt.client.Publish(event)
 	bt.stats.Inc(bt.cnts.EvPub)
