@@ -9,7 +9,6 @@ package beater
 import (
 	"encoding/hex"
 	"fmt"
-	"os"
 	"strconv"
 	//	"runtime/pprof"
 	"crypto"
@@ -471,17 +470,23 @@ waitsig:
 					bt.publishEv(ev)
 					bt.evRing.Put(bt.evIdx)
 					if bt.stats.Get(bt.cnts.EvNilConsec) != 0 {
-						fmt.Fprintf(os.Stderr, "recovered from NIL ev[%d]: %p (last %d:%d) - %d cycles\n",
-							bt.evIdx, ev, last, bt.evRing.LastIdx(),
-							bt.stats.Get(bt.cnts.EvNilConsec))
+						if Log.INFOon() {
+							Log.INFO("recovered from NIL ev[%d]:"+
+								" %p (last %d:%d) - %d cycles\n",
+								bt.evIdx, ev, last, bt.evRing.LastIdx(),
+								bt.stats.Get(bt.cnts.EvNilConsec))
+						}
 					}
 					bt.stats.Set(bt.cnts.EvNilConsec, 0)
 					bt.evIdx = nxtIdx
 				} else {
 					bt.stats.Inc(bt.cnts.EvNilTotal)
 					if bt.stats.Inc(bt.cnts.EvNilConsec) == 1 {
-						fmt.Fprintf(os.Stderr, "GOT NIL ev[%d]: %p err %d (last %d:%d)\n",
-							bt.evIdx, ev, err, last, bt.evRing.LastIdx())
+						if Log.INFOon() {
+							Log.INFO("GOT NIL ev[%d]:"+
+								" %p err %d (last %d:%d)\n",
+								bt.evIdx, ev, err, last, bt.evRing.LastIdx())
+						}
 					}
 					switch err {
 					case sipcallmon.ErrBusy:
