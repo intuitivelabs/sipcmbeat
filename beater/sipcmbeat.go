@@ -336,7 +336,7 @@ func (bt *Sipcmbeat) initEncryption(b *beat.Beat) error {
 	anonymization.GenerateKeyFromBytesAndCopy(encKey[:], anonymization.AuthenticationKeyLen, authKey[:])
 	// validation code is the first 5 bytes of HMAC(SHA256) of random nonce; each thread needs its own validator!
 	if validator, err := anonymization.NewKeyValidator(crypto.SHA256, authKey[:],
-		5 /*length*/, bt.Config.EncryptionValSalt, anonymization.NonceNone, false /*withNonce*/, true /*pre-allocated HMAC*/); err != nil {
+		5 /*length*/, salt, anonymization.NonceNone, false /*withNonce*/, true /*pre-allocated HMAC*/); err != nil {
 		return err
 	} else {
 		bt.validator = validator
