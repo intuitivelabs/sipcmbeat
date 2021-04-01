@@ -555,6 +555,32 @@ func addFields(m common.MapStr, label string, val interface{}) bool {
 	return true
 }
 
+// return event source ip (possibly encrypted) and sets encFlags
+func (bt *Sipcmbeat) getSrcIP(ed *calltr.EventData, encFlags *FormatFlags) net.IP {
+	if bt.Config.UseIPAnonymization() {
+		c := make([]byte, len(ed.Src))
+		bt.ipcipher.Encrypt(c, ed.Src)
+		if encFlags != nil {
+			*encFlags |= FormatCltIPencF
+		}
+		return net.IP(c[:])
+	}
+	return ed.Src
+}
+
+// return event destination ip (possibly encrypted) and sets encFlags
+func (bt *Sipcmbeat) getDstIP(ed *calltr.EventData, encFlags *FormatFlags) net.IP {
+	if bt.Config.UseIPAnonymization() {
+		c := make([]byte, len(ed.Dst))
+		bt.ipcipher.Encrypt(c, ed.Dst)
+		if encFlags != nil {
+			*encFlags |= FormatSrvIPencF
+		}
+		return net.IP(c[:])
+	}
+	return ed.Dst
+}
+
 func (bt *Sipcmbeat) publishEv(srcEv *calltr.EventData) {
 	if bt.client == nil { // dev null
 		return
@@ -674,23 +700,9 @@ func (bt *Sipcmbeat) publishEv(srcEv *calltr.EventData) {
 
 	addFields(event.Fields, "event.call_start", ed.FinReplTS)
 	addFields(event.Fields, "client.transport", ed.ProtoF.ProtoName())
-	if bt.Config.UseIPAnonymization() {
-		c := make([]byte, len(ed.Src))
-		bt.ipcipher.Encrypt(c, ed.Src)
-		addFields(event.Fields, "client.ip", net.IP(c[:]))
-		encFlags |= FormatCltIPencF
-	} else {
-		addFields(event.Fields, "client.ip", ed.Src)
-	}
+	addFields(event.Fields, "client.ip", bt.getSrcIP(&ed, &encFlags))
 	addFields(event.Fields, "client.port", ed.SPort)
-	if bt.Config.UseIPAnonymization() {
-		c := make([]byte, len(ed.Dst))
-		bt.ipcipher.Encrypt(c, ed.Dst)
-		addFields(event.Fields, "server.ip", net.IP(c[:]))
-		encFlags |= FormatSrvIPencF
-	} else {
-		addFields(event.Fields, "server.ip", ed.Dst)
-	}
+	addFields(event.Fields, "server.ip", bt.getDstIP(&ed, &encFlags))
 	addFields(event.Fields, "server.port", ed.DPort)
 	// rate
 	addFields(event.Fields, "rate.exceeded", ed.Rate.ExCnt)
@@ -700,7 +712,8 @@ func (bt *Sipcmbeat) publishEv(srcEv *calltr.EventData) {
 	// rate.period is stored in milliseconds (epoch_millis)
 	addFields(event.Fields, "rate.period", ed.Rate.Intvl.Nanoseconds()/1000000)
 	addFields(event.Fields, "rate.since", ed.Rate.T)
-	addFields(event.Fields, "rate.key", ed.Type.String()+":"+ed.Src.String())
+	addFields(event.Fields, "rate.key", ed.Type.String()+":"+
+		bt.getSrcIP(&ed, &encFlags).String())
 
 	// dbg
 	addFields(event.Fields, "dbg.state", ed.State.String())
