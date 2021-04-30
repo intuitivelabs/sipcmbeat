@@ -30,6 +30,7 @@ import (
 	"github.com/intuitivelabs/calltr"
 	"github.com/intuitivelabs/counters"
 	"github.com/intuitivelabs/sipcallmon"
+	"github.com/intuitivelabs/sipsp"
 	"github.com/intuitivelabs/slog"
 	//	"github.com/intuitivelabs/timestamp"
 )
@@ -284,6 +285,9 @@ func keystoreVal(b *beat.Beat, key string) (string, error) {
 func (bt *Sipcmbeat) initEncryption(b *beat.Beat) error {
 	var encKey [anonymization.EncryptionKeyLen]byte
 	var authKey [anonymization.AuthenticationKeyLen]byte
+	var iv [anonymization.AuthenticationKeyLen]byte
+	var uk [anonymization.AuthenticationKeyLen]byte
+	var hk [anonymization.AuthenticationKeyLen]byte
 	const ksPrefix = "keystore:"
 
 	salt := bt.Config.EncryptionValSalt
@@ -347,6 +351,16 @@ func (bt *Sipcmbeat) initEncryption(b *beat.Beat) error {
 	} else {
 		bt.ipcipher = ipcipher.(*anonymization.Ipcipher)
 	}
+	// generate IV for CBC
+	anonymization.GenerateIV(encKey[:], anonymization.EncryptionKeyLen, iv[:])
+	// generate key for URI's user part
+	anonymization.GenerateURIUserKey(encKey[:], anonymization.EncryptionKeyLen, uk[:])
+	// generate key for URI's host part
+	anonymization.GenerateURIHostKey(encKey[:], anonymization.EncryptionKeyLen, hk[:])
+
+	// initialize the URI CBC based encryption
+	_ = anonymization.NewUriCBC(iv[:], uk[:], hk[:])
+
 	return nil
 }
 
@@ -555,6 +569,27 @@ func addFields(m common.MapStr, label string, val interface{}) bool {
 	return true
 }
 
+func (bt *Sipcmbeat) getURI(buf []byte, encFlags *FormatFlags) ([]byte, error) {
+	if bt.Config.UseURIAnonymization() {
+		// anonymize URI
+		var uri sipsp.PsipURI
+		if err, _ := sipsp.ParseURI(buf, &uri); err != 0 {
+			return nil, fmt.Errorf("failed to parse SIP URI during anonymization: %w", err)
+		}
+		anon := anonymization.AnonymizeBuf()
+		au := anonymization.AnonymURI(uri)
+		if err := au.Anonymize(anon, buf, true); err != nil {
+			return nil, fmt.Errorf("failed to anonymize SIP URI: %w", err)
+		}
+		if encFlags != nil {
+			*encFlags |= FormatURIencF
+		}
+		return (*sipsp.PsipURI)(&au).Flat(anon), nil
+	}
+	// pass through
+	return buf, nil
+}
+
 // return event source ip (possibly encrypted) and sets encFlags
 func (bt *Sipcmbeat) getSrcIP(ed *calltr.EventData, encFlags *FormatFlags) net.IP {
 	if bt.Config.UseIPAnonymization() {
@@ -613,15 +648,34 @@ func (bt *Sipcmbeat) publishEv(srcEv *calltr.EventData) {
 	addFields(event.Fields, "sip.call_id", str(ed.CallID.Get(ed.Buf)))
 	for i := 0; i < len(ed.Attrs); i++ {
 		if !ed.Attrs[i].Empty() {
-			ok := addFields(event.Fields, calltr.CallAttrIdx(i).String(),
-				str(ed.Attrs[i].Get(ed.Buf)))
-			if !ok {
-				logp.Err("failed to add %q to Fields\n",
-					calltr.CallAttrIdx(i).String())
-				bt.stats.Inc(bt.cnts.EvErr)
+			switch calltr.CallAttrIdx(i) {
+			case calltr.AttrToURI, calltr.AttrFromURI:
+				uri, err := bt.getURI(ed.Attrs[i].Get(ed.Buf), &encFlags)
+				if err != nil {
+					logp.Err("failed to add %q to Fields: %s\n",
+						calltr.CallAttrIdx(i).String(), err.Error())
+					bt.stats.Inc(bt.cnts.EvErr)
+					continue
+				}
+				ok := addFields(event.Fields, calltr.CallAttrIdx(i).String(),
+					str(uri))
+				if !ok {
+					logp.Err("failed to add %q to Fields\n",
+						calltr.CallAttrIdx(i).String())
+					bt.stats.Inc(bt.cnts.EvErr)
+				}
+
+			default:
+				ok := addFields(event.Fields, calltr.CallAttrIdx(i).String(),
+					str(ed.Attrs[i].Get(ed.Buf)))
+				if !ok {
+					logp.Err("failed to add %q to Fields\n",
+						calltr.CallAttrIdx(i).String())
+					bt.stats.Inc(bt.cnts.EvErr)
+				}
+				//	event.Fields[calltr.CallAttrIdx(i).String()] =
+				//		str(ed.Attrs[i].Get(ed.Buf))
 			}
-			//	event.Fields[calltr.CallAttrIdx(i).String()] =
-			//		str(ed.Attrs[i].Get(ed.Buf))
 		}
 	}
 	// some fields are added only to some events: handle this below
