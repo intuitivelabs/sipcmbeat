@@ -285,9 +285,9 @@ func keystoreVal(b *beat.Beat, key string) (string, error) {
 func (bt *Sipcmbeat) initEncryption(b *beat.Beat) error {
 	var encKey [anonymization.EncryptionKeyLen]byte
 	var authKey [anonymization.AuthenticationKeyLen]byte
-	var iv [anonymization.AuthenticationKeyLen]byte
-	var uk [anonymization.AuthenticationKeyLen]byte
-	var hk [anonymization.AuthenticationKeyLen]byte
+	var iv [anonymization.EncryptionKeyLen]byte
+	var uk [anonymization.EncryptionKeyLen]byte
+	var hk [anonymization.EncryptionKeyLen]byte
 	const ksPrefix = "keystore:"
 
 	salt := bt.Config.EncryptionValSalt
