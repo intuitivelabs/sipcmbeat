@@ -569,25 +569,24 @@ func addFields(m common.MapStr, label string, val interface{}) bool {
 	return true
 }
 
-func (bt *Sipcmbeat) getURI(buf []byte, encFlags *FormatFlags) ([]byte, error) {
+func (bt *Sipcmbeat) getURI(dst []byte, src []byte, encFlags *FormatFlags) ([]byte, error) {
 	if bt.Config.UseURIAnonymization() {
 		// anonymize URI
 		var uri sipsp.PsipURI
-		if err, _ := sipsp.ParseURI(buf, &uri); err != 0 {
+		if err, _ := sipsp.ParseURI(src, &uri); err != 0 {
 			return nil, fmt.Errorf("failed to parse SIP URI during anonymization: %w", err)
 		}
-		anon := anonymization.AnonymizeBuf()
 		au := anonymization.AnonymURI(uri)
-		if err := au.Anonymize(anon, buf, true); err != nil {
+		if err := au.Anonymize(dst, src, true); err != nil {
 			return nil, fmt.Errorf("failed to anonymize SIP URI: %w", err)
 		}
 		if encFlags != nil {
 			*encFlags |= FormatURIencF
 		}
-		return (*sipsp.PsipURI)(&au).Flat(anon), nil
+		return (*sipsp.PsipURI)(&au).Flat(dst), nil
 	}
 	// pass through
-	return buf, nil
+	return src[:], nil
 }
 
 // return event source ip (possibly encrypted) and sets encFlags
@@ -649,13 +648,20 @@ func (bt *Sipcmbeat) publishEv(srcEv *calltr.EventData) {
 	for i := 0; i < len(ed.Attrs); i++ {
 		if !ed.Attrs[i].Empty() {
 			switch calltr.CallAttrIdx(i) {
-			case calltr.AttrToURI, calltr.AttrFromURI:
-				uri, err := bt.getURI(ed.Attrs[i].Get(ed.Buf), &encFlags)
-				if err != nil {
-					logp.Err("failed to add %q to Fields: %s\n",
-						calltr.CallAttrIdx(i).String(), err.Error())
-					bt.stats.Inc(bt.cnts.EvErr)
-					continue
+			case calltr.AttrToURI, calltr.AttrFromURI, calltr.AttrContact:
+				var (
+					uriBuf []byte
+					err    error
+				)
+				uri := ed.Attrs[i].Get(ed.Buf)
+				if bt.Config.UseURIAnonymization() {
+					uriBuf = make([]byte, 2*len(uri))
+					if uri, err = bt.getURI(uriBuf, uri, &encFlags); err != nil {
+						logp.Err("failed to add %q to Fields: %s\n",
+							calltr.CallAttrIdx(i).String(), err.Error())
+						bt.stats.Inc(bt.cnts.EvErr)
+						continue
+					}
 				}
 				ok := addFields(event.Fields, calltr.CallAttrIdx(i).String(),
 					str(uri))
