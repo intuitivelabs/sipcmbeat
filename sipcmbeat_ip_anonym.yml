@@ -23,7 +23,7 @@ sipcmbeat:
   #reg_delta: 0
   contact_ignore_port: false
   encrypt_ip_addresses: true
-  #encrypt_uris: false
+  encrypt_uris: false
   #encrypt_call_ids: false
   encryption_passphrase: "foobar"
   #encryption_key: ""
