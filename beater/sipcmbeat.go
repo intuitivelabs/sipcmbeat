@@ -576,6 +576,7 @@ func (bt *Sipcmbeat) getURI(dst []byte, src []byte, encFlags *FormatFlags) ([]by
 		if err, _ := sipsp.ParseURI(src, &uri); err != 0 {
 			return nil, fmt.Errorf("failed to parse SIP URI during anonymization: %w", err)
 		}
+		//anonymization.DbgOn()
 		au := anonymization.AnonymURI(uri)
 		if err := au.Anonymize(dst, src, true); err != nil {
 			return nil, fmt.Errorf("failed to anonymize SIP URI: %w", err)
@@ -655,7 +656,7 @@ func (bt *Sipcmbeat) publishEv(srcEv *calltr.EventData) {
 				)
 				uri := ed.Attrs[i].Get(ed.Buf)
 				if bt.Config.UseURIAnonymization() {
-					uriBuf = make([]byte, 2*len(uri))
+					uriBuf = make([]byte, 4*len(uri))
 					if uri, err = bt.getURI(uriBuf, uri, &encFlags); err != nil {
 						logp.Err("failed to add %q to Fields: %s\n",
 							calltr.CallAttrIdx(i).String(), err.Error())
