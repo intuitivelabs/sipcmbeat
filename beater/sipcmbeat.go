@@ -49,6 +49,7 @@ const (
 
 type statCounters struct {
 	EvPub       counters.Handle
+	EvStats     counters.Handle
 	EvSkipped   counters.Handle
 	EvBusy      counters.Handle
 	EvInvalid   counters.Handle
@@ -196,6 +197,7 @@ type Sipcmbeat struct {
 	evIdx     sipcallmon.EvRingIdx // curent position in the ring
 	evRing    *sipcallmon.EvRing
 	wg        *sync.WaitGroup
+	statsT    *time.Ticker // periodic timer for stats
 	Config    sipcallmon.Config
 	ipcipher  *anonymization.Ipcipher
 	validator anonymization.Validator
@@ -218,8 +220,11 @@ func dbg_fileno() uintptr {
 func (bt *Sipcmbeat) initCounters() error {
 	cntDefs := [...]counters.Def{
 		{&bt.cnts.EvPub, 0, nil, nil, "published",
-			"events attempted to be published" +
+			"total events attempted to be published" +
 				" (see also published_ack)"},
+		{&bt.cnts.EvStats, 0, nil, nil, "stats",
+			"statistics events attempted to be published" +
+				" (part of \"published\")"},
 		{&bt.cnts.EvSkipped, 0, nil, nil, "skipped",
 			"events skipped due to slow output"},
 		{&bt.cnts.EvBusy, 0, nil, nil, "busy",
@@ -428,6 +433,12 @@ func (bt *Sipcmbeat) Run(b *beat.Beat) error {
 	//f, err := os.Create("cpuprofile")
 	//pprof.StartCPUProfile(f)
 	bt.wg.Add(1)
+	if bt.Config.StatsInterval > 0 {
+		bt.statsT = time.NewTicker(bt.Config.StatsInterval)
+	} else {
+		// init with null channel (== disabled)
+		bt.statsT = &time.Ticker{}
+	}
 	go bt.consumeEv()
 	err = sipcallmon.Run(&bt.Config)
 	if err != nil {
@@ -446,6 +457,9 @@ func (bt *Sipcmbeat) Stop() {
 		bt.client = nil
 	}
 	close(bt.done)
+	if bt.statsT != nil && bt.statsT.C != nil {
+		bt.statsT.Stop()
+	}
 	if bt.wg != nil {
 		bt.wg.Wait()
 		bt.wg = nil
@@ -522,6 +536,10 @@ waitsig:
 					}
 					bt.evIdx = nxtIdx
 				}
+			}
+		case _, ok := <-bt.statsT.C:
+			if ok {
+				bt.publishCounters()
 			}
 		}
 	}
