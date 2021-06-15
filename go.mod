@@ -15,6 +15,7 @@ replace (
 	github.com/insomniacslk/dhcp => github.com/elastic/dhcp v0.0.0-20200227161230-57ec251c7eb3 // indirect
 	//	golang.org/x/tools => golang.org/x/tools v0.0.0-20200602230032-c00d67ef29d0 // release 1.14
 	github.com/tonistiigi/fifo => github.com/containerd/fifo v0.0.0-20190816180239-bda0ff6ed73c
+	github.com/intuitivelabs/anonymization => github.com/intuitivelabs/anonymization v1.1.1-0.20210615151021-d7d5bbea51a7
 )
 
 // NOTE: following replace recommended by beats, but breaks sipcallmon

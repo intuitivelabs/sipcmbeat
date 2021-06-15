@@ -285,9 +285,6 @@ func keystoreVal(b *beat.Beat, key string) (string, error) {
 func (bt *Sipcmbeat) initEncryption(b *beat.Beat) error {
 	var encKey [anonymization.EncryptionKeyLen]byte
 	var authKey [anonymization.AuthenticationKeyLen]byte
-	var iv [anonymization.EncryptionKeyLen]byte
-	var uk [anonymization.EncryptionKeyLen]byte
-	var hk [anonymization.EncryptionKeyLen]byte
 	const ksPrefix = "keystore:"
 
 	salt := bt.Config.EncryptionValSalt
@@ -351,15 +348,9 @@ func (bt *Sipcmbeat) initEncryption(b *beat.Beat) error {
 	} else {
 		bt.ipcipher = ipcipher.(*anonymization.Ipcipher)
 	}
-	// generate IV for CBC
-	anonymization.GenerateIV(encKey[:], anonymization.EncryptionKeyLen, iv[:])
-	// generate key for URI's user part
-	anonymization.GenerateURIUserKey(encKey[:], anonymization.EncryptionKeyLen, uk[:])
-	// generate key for URI's host part
-	anonymization.GenerateURIHostKey(encKey[:], anonymization.EncryptionKeyLen, hk[:])
-
 	// initialize the URI CBC based encryption
-	_ = anonymization.NewUriCBC(iv[:], uk[:], hk[:])
+	anonymization.InitUriKeysFromMasterKey(encKey[:], anonymization.EncryptionKeyLen)
+	_ = anonymization.NewUriCBC(anonymization.GetUriKeys())
 
 	return nil
 }
