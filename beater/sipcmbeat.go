@@ -566,13 +566,13 @@ func addFields(m common.MapStr, label string, val interface{}) bool {
 }
 
 func (bt *Sipcmbeat) getCallID(dst, src []byte, callID sipsp.PField, encFlags *FormatFlags) ([]byte, error) {
-	if bt.Config.UseCallIDAnonymization() {
+	if bt.Config.UseCallIDAnonymization() && (len(src) > 0) {
 		// anonymize Call-ID
 		//anonymization.DbgOn()
 		ac := anonymization.AnonymCallId{
 			PField: callID,
 		}
-		if err := ac.Anonymize(dst, ac.PField.Get(src)); err != nil {
+		if err := ac.Anonymize(dst, src); err != nil {
 			return nil, fmt.Errorf("Call-ID field processing error: %w", err)
 		}
 		if encFlags != nil {
