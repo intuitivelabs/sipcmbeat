@@ -569,7 +569,7 @@ func (bt *Sipcmbeat) getCallID(dst, src []byte, callID sipsp.PField, encFlags *F
 	if bt.Config.UseCallIDAnonymization() && (len(src) > 0) {
 		// anonymize Call-ID
 		//anonymization.DbgOn()
-		ac := anonymization.AnonymCallId{
+		ac := anonymization.AnonymPField{
 			PField: callID,
 		}
 		if err := ac.Anonymize(dst, src); err != nil {
