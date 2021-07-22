@@ -37,9 +37,9 @@ require (
 	github.com/go-sourcemap/sourcemap v2.1.3+incompatible // indirect
 	github.com/hashicorp/errwrap v1.1.0 // indirect
 	github.com/intuitivelabs/anonymization v1.0.3-0.20210318230746-211d959e1e5f
-	github.com/intuitivelabs/calltr v1.0.2-0.20210405163501-b24a6bed434b
+	github.com/intuitivelabs/calltr v1.0.2-0.20210718151834-6ab5bbd85e0a
 	github.com/intuitivelabs/counters v0.1.2-0.20210223181853-f6621bba8b35
-	github.com/intuitivelabs/sipcallmon v0.7.1-0.20210405164221-6277b5fdfc85
+	github.com/intuitivelabs/sipcallmon v0.7.1-0.20210722074432-bc1ff3b291d5
 	github.com/intuitivelabs/slog v0.0.2-0.20210321224300-46645dc5b0ce
 	github.com/josephspurrier/goversioninfo v1.2.0 // indirect
 	github.com/magefile/mage v1.11.0
