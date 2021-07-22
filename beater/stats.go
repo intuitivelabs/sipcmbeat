@@ -40,8 +40,8 @@ func (bt *Sipcmbeat) publishCounters() {
 	g := &counters.RootGrp
 	// or g:= coutners.RootGrp.GetSubGroupDot("foo.bar") for foo.bar only
 
-	flags := counters.PrRec | counters.PrFullName | counters.PrDesc |
-		cntLongFormat
+	flags := counters.PrRec | counters.PrFullName |
+		cntLongFormat /* | counters.PrDesc */
 	addGroup(cntHash, g, flags)
 	if flags&counters.PrRec != 0 {
 		addSubGroups(cntHash, g, flags)
