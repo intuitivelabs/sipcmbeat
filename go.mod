@@ -38,9 +38,9 @@ require (
 	github.com/hashicorp/errwrap v1.1.0 // indirect
 	github.com/intuitivelabs/anonymization v1.1.0
 	github.com/intuitivelabs/calltr v1.0.2-0.20210405163501-b24a6bed434b
-	github.com/intuitivelabs/counters v0.1.2-0.20210223181853-f6621bba8b35
-	github.com/intuitivelabs/sipcallmon v0.7.1-0.20210405164221-6277b5fdfc85
-	github.com/intuitivelabs/sipsp v1.0.2
+	github.com/intuitivelabs/counters v0.1.2-0.20210707135030-94c624574f9c
+	github.com/intuitivelabs/sipcallmon v0.7.1-0.20210819090338-765f9547d32e
+	github.com/intuitivelabs/sipsp v1.0.3-0.20210705201220-efbf7165d0a8
 	github.com/intuitivelabs/slog v0.0.2-0.20210321224300-46645dc5b0ce
 	github.com/josephspurrier/goversioninfo v1.2.0 // indirect
 	github.com/magefile/mage v1.11.0
