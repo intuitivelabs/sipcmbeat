@@ -46,6 +46,14 @@
             type: keyword
             description: >
                 CallID
+          - name: pai1
+            type: keyword
+            description: >
+                uri in the first P-Asserted-Identity header
+          - name: pai2
+            type: keyword
+            description: >
+                uri in the second P-Asserted-Identity header (if present)
           - name: originator
             type: keyword
             description: >
