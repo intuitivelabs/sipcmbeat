@@ -110,6 +110,8 @@ sipcmbeat:
   # turn on/off CallID encryption, default off
   # (requires a set encryption_passphrase or encryption_key)
   encrypt_call_ids: false
+  # interval for generating statistics/counters events (default 5min).
+  stats_interval: 5m
 
 # ================================== General ===================================
 
