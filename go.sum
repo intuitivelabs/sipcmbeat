@@ -431,6 +431,7 @@ github.com/intuitivelabs/mallocs/qmalloc v0.0.0-20210329175534-e5464bbc8fb0 h1:n
 github.com/intuitivelabs/mallocs/qmalloc v0.0.0-20210329175534-e5464bbc8fb0/go.mod h1:u4mnITzh4jd2zV0mSx4icHt6wwxXn828KzYKhZGHtgQ=
 github.com/intuitivelabs/sipcallmon v0.7.1-0.20210824110717-8535ff4a1639 h1:SS2mxl86cXRW4D7HUDIrQkNmdJwm8chrflGk2HHZyxY=
 github.com/intuitivelabs/sipcallmon v0.7.1-0.20210824110717-8535ff4a1639/go.mod h1:Ab/zjMDBGduXBTvmasewX/7r9Mj0/NTt3R8o5LXdgfk=
+github.com/intuitivelabs/sipsp v1.0.2-0.20210318110124-29ff49375d78 h1:mhc719UDpDOPCEKMm8NJuQvxuXCWdANvwpOOzMMSsms=
 github.com/intuitivelabs/sipsp v1.0.2-0.20210318110124-29ff49375d78/go.mod h1:Hms31r05e3BO/rpYICAIa/N01Ju0eLuUB3IE1GXVqXo=
 github.com/intuitivelabs/sipsp v1.0.2/go.mod h1:Hms31r05e3BO/rpYICAIa/N01Ju0eLuUB3IE1GXVqXo=
 github.com/intuitivelabs/sipsp v1.0.3-0.20210705201220-efbf7165d0a8/go.mod h1:Hms31r05e3BO/rpYICAIa/N01Ju0eLuUB3IE1GXVqXo=

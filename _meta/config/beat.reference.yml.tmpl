@@ -32,6 +32,10 @@ sipcmbeat:
   iface: ""
   # berkley packet filter for capture
   bpf: ""
+  # udp destination ports used fo vxlan (tunnel endpoint).
+  # Packets arriving on these ports will be automatically decapsulated.
+  # An empty lists means disabled. The standard vxlan port is 4789.
+  vxlan_ports: []
   # port for the internal http server, 0 == disable
   http_port: 8080
   # listen address for the internal http server
