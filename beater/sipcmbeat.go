@@ -667,7 +667,8 @@ func (bt *Sipcmbeat) publishEv(srcEv *calltr.EventData) {
 	for i := 0; i < len(ed.Attrs); i++ {
 		if !ed.Attrs[i].Empty() {
 			switch calltr.CallAttrIdx(i) {
-			case calltr.AttrToURI, calltr.AttrFromURI, calltr.AttrContact, calltr.AttrRURI:
+			case calltr.AttrToURI, calltr.AttrFromURI, calltr.AttrContact,
+				calltr.AttrRURI, calltr.AttrPAI1, calltr.AttrPAI2:
 				var (
 					uriBuf []byte
 					err    error
