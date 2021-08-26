@@ -139,6 +139,8 @@ processors:
 # "publish", "service".
 #logging.selectors: ["*"]
 
+logging.to_stderr: true
+
 # ============================= X-Pack Monitoring ==============================
 # Sipcmbeat can export internal metrics to a central Elasticsearch monitoring
 # cluster.  This requires xpack monitoring to be enabled in Elasticsearch.  The
