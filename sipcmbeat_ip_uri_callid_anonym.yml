@@ -5,14 +5,17 @@
 sipcmbeat:
   # Defines how often an event is sent to the output
   verbose: false
+  # parse / capture log level (same values as log_level above)
+  parse_log_level: 2
+  log_level: 2
   pcap: ""
   replay: false
   replay_min_delay: 275ms
-  replay_max_delay: 0
+  replay_max_delay: 300ms 
   replay_scale: 0
   run_forever: false
-  iface: "any"
-  bpf: "udp"
+  #iface: "any"
+  #bpf: "udp"
   http_port: 8080
   http_addr: "127.0.0.1"
   tcp_gc_int: 20s
@@ -20,14 +23,18 @@ sipcmbeat:
   tcp_connection_timeout: 1800s
   max_blocked_timeout: 5s
   event_buffer_size:  10240
-  reg_delta: 0
+  #reg_delta: 0
   contact_ignore_port: false
   encrypt_ip_addresses: true
-  #encrypt_uris: false
-  #encrypt_call_ids: false
-  #encryption_passphrase: ""
-  encryption_key: "000102030405060708090a0b0c0d0e0f"
-  encryption_salt: "6ba7b810-9dad-11d1-80b4-00c04fd430c8"
+  encrypt_uris: true
+  encrypt_call_ids: true 
+  #  encryption_passphrase: "foobar"
+  #encryption_key: ""
+  #encryption_salt: "6ba7b810-9dad-11d1-80b4-00c04fd430c8"
+  encryption_key: "9eeeb97ee2e4619cc23767ae1dcfd82b"
+  # include a salt in password verification checksum
+  encryption_salt: 1e22c6fd-7372-4429-a4e4-c39275a95f19
+
 
 # ================================== General ===================================
 
@@ -138,7 +145,6 @@ processors:
 # To enable all selectors use ["*"]. Examples of other selectors are "beat",
 # "publish", "service".
 #logging.selectors: ["*"]
-
 logging.to_stderr: true
 
 # ============================= X-Pack Monitoring ==============================

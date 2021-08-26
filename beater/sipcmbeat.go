@@ -290,9 +290,6 @@ func keystoreVal(b *beat.Beat, key string) (string, error) {
 func (bt *Sipcmbeat) initEncryption(b *beat.Beat) error {
 	var encKey [anonymization.EncryptionKeyLen]byte
 	var authKey [anonymization.AuthenticationKeyLen]byte
-	var iv [anonymization.EncryptionKeyLen]byte
-	var uk [anonymization.EncryptionKeyLen]byte
-	var hk [anonymization.EncryptionKeyLen]byte
 	const ksPrefix = "keystore:"
 
 	salt := bt.Config.EncryptionValSalt
@@ -356,15 +353,14 @@ func (bt *Sipcmbeat) initEncryption(b *beat.Beat) error {
 	} else {
 		bt.ipcipher = ipcipher.(*anonymization.Ipcipher)
 	}
-	// generate IV for CBC
-	anonymization.GenerateIV(encKey[:], anonymization.EncryptionKeyLen, iv[:])
-	// generate key for URI's user part
-	anonymization.GenerateURIUserKey(encKey[:], anonymization.EncryptionKeyLen, uk[:])
-	// generate key for URI's host part
-	anonymization.GenerateURIHostKey(encKey[:], anonymization.EncryptionKeyLen, hk[:])
-
 	// initialize the URI CBC based encryption
-	_ = anonymization.NewUriCBC(iv[:], uk[:], hk[:])
+	anonymization.InitUriKeysFromMasterKey(encKey[:], anonymization.EncryptionKeyLen)
+	_ = anonymization.NewUriCBC(anonymization.GetUriKeys())
+
+	anonymization.InitCallIdKeysFromMasterKey(encKey[:], anonymization.EncryptionKeyLen)
+	_ = anonymization.NewCallIdCBC(anonymization.GetCallIdKeys())
+
+	// initialize the Call-ID CBC based encryption
 
 	return nil
 }
@@ -587,7 +583,34 @@ func addFields(m common.MapStr, label string, val interface{}) bool {
 	return true
 }
 
-func (bt *Sipcmbeat) getURI(dst []byte, src []byte, encFlags *FormatFlags) ([]byte, error) {
+// allocates a buffer which can be used for anonymizing sip header fields
+func newAnonymizationBuf(l int) []byte {
+	if l < 32 {
+		l = 32
+	}
+	return make([]byte, 3*l)
+}
+
+func (bt *Sipcmbeat) getCallID(dst, src []byte, callID sipsp.PField, encFlags *FormatFlags) ([]byte, error) {
+	if bt.Config.UseCallIDAnonymization() && (len(src) > 0) {
+		// anonymize Call-ID
+		//anonymization.DbgOn()
+		ac := anonymization.AnonymPField{
+			PField: callID,
+		}
+		if err := ac.Anonymize(dst, src); err != nil {
+			return nil, fmt.Errorf("Call-ID field processing error: %w", err)
+		}
+		if encFlags != nil {
+			*encFlags |= FormatCallIDencF
+		}
+		return ac.PField.Get(dst), nil
+	}
+	// pass through
+	return callID.Get(src), nil
+}
+
+func (bt *Sipcmbeat) getURI(dst, src []byte, encFlags *FormatFlags) ([]byte, error) {
 	if bt.Config.UseURIAnonymization() {
 		// anonymize URI
 		var uri sipsp.PsipURI
@@ -663,7 +686,19 @@ func (bt *Sipcmbeat) publishEv(srcEv *calltr.EventData) {
 		},
 	}
 	var encFlags FormatFlags
-	addFields(event.Fields, "sip.call_id", str(ed.CallID.Get(ed.Buf)))
+
+	var callIDBuf []byte
+	if bt.Config.UseCallIDAnonymization() {
+		callIDBuf = newAnonymizationBuf(len(ed.CallID.Get(ed.Buf)))
+	}
+	callID, err := bt.getCallID(callIDBuf, ed.Buf, ed.CallID, &encFlags)
+	if err != nil {
+		logp.Err("failed to add sip.call_id to Fields: %s\n",
+			err.Error())
+		bt.stats.Inc(bt.cnts.EvErr)
+	} else {
+		addFields(event.Fields, "sip.call_id", str(callID))
+	}
 	for i := 0; i < len(ed.Attrs); i++ {
 		if !ed.Attrs[i].Empty() {
 			switch calltr.CallAttrIdx(i) {
@@ -675,7 +710,7 @@ func (bt *Sipcmbeat) publishEv(srcEv *calltr.EventData) {
 				)
 				uri := ed.Attrs[i].Get(ed.Buf)
 				if bt.Config.UseURIAnonymization() {
-					uriBuf = make([]byte, 4*len(uri))
+					uriBuf = newAnonymizationBuf(len(uri))
 					if uri, err = bt.getURI(uriBuf, uri, &encFlags); err != nil {
 						logp.Err("failed to add %q to Fields: %s\n",
 							calltr.CallAttrIdx(i).String(), err.Error())
