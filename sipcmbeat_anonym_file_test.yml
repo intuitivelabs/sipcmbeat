@@ -1,0 +1,284 @@
+################### Sipcmbeat Configuration Example #########################
+
+############################# Sipcmbeat ######################################
+
+sipcmbeat:
+  # (very) verbose parser/ capture
+  verbose: false
+  # general log level: BUG -3, CRIT -2; ERR -1; WARN 0, NOTICE 1, INFO 2, DBG 3
+  log_level: 2
+  # log message options, flags:
+  #    short filename:line - 1, long - 2, time stamp:  - 4,
+  #    back trace short - 8, long - 16
+  log_opt: 1
+  # parse / capture log level (same values as log_level above)
+  parse_log_level: 1
+  # parse / capture log message options (same values as log_opt above)
+  parse_log_opt: 4
+  # read packets from pcap files instead of the network
+  pcap: ""
+  # replay packets from pcap keeping recorded delays between packets
+  # (at the recorded "speed").
+  replay: false
+  # minimum delay when replaying pcaps, valid only in pcap replay mode
+  replay_min_delay: 275ms
+  # maximum delay when replaying pcaps, valid only in pcap replay mode
+  replay_max_delay: 0
+  # scale factor for inter packet delay intervals (0 means disabled)
+  replay_scale: 0
+  # keep web server running after the pcap file was fully "replayed"
+  run_forever: true 
+  # interface to capture packets from
+  iface: ""
+  # berkley packet filter for capture
+  bpf: ""
+  # port for the internal http server, 0 == disable
+  http_port: 8080
+  # listen address for the internal http server
+  http_addr: "127.0.0.1"
+  # tcp connections garbage collection interval
+  tcp_gc_int: 20s
+  tcp_reorder_timeout: 60s
+  tcp_connection_timeout: 1800s
+  max_blocked_timeout: 5s
+  # maximum tracked calls (0 for unlimited)
+  calls_max_entries: 0
+  # maximum memory for keeping call state (0 for unlimited)
+  calls_max_mem: 0
+  # how many events will be buffered
+  event_buffer_size:  10240
+  # list of event types that should be blacklisted : [ event1, event2...]
+  # e.g.: [[msg-probe, other-failed, other-timeout, other-ok, parse-error]
+  # blacklisted events will not be generated
+  event_types_blst: ["msg-probe", "other-failed", "other-timeout", "other-ok", "parse-error"]
+  # maximum tracked event rates
+  evr_max_entries: 1048576
+  # event rate max values list (if any exceeded the event will be blacklisted)
+  # 0 disables a rate (e.g. for 2 rates: [20,240,0])
+  evr_limits: [20,240,3600]
+  # event rate time intervals for the corresponding limits and also intervals
+  # on which the rates will be calculated (0 disables)
+  evr_intervals: [1s,1m,1h]
+  # report blacklisted events only if the number of "repetitions" is a multiple
+  # of this value  and 2^k and n < evr_conseq_report_max
+  # To disable exponential back-off for the blacklist re-reporting, set the
+  # value to 0 or to evr_conseq_report_max.
+  evr_conseq_report_min: 100
+  # report blacklisted events only if the number of "repetitions" is a multiple
+  # of this value (use 0 to disable)
+  evr_conseq_report_max: 10000
+  # event rate periodic GC interval
+  evr_gc_interval: 10s
+  # event rate old age: non-blst. entries idle for more then this value
+  # will be GCed
+  evr_gc_old_age: 300s
+  # maximum runtime for each periodic GC run
+  evr_gc_max_run_time: 1s
+  # event rate periodic GC target: GC will stop if the number of
+  # remaining entries is less then this value
+  evr_gc_target: 10
+  # extra REGISTER expiration delta for absorbing delayed re-REGISTERs
+  reg_exp_delta: 30
+  # maximum tracked register bindings (0 for unlimited)
+  regs_max_entries: 0
+  # maximum memory for register bindings (0 for unlimited)
+  regs_max_mem: 0
+  # ignore port number when comparing contacts (but not AORs)
+  contact_ignore_port: false
+  # set the encryption passphares (default empty), from which the
+  # encryption key will be derived.
+  # e.g.:  encryption_passphrase: "foobar"
+  # If it starts with the "keystore:" prefix the passphares will be looked
+  # up in the keystore (e.g.  encryption_passphrase: "keystore:pass1")
+  # Note that only one of encryption_passphrase or encryption_key must be set.
+  encryption_passphrase: ""
+  # set encryption key (hex string, default empty)
+  # e.g. encryption_key: "000102030405060708090a0b0c0d0e0f"
+  # Note that only one of encryption_passphrase or encryption_key must be set.
+  encryption_key: "9eeeb97ee2e4619cc23767ae1dcfd82b"
+  # encryption key validation salt (default empty).
+  # If it starts with the "keystore:" prefix the salt will be looked
+  # up in the keystore (e.g.  encryption_salt: "keystore:salt")
+  # Note that if encryption is enabled, the salt _must_ be non-empty.
+  encryption_salt: 1e22c6fd-7372-4429-a4e4-c39275a95f19
+  # turn on/off ip address encryption, default off
+  # (requires a set encryption_passphrase or encryption_key)
+  encrypt_ip_addresses: true 
+  # turn on/off URIs encryption, default off
+  # (requires a set encryption_passphrase or encryption_key)
+  encrypt_uris: true 
+  # turn on/off CallID encryption, default off
+  # (requires a set encryption_passphrase or encryption_key)
+  encrypt_call_ids: true 
+
+# ================================== General ===================================
+
+# The name of the shipper that publishes the network data. It can be used to group
+# all the transactions sent by a single shipper in the web interface.
+#name:
+
+# The tags of the shipper are included in their own field with each
+# transaction published.
+#tags: ["service-X", "web-tier"]
+
+# Optional fields that you can specify to add additional information to the
+# output.
+#fields:
+#  env: staging
+
+# ================================= Dashboards =================================
+# These settings control loading the sample dashboards to the Kibana index. Loading
+# the dashboards is disabled by default and can be enabled either by setting the
+# options here or by using the `setup` command.
+#setup.dashboards.enabled: false
+
+# The URL from where to download the dashboards archive. By default this URL
+# has a value which is computed based on the Beat name and version. For released
+# versions, this URL points to the dashboard archive on the artifacts.elastic.co
+# website.
+#setup.dashboards.url:
+
+# =================================== Kibana ===================================
+
+# Starting with Beats version 6.0.0, the dashboards are loaded via the Kibana API.
+# This requires a Kibana endpoint configuration.
+setup.kibana:
+
+  # Kibana Host
+  # Scheme and port can be left out and will be set to the default (http and 5601)
+  # In case you specify and additional path, the scheme is required: http://localhost:5601/path
+  # IPv6 addresses should always be defined as: https://[2001:db8::1]:5601
+  #host: "localhost:5601"
+
+  # Kibana Space ID
+  # ID of the Kibana Space into which the dashboards should be loaded. By default,
+  # the Default Space will be used.
+  #space.id:
+
+# =============================== Elastic Cloud ================================
+
+# These settings simplify using Sipcmbeat with the Elastic Cloud (https://cloud.elastic.co/).
+
+# The cloud.id setting overwrites the `output.elasticsearch.hosts` and
+# `setup.kibana.host` options.
+# You can find the `cloud.id` in the Elastic Cloud web UI.
+#cloud.id:
+
+# The cloud.auth setting overwrites the `output.elasticsearch.username` and
+# `output.elasticsearch.password` settings. The format is `<user>:<pass>`.
+#cloud.auth:
+
+# ================================== Outputs ===================================
+
+# Configure what output to use when sending the data collected by the beat.
+
+# ---------------------------- Elasticsearch Output ----------------------------
+#output.elasticsearch:
+  # Array of hosts to connect to.
+  #hosts: ["localhost:9200"]
+
+  # Protocol - either `http` (default) or `https`.
+  #protocol: "https"
+
+  # Authentication credentials - either API key or username/password.
+  #api_key: "id:api_key"
+  #username: "elastic"
+  #password: "changeme"
+
+# ------------------------------ Logstash Output -------------------------------
+output.logstash:
+  # The Logstash hosts
+  hosts: ["localhost:5044"]
+
+  # Optional SSL. By default is off.
+  # List of root certificates for HTTPS server verifications
+  #ssl.certificate_authorities: ["/etc/pki/root/ca.pem"]
+
+  # Certificate for SSL client authentication
+  #ssl.certificate: "/etc/pki/client/cert.pem"
+
+  # Client Certificate Key
+  #ssl.key: "/etc/pki/client/cert.key"
+
+  enabled: false
+
+# --------------------------------- File ------------------------------------------
+output.file:
+  # write the output to a file
+  enabled: true
+  path: "/tmp"
+  filename: "sipcmbeat_events_anonym"
+  pretty: true
+
+# ================================= Processors =================================
+
+# Configure processors to enhance or manipulate events generated by the beat.
+
+processors:
+  - add_host_metadata: ~
+  - add_cloud_metadata: ~
+  - add_docker_metadata: ~
+
+
+# ================================== Logging ===================================
+
+# Sets log level. The default log level is info.
+# Available log levels are: error, warning, info, debug
+#logging.level: debug
+
+# At debug level, you can selectively enable logging only for some components.
+# To enable all selectors use ["*"]. Examples of other selectors are "beat",
+# "publish", "service".
+#logging.selectors: ["*"]
+
+logging.to_stderr: true
+
+# ============================= X-Pack Monitoring ==============================
+# Sipcmbeat can export internal metrics to a central Elasticsearch monitoring
+# cluster.  This requires xpack monitoring to be enabled in Elasticsearch.  The
+# reporting is disabled by default.
+
+# Set to true to enable the monitoring reporter.
+#monitoring.enabled: false
+
+# Sets the UUID of the Elasticsearch cluster under which monitoring data for this
+# Sipcmbeat instance will appear in the Stack Monitoring UI. If output.elasticsearch
+# is enabled, the UUID is derived from the Elasticsearch cluster referenced by output.elasticsearch.
+#monitoring.cluster_uuid:
+
+# Uncomment to send the metrics to Elasticsearch. Most settings from the
+# Elasticsearch output are accepted here as well.
+# Note that the settings should point to your Elasticsearch *monitoring* cluster.
+# Any setting that is not set is automatically inherited from the Elasticsearch
+# output configuration, so if you have the Elasticsearch output configured such
+# that it is pointing to your Elasticsearch monitoring cluster, you can simply
+# uncomment the following line.
+#monitoring.elasticsearch:
+
+# ============================== Instrumentation ===============================
+
+# Instrumentation support for the sipcmbeat.
+#instrumentation:
+    # Set to true to enable instrumentation of sipcmbeat.
+    #enabled: false
+
+    # Environment in which sipcmbeat is running on (eg: staging, production, etc.)
+    #environment: ""
+
+    # APM Server hosts to report instrumentation results to.
+    #hosts:
+    #  - http://localhost:8200
+
+    # API Key for the APM Server(s).
+    # If api_key is set then secret_token will be ignored.
+    #api_key:
+
+    # Secret token for the APM Server(s).
+    #secret_token:
+
+
+# ================================= Migration ==================================
+
+# This allows to enable 6.7 migration aliases
+#migration.6_to_7.enabled: true
+
