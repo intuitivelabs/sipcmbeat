@@ -565,6 +565,14 @@ func addFields(m common.MapStr, label string, val interface{}) bool {
 	return true
 }
 
+// allocates a buffer which can be used for anonymizing sip header fields
+func newAnonymizationBuf(l int) []byte {
+	if l < 32 {
+		l = 32
+	}
+	return make([]byte, 3*l)
+}
+
 func (bt *Sipcmbeat) getCallID(dst, src []byte, callID sipsp.PField, encFlags *FormatFlags) ([]byte, error) {
 	if bt.Config.UseCallIDAnonymization() && (len(src) > 0) {
 		// anonymize Call-ID
@@ -663,7 +671,7 @@ func (bt *Sipcmbeat) publishEv(srcEv *calltr.EventData) {
 
 	var callIDBuf []byte
 	if bt.Config.UseCallIDAnonymization() {
-		callIDBuf = make([]byte, 2*len(ed.CallID.Get(ed.Buf)))
+		callIDBuf = newAnonymizationBuf(len(ed.CallID.Get(ed.Buf)))
 	}
 	callID, err := bt.getCallID(callIDBuf, ed.Buf, ed.CallID, &encFlags)
 	if err != nil {
@@ -683,7 +691,7 @@ func (bt *Sipcmbeat) publishEv(srcEv *calltr.EventData) {
 				)
 				uri := ed.Attrs[i].Get(ed.Buf)
 				if bt.Config.UseURIAnonymization() {
-					uriBuf = make([]byte, 4*len(uri))
+					uriBuf = newAnonymizationBuf(len(uri))
 					if uri, err = bt.getURI(uriBuf, uri, &encFlags); err != nil {
 						logp.Err("failed to add %q to Fields: %s\n",
 							calltr.CallAttrIdx(i).String(), err.Error())
