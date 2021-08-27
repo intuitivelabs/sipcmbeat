@@ -753,13 +753,6 @@ func (bt *Sipcmbeat) publishEv(srcEv *calltr.EventData) {
 			addFields(event.Fields, "event.min_length",
 				ed.TS.SubTime(sipcallmon.StartTS)/time.Second)
 		}
-		if ed.ReplStatus == 0 {
-			// created by a BYE, no INVITE seen (no call-start)
-			addFields(event.Fields, "sip.unmatched_invite", true)
-		} else {
-			// for CallEnd we do not add sip.response.status
-			addFields(event.Fields, "sip.response.last", ed.ReplStatus)
-		}
 		if ed.CFlags&calltr.CFForcedTimeout != 0 {
 			addFields(event.Fields, "sip.originator", "timeout-terminated")
 		} else if ed.CFlags&calltr.CFCalleeTerminated != 0 {
@@ -767,22 +760,21 @@ func (bt *Sipcmbeat) publishEv(srcEv *calltr.EventData) {
 		} else {
 			addFields(event.Fields, "sip.originator", "caller-terminated")
 		}
-	case calltr.EvRegDel, calltr.EvRegExpired, calltr.EvSubDel:
-		// add duration only on events that make sense, and only
-		// if call-start is known. Use seconds.
-		if !ed.FinReplTS.IsZero() {
-			// (otherwise the current monitoring part will get confused)
-			addFields(event.Fields, "event.lifetime",
-				ed.TS.Sub(ed.FinReplTS)/time.Second)
-		} else {
-			// add a min_length field containing the minimum call duration^
-			addFields(event.Fields, "event.min_lifetime",
-				ed.TS.SubTime(sipcallmon.StartTS)/time.Second)
-		}
-		addFields(event.Fields, "sip.response.last", ed.ReplStatus)
-
+		fallthrough // continue with common fileds for call-start & attempt
 	case calltr.EvCallStart, calltr.EvCallAttempt:
-		addFields(event.Fields, "sip.response.status", ed.ReplStatus)
+		// hack for using different event field name for call-end last resp.
+		if ed.Type == calltr.EvCallEnd {
+			if ed.ReplStatus == 0 {
+				// created by a BYE, no INVITE seen (no call-start)
+				addFields(event.Fields, "sip.unmatched_invite", true)
+			} else {
+				// for CallEnd we do not add sip.response.status
+				addFields(event.Fields, "sip.response.last", ed.ReplStatus)
+			}
+		} else {
+			// last response for call-start or call-attempt
+			addFields(event.Fields, "sip.response.status", ed.ReplStatus)
+		}
 		// post dial delay, time between request and 18x
 		pdd := time.Duration(0)
 		if !ed.EarlyDlgTS.IsZero() {
@@ -800,6 +792,22 @@ func (bt *Sipcmbeat) publishEv(srcEv *calltr.EventData) {
 		}
 		addFields(event.Fields, "sip.pdd", pdd/time.Millisecond)
 		addFields(event.Fields, "sip.ring_time", rt/time.Millisecond)
+		// note: fr_delay == pdd+ring_time can also be computed from
+		//       dbg.call_start - dbg.created
+
+	case calltr.EvRegDel, calltr.EvRegExpired, calltr.EvSubDel:
+		// add duration only on events that make sense, and only
+		// if call-start is known. Use seconds.
+		if !ed.FinReplTS.IsZero() {
+			// (otherwise the current monitoring part will get confused)
+			addFields(event.Fields, "event.lifetime",
+				ed.TS.Sub(ed.FinReplTS)/time.Second)
+		} else {
+			// add a min_length field containing the minimum call duration^
+			addFields(event.Fields, "event.min_lifetime",
+				ed.TS.SubTime(sipcallmon.StartTS)/time.Second)
+		}
+		addFields(event.Fields, "sip.response.last", ed.ReplStatus)
 
 	case calltr.EvRegNew, calltr.EvSubNew, calltr.EvAuthFailed:
 		addFields(event.Fields, "sip.response.status", ed.ReplStatus)
