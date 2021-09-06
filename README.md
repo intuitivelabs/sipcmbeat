@@ -43,6 +43,20 @@ Note that generation of any of the above events can be disabled via the config
 
 The event fields are documented [here](https://github.com/intuitivelabs/sipcmbeat/blob/master/docs/fields.asciidoc#sipcmbeat-fields).
 
+
+# Features
+
+* anonymization and encryption support for the relevant event fields
+
+* event rate reporting and rate based blacklisting
+
+* event type blacklisting support
+
+* vxlan auto-decapsulation
+
+* periodic statistics/counters events
+
+
 # Known limitations
 
 * The software collects data as "seen on the net" to produce events. 

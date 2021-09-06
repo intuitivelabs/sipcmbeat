@@ -39,7 +39,7 @@ require (
 	github.com/intuitivelabs/anonymization v1.2.0
 	github.com/intuitivelabs/calltr v1.1.1
 	github.com/intuitivelabs/counters v0.2.0
-	github.com/intuitivelabs/sipcallmon v0.8.1
+	github.com/intuitivelabs/sipcallmon v0.8.2-0.20210906085727-43e9192f090d
 	github.com/intuitivelabs/sipsp v1.1.1
 	github.com/intuitivelabs/slog v0.0.2
 	github.com/josephspurrier/goversioninfo v1.2.0 // indirect
