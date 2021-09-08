@@ -725,7 +725,12 @@ func (bt *Sipcmbeat) publishEv(srcEv *calltr.EventData) {
 						calltr.CallAttrIdx(i).String())
 					bt.stats.Inc(bt.cnts.EvErr)
 				}
-
+			case calltr.AttrReason:
+				if ed.Type == calltr.EvParseErr {
+					// skip for now, TODO: encrypt
+					continue
+				}
+				fallthrough
 			default:
 				ok := addFields(event.Fields, calltr.CallAttrIdx(i).String(),
 					str(ed.Attrs[i].Get(ed.Buf)))
