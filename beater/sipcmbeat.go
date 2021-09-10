@@ -46,6 +46,7 @@ const (
 	FormatSrvIPencF
 	FormatCallIDencF
 	FormatURIencF
+	FormatReasonAencF // reason attr. is enc
 )
 
 type statCounters struct {
@@ -610,6 +611,35 @@ func (bt *Sipcmbeat) getCallID(dst, src []byte, callID sipsp.PField, encFlags *F
 	return callID.Get(src), nil
 }
 
+// getEncContent returns the passed header content encrypted, if any
+// anonymization/encryption is enabled.
+// dst is a storage buffer for the encrypted result, in which the
+// returned slice will point in the ecrypted case, src is the source
+// buffer and content is a PField pointing inside src with the part to
+// encrypt/process.
+// It returns the processed content (encrypted or raw), a flag set to true
+// if it was encrypted and an error (nil on success).
+func (bt *Sipcmbeat) getEncContent(
+	dst, src []byte,
+	content sipsp.PField) ([]byte, bool, error) {
+
+	if bt.Config.UseAnonymization() && (len(src) > 0) {
+		// anonymize src, the same way as Call-ID
+		ac := anonymization.AnonymPField{
+			PField: content,
+		}
+		if err := ac.Anonymize(dst, src); err != nil {
+			return nil, false,
+				fmt.Errorf("field content processing error: %w", err)
+		}
+		// ac.Anonymize above will change ac.PField to point to the enc
+		// version
+		return ac.PField.Get(dst), true, nil
+	}
+	// pass through
+	return content.Get(src), false, nil
+}
+
 func (bt *Sipcmbeat) getURI(dst, src []byte, encFlags *FormatFlags) ([]byte, error) {
 	if bt.Config.UseURIAnonymization() {
 		// anonymize URI
@@ -727,8 +757,32 @@ func (bt *Sipcmbeat) publishEv(srcEv *calltr.EventData) {
 				}
 			case calltr.AttrReason:
 				if ed.Type == calltr.EvParseErr {
-					// skip for now, TODO: encrypt
-					continue
+					var reasonBuf []byte
+					if bt.Config.UseAnonymization() {
+						reasonBuf =
+							newAnonymizationBuf(len(ed.Attrs[i].Get(ed.Buf)))
+					}
+					reason, isEnc, err :=
+						bt.getEncContent(reasonBuf, ed.Buf, ed.Attrs[i])
+					if err != nil {
+						logp.Err("failed to add parse-error %q to Fields: %s\n",
+							calltr.CallAttrIdx(i).String(), err.Error())
+						bt.stats.Inc(bt.cnts.EvErr)
+						continue
+					}
+					if isEnc {
+						encFlags |= FormatReasonAencF
+					}
+					ok := addFields(event.Fields,
+						calltr.CallAttrIdx(i).String(),
+						str(reason))
+					if !ok {
+						logp.Err("failed to add %q to Fields\n",
+							calltr.CallAttrIdx(i).String())
+						bt.stats.Inc(bt.cnts.EvErr)
+					}
+					// added, skip
+					break
 				}
 				fallthrough
 			default:
