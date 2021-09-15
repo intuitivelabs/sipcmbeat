@@ -52,6 +52,7 @@ require (
 	github.com/prometheus/procfs v0.2.0 // indirect
 	github.com/rcrowley/go-metrics v0.0.0-20200313005456-10cdbea86bc0 // indirect
 	github.com/reviewdog/reviewdog v0.10.2
+	github.com/spf13/cobra v0.0.3
 	github.com/stretchr/testify v1.7.0 // indirect
 	github.com/tsg/go-daemon v0.0.0-20200207173439-e704b93fd89b
 	go.elastic.co/apm v1.8.0 // indirect
