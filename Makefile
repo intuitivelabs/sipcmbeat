@@ -7,10 +7,13 @@ ES_BEATS_IMPORT_PATH=github.com/elastic/beats/v7
 ES_BEATS?=$(shell go list -m -f '{{.Dir}}' ${ES_BEATS_IMPORT_PATH})
 LIBBEAT_MAKEFILE=$(ES_BEATS)/libbeat/scripts/Makefile
 GOPACKAGES=$(shell go list ${BEAT_PATH}/... | grep -v /tools)
-GOBUILD_FLAGS=-i -ldflags "-X ${ES_BEATS_IMPORT_PATH}/libbeat/version.buildTime=$(NOW) -X ${ES_BEATS_IMPORT_PATH}/libbeat/version.commit=$(COMMIT_ID)"
+GOBUILD_FLAGS=-i -ldflags "-X ${ES_BEATS_IMPORT_PATH}/libbeat/version.buildTime=$(NOW) -X ${ES_BEATS_IMPORT_PATH}/libbeat/version.commit=$(COMMIT_ID) $(EXTRA_LD_FLAGS)"
 MAGE_IMPORT_PATH=github.com/magefile/mage
 NO_COLLECT=true
 CHECK_HEADERS_DISABLED=true
+
+# add extra version info
+-include Makefile.version
 
 # Path to the libbeat Makefile
 -include $(LIBBEAT_MAKEFILE)

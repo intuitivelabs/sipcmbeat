@@ -1,15 +1,41 @@
 package beater
 
 import (
+	"strings"
+
 	"github.com/elastic/beats/v7/libbeat/version"
-	"github.com/intuitivelabs/sipcallmon"
+	//	"github.com/intuitivelabs/sipcallmon"
 )
 
 // Name of this beat
 const Name = "sipcmbeat"
 
-const Version = "0.7.0"
-const FullVer = Version + " sipcallmon " + sipcallmon.Version
+const fallbackVer = "0.7.0" // fallback version
+//const FullVer = Version + " sipcallmon " + sipcallmon.Version
+
+var baseVersion = ""       // last released version
+var topVersion = "unknown" // current top version (might contain commit id)
+
+// CanonVersion returns the cannonical version (vN.N.N)
+func CanonVersion() string {
+	if baseVersion == "" || strings.EqualFold(baseVersion, "unknown") {
+		return fallbackVer
+	}
+	return baseVersion
+}
+
+// CrtVersion returns the  current "top" version.
+// It might include the commit id (git describe format) if it is not a
+// "release" or it might have "unknown" appended to a version (not able
+// to found out the exact version).
+// If the top commit corresponds to a release (tagged with vN.N.N) it would
+// return the tag (identical to CanonVersion()).
+func CrtVersion() string {
+	if topVersion == "" || strings.EqualFold(topVersion, "unknown") {
+		return CanonVersion() + "-unknown"
+	}
+	return topVersion
+}
 
 func BuildTime() string {
 	bt := version.BuildTime()

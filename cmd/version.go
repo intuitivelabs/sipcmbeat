@@ -35,12 +35,12 @@ func init() {
 func printVerInfo(cmd *cobra.Command, args []string) {
 	if longVer {
 		fmt.Printf("%s: %s (%s %s) sipcallmon: %s libbeat: %s\n",
-			beater.Name, beater.Version,
+			beater.Name, beater.CrtVersion(),
 			beater.CommitId(), beater.BuildTime(),
 			sipcallmon.Version,
 			version.GetDefaultVersion())
 	} else if shortVer {
-		fmt.Printf("%s\n", beater.Version)
+		fmt.Printf("%s\n", beater.CanonVersion())
 	} else {
 		beatVerInfo(cmd, args)
 	}

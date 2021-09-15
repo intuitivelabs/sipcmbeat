@@ -9,4 +9,4 @@ import (
 
 // RootCmd to handle beats cli
 var RootCmd = cmd.GenRootCmdWithSettings(beater.New,
-	instance.Settings{Name: beater.Name, Version: beater.Version})
+	instance.Settings{Name: beater.Name, Version: beater.CanonVersion()})
