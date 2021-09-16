@@ -4,8 +4,9 @@ package main
 
 import (
 	"fmt"
-	"strings"
 	"log"
+	"os"
+	"strings"
 	"time"
 
 	"github.com/magefile/mage/mg"
@@ -19,6 +20,11 @@ import (
 	"github.com/elastic/beats/v7/dev-tools/mage/target/unittest"
 )
 
+var beatPath string
+
+var baseVer string
+var topVer string
+
 func init() {
 	devtools.SetBuildVariableSources(devtools.DefaultBeatBuildVariableSources)
 
@@ -26,6 +32,16 @@ func init() {
 	devtools.BeatVendor = "intuitivelabs"
 	devtools.BeatProjectType = devtools.CommunityProject
 	devtools.CrossBuildMountModcache = true
+
+	beatPath = os.Getenv("BEAT_PATH")
+	if beatPath == "" {
+		beatPath = "github.com/intuitivelabs/sipcmbeat"
+	}
+
+	baseVer, _ = sh.Output("git", "describe", "--tags",
+		"--match=v[0-9]*.[0-9]*.[0-9]*", "--abbrev=0", "HEAD")
+	topVer, _ = sh.Output("git", "describe", "--tags",
+		"--match=v[0-9]*.[0-9]*.[0-9]*", "--dirty")
 }
 
 // Package packages the Beat for distribution.
@@ -82,7 +98,10 @@ func Test() {
 
 // Build builds the Beat binary.
 func Build() error {
-	return build.Build()
+	params := devtools.DefaultBuildArgs()
+	params.Vars[beatPath+"/beater.baseVersion"] = baseVer
+	params.Vars[beatPath+"/beater.topVersion"] = topVer
+	return devtools.Build(params)
 }
 
 // CrossBuild cross-builds the beat for all target platforms.
@@ -111,10 +130,11 @@ func GolangCrossBuild() error {
 	if flags, found := libpcapCFLAGS[devtools.Platform.Name]; found {
 		params.Env["CGO_CFLAGS"] = flags
 	}
+	params.Vars[beatPath+"/beater.baseVersion"] = baseVer
+	params.Vars[beatPath+"/beater.topVersion"] = topVer
 
 	return devtools.GolangCrossBuild(params)
 }
-
 
 // -----------------------------------------------------------------------------
 // Customizations
