@@ -6,4 +6,22 @@ TOP_VER = $(shell git describe --tags --match="v[0-9]*.[0-9]*.[0-9]*" --dirty 2>
 
 EXTRA_LD_FLAGS= -X \"$(BEAT_PATH)/beater.baseVersion=$(BASE_VER)\" -X \"$(BEAT_PATH)/beater.topVersion=$(TOP_VER)\"
 
-${BEAT_NAME}: Makefile.version
+${BEAT_NAME}: Makefile.version beater/make_ver.go
+
+update: beater/make_ver.go
+
+beater/make_ver.go: $(GOFILES) Makefile Makefile.version
+	@echo "// auto-generated file at build time" > $@
+	@echo >>$@
+	@echo "package beater" >>$@
+	@echo >>$@
+	@echo "var buildBaseVer = \"$(BASE_VER)\"" >>$@
+	@echo "var buildTopVer = \"$(TOP_VER)\"" >>$@
+	@echo >>$@
+	@echo "func init() {" >>$@
+	@echo "	fallbackVer = buildBaseVer" >>$@
+	@echo "	fallbackTopVer = buildTopVer" >>$@
+	@echo "}" >>$@
+
+clean::
+	rm -f beater/make_ver.go

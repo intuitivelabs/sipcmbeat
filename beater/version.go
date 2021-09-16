@@ -10,7 +10,9 @@ import (
 // Name of this beat
 const Name = "sipcmbeat"
 
-const fallbackVer = "0.7.0" // fallback version
+var fallbackVer = "0.7.0" // fallback version
+var fallbackTopVer = "unknown"
+
 //const FullVer = Version + " sipcallmon " + sipcallmon.Version
 
 var baseVersion = ""       // last released version
@@ -31,6 +33,9 @@ func CanonVersion() string {
 // If the top commit corresponds to a release (tagged with vN.N.N) it would
 // return the tag (identical to CanonVersion()).
 func CrtVersion() string {
+	if topVersion == "" || strings.EqualFold(topVersion, "unknown") {
+		topVersion = fallbackTopVer + "-unknown*"
+	}
 	if topVersion == "" || strings.EqualFold(topVersion, "unknown") {
 		return CanonVersion() + "-unknown"
 	}

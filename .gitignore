@@ -23,3 +23,6 @@ TAGS
 #profile
 cpuprofile
 *.prof
+
+# auto-generated
+beater/make_ver.go
