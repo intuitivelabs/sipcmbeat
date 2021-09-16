@@ -209,6 +209,11 @@ type Sipcmbeat struct {
 	cnts    statCounters
 	ackCnts ackCounters
 	pubCnts publishCounters
+	// version info
+	BaseVer string
+	LongVer string
+	CommitH string
+	BuildT  string
 }
 
 /*
@@ -386,10 +391,14 @@ func New(b *beat.Beat, cfg *common.Config) (beat.Beater, error) {
 	}
 
 	bt := &Sipcmbeat{
-		done:   make(chan struct{}),
-		newEv:  make(chan struct{}, 512),
-		Config: c,
-		wg:     &sync.WaitGroup{},
+		done:    make(chan struct{}),
+		newEv:   make(chan struct{}, 512),
+		Config:  c,
+		wg:      &sync.WaitGroup{},
+		BaseVer: CanonVersion(),
+		LongVer: CrtVersion(),
+		CommitH: CommitId(),
+		BuildT:  BuildTime(),
 	}
 
 	// init sipcmbeat logging
@@ -919,6 +928,7 @@ func (bt *Sipcmbeat) publishEv(srcEv *calltr.EventData) {
 	addFields(event.Fields, "dbg.last_status", ed.LastStatus)
 	addFields(event.Fields, "dbg.msg_trace", ed.LastMsgs.String())
 
+	// encrypted flags
 	if encFlags != 0 {
 		if bt.validator != nil {
 			// the precomputed validation code cand be used as long nonce is NOT used
@@ -928,7 +938,18 @@ func (bt *Sipcmbeat) publishEv(srcEv *calltr.EventData) {
 	} else {
 		addFields(event.Fields, "encrypt_flags", "0")
 	}
+
+	// version fields
+	bt.addVersionToEv(event)
+
 	bt.client.Publish(event)
 	bt.stats.Inc(bt.cnts.EvPub)
 	//	logp.Info("Event sent")
+}
+
+func (bt *Sipcmbeat) addVersionToEv(event beat.Event) {
+	addFields(event.Fields, "agent.version_long", bt.LongVer)
+	addFields(event.Fields, "agent.version_base", bt.BaseVer)
+	addFields(event.Fields, "agent.commit_hash", bt.CommitH)
+	addFields(event.Fields, "agent.build_time", bt.BuildT)
 }

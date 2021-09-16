@@ -46,6 +46,10 @@ func (bt *Sipcmbeat) publishCounters() {
 	if flags&counters.PrRec != 0 {
 		addSubGroups(cntHash, g, flags)
 	}
+
+	// version fields
+	bt.addVersionToEv(event)
+
 	bt.client.Publish(event)
 	bt.stats.Inc(bt.cnts.EvPub)
 	bt.stats.Inc(bt.cnts.EvStats)

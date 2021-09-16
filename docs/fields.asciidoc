@@ -16,6 +16,7 @@ grouped in the following categories:
 * <<exported-fields-cloud>>
 * <<exported-fields-docker-processor>>
 * <<exported-fields-ecs>>
+* <<exported-fields-ecs>>
 * <<exported-fields-host-processor>>
 * <<exported-fields-jolokia-autodiscover>>
 * <<exported-fields-kubernetes-processor>>
@@ -7044,6 +7045,61 @@ The severity of the vulnerability can help with metrics and internal prioritizat
 type: keyword
 
 example: Critical
+
+--
+
+[[exported-fields-ecs]]
+== ECS fields
+
+ECS sipcmbeat extra Fields
+
+
+
+*`agent.version_base`*::
++
+--
+base version
+
+
+type: keyword
+
+example: v0.7.0
+
+--
+
+*`agent.version_long`*::
++
+--
+long version, including possible commit ids
+
+
+type: keyword
+
+example: v0.6.14-108-g340e63c
+
+--
+
+*`agent.commit_hash`*::
++
+--
+top commit hash for the code used to built this agent
+
+
+type: keyword
+
+example: 340e63c2
+
+--
+
+*`agent.build_time`*::
++
+--
+build time for this agent
+
+
+type: keyword
+
+example: 2021/09/16 08:29 UTC
 
 --
 
