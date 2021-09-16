@@ -8,7 +8,7 @@ EXTRA_LD_FLAGS= -X \"$(BEAT_PATH)/beater.baseVersion=$(BASE_VER)\" -X \"$(BEAT_P
 
 ${BEAT_NAME}: Makefile.version beater/make_ver.go
 
-update: beater/make_ver.go
+update: clean-make_ver beater/make_ver.go
 
 beater/make_ver.go: $(GOFILES) Makefile Makefile.version
 	@echo "// auto-generated file at build time" > $@
@@ -23,5 +23,9 @@ beater/make_ver.go: $(GOFILES) Makefile Makefile.version
 	@echo "	fallbackTopVer = buildTopVer" >>$@
 	@echo "}" >>$@
 
-clean::
+.PHONY: clean-make_ver
+
+clean-make_ver:
 	rm -f beater/make_ver.go
+
+clean:: clean-make_ver
