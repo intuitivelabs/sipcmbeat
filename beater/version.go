@@ -20,10 +20,15 @@ var topVersion = "unknown" // current top version (might contain commit id)
 
 // CanonVersion returns the cannonical version (vN.N.N)
 func CanonVersion() string {
+	ver := baseVersion
 	if baseVersion == "" || strings.EqualFold(baseVersion, "unknown") {
-		return fallbackVer
+		ver = fallbackVer
 	}
-	return baseVersion
+	if len(ver) > 1 && (ver[0] == 'V' || ver[0] == 'v') {
+		// skip over v
+		ver = ver[1:]
+	}
+	return ver
 }
 
 // CrtVersion returns the  current "top" version.
