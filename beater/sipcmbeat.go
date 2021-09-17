@@ -108,7 +108,12 @@ func getStructTags(t reflect.Type) []string {
 // check if all the options loaded from the configuration correspond
 // to defined config option.
 // Returns the first unknown option or "" if all are defined.
-func unknownCfgOption(cfg *common.Config) string {
+func unknownCfgOption(cfg *common.Config, c *sipcallmon.Config) string {
+	for _, ign := range c.CfgIgnUnknown {
+		if strings.EqualFold(ign, "all") {
+			return ""
+		}
+	}
 	cfgFlds := cfg.GetFields()
 	defFlds := getStructTags(reflect.TypeOf((*sipcallmon.Config)(nil)).Elem())
 
@@ -117,6 +122,12 @@ cfg_val_chk:
 		for _, d := range defFlds {
 			if o == d {
 				// found
+				continue cfg_val_chk
+			}
+		}
+		for _, ign := range c.CfgIgnUnknown {
+			if o == ign {
+				// found, safe to ignore
 				continue cfg_val_chk
 			}
 		}
@@ -386,7 +397,7 @@ func New(b *beat.Beat, cfg *common.Config) (beat.Beater, error) {
 		return nil, fmt.Errorf("Invalid Config: %v", err)
 	}
 
-	if o := unknownCfgOption(cfg); o != "" {
+	if o := unknownCfgOption(cfg, &c); o != "" {
 		return nil, fmt.Errorf("Unknown config option: %q", o)
 	}
 

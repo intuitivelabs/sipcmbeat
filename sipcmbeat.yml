@@ -116,6 +116,10 @@ sipcmbeat:
   encrypt_call_ids: false
   # interval for generating statistics/counters events (default 5min).
   stats_interval: 5m
+  # list of not supported config options that are safe to ignore
+  # (no error if found in config, backward compatibility option
+  # to allow running a config for a newer version).
+  cfg_ignore_unknown: []
 
 # ================================== General ===================================
 
