@@ -8,7 +8,6 @@ import (
 	//"time"
 
 	"github.com/elastic/beats/v7/libbeat/version"
-	"github.com/intuitivelabs/sipcallmon"
 	"github.com/intuitivelabs/sipcmbeat/beater"
 	"github.com/spf13/cobra"
 )
@@ -34,32 +33,54 @@ func init() {
 
 func printVerInfo(cmd *cobra.Command, args []string) {
 	if longVer {
-		fmt.Printf("%s: %s (%s %s) sipcallmon: %s libbeat: %s\n",
+		fmt.Printf("%s: %s (%s %s) libbeat: %s\n",
 			beater.Name, beater.CrtVersion(),
 			beater.CommitId(), beater.BuildTime(),
-			sipcallmon.Version,
 			version.GetDefaultVersion())
+		printDepsVer(os.Stdout,
+			[]string{"github.com/intuitivelabs"})
 	} else if shortVer {
 		fmt.Printf("%s\n", beater.CanonVersion())
 	} else {
 		beatVerInfo(cmd, args)
 	}
 	if depsVer {
-		printDepsVer(os.Stdout)
+		printDepsVer(os.Stdout, nil)
 	}
 }
 
-func printDepsVer(w io.Writer) {
+func printDepsVer(w io.Writer, filter []string) {
 	if bi, ok := debug.ReadBuildInfo(); ok {
 		for _, m := range bi.Deps[:] {
+			path := m.Path
+			if len(filter) > 0 {
+				for _, f := range filter {
+					if len(f) > 0 {
+						l := len(f)
+						if len(m.Path) > l && m.Path[:l] == f {
+							if m.Path[l] == '/' {
+								l++ // skip over '/'
+							}
+							path = m.Path[l:]
+							break
+						} else {
+							path = "" // no match
+						}
+					}
+				}
+			}
+			if path == "" {
+				// filtered, skip
+				continue
+			}
 			if m.Replace != nil {
 				fmt.Fprintf(w, "  %-40s    %-20s",
 					m.Replace.Path, m.Replace.Version)
 				fmt.Fprintf(w, "  [r: %s]\n",
-					m.Path)
+					path)
 			} else {
 				fmt.Fprintf(w, "  %-40s    %-20s\n",
-					m.Path, m.Version)
+					path, m.Version)
 			}
 		}
 	}
