@@ -19,6 +19,22 @@ import (
 
 const cntLongFormat = 128
 
+func (bt *Sipcmbeat) initStatsGrps() {
+	for _, gname := range bt.Config.StatsGrps {
+		var grp *counters.Group
+		if gname == "all" || gname == "*" {
+			bt.statsCntGrps = []*counters.Group{&counters.RootGrp}
+			break
+		} else if gname == "none" || gname == "-" {
+			continue
+		}
+		grp, _ = counters.RootGrp.GetSubGroupDot(gname)
+		if grp != nil {
+			bt.statsCntGrps = append(bt.statsCntGrps, grp)
+		}
+	}
+}
+
 // publishStats will publish all the counters stats.
 func (bt *Sipcmbeat) publishCounters() {
 	if bt.client == nil { // dev null
@@ -37,14 +53,17 @@ func (bt *Sipcmbeat) publishCounters() {
 		},
 	}
 
-	g := &counters.RootGrp
-	// or g:= coutners.RootGrp.GetSubGroupDot("foo.bar") for foo.bar only
-
 	flags := counters.PrRec | counters.PrFullName |
 		cntLongFormat /* | counters.PrDesc */
-	addGroup(cntHash, g, flags)
-	if flags&counters.PrRec != 0 {
-		addSubGroups(cntHash, g, flags)
+	for _, g := range bt.statsCntGrps {
+		if g == nil {
+			continue
+		}
+
+		addGroup(cntHash, g, flags)
+		if flags&counters.PrRec != 0 {
+			addSubGroups(cntHash, g, flags)
+		}
 	}
 
 	// version fields

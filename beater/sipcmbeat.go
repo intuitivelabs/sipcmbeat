@@ -205,16 +205,17 @@ func (p eventer) DroppedOnPublish(beat.Event) {
 
 // Sipcmbeat configuration.
 type Sipcmbeat struct {
-	done      chan struct{}
-	newEv     chan struct{}        // new events are signalled here
-	evIdx     sipcallmon.EvRingIdx // curent position in the ring
-	evRing    *sipcallmon.EvRing
-	wg        *sync.WaitGroup
-	statsT    *time.Ticker // periodic timer for stats
-	Config    sipcallmon.Config
-	ipcipher  *anonymization.Ipcipher
-	validator anonymization.Validator
-	client    beat.Client
+	done         chan struct{}
+	newEv        chan struct{}        // new events are signalled here
+	evIdx        sipcallmon.EvRingIdx // curent position in the ring
+	evRing       *sipcallmon.EvRing
+	wg           *sync.WaitGroup
+	statsT       *time.Ticker      // periodic timer for stats
+	statsCntGrps []*counters.Group // counter groups reported by stats events
+	Config       sipcallmon.Config
+	ipcipher     *anonymization.Ipcipher
+	validator    anonymization.Validator
+	client       beat.Client
 	// stats
 	stats   counters.Group
 	cnts    statCounters
@@ -464,6 +465,7 @@ func (bt *Sipcmbeat) Run(b *beat.Beat) error {
 	//f, err := os.Create("cpuprofile")
 	//pprof.StartCPUProfile(f)
 	bt.wg.Add(1)
+	bt.initStatsGrps()
 	if bt.Config.StatsInterval > 0 {
 		bt.statsT = time.NewTicker(bt.Config.StatsInterval)
 	} else {
