@@ -46,7 +46,9 @@ const (
 	FormatSrvIPencF
 	FormatCallIDencF
 	FormatURIencF
-	FormatReasonAencF // reason attr. is enc
+	FormatReasonAencF    // reason attr. is enc
+	FormatCountryISOencF // country iso is enc
+	FormatCityIDencF     // city id is enc
 )
 
 type statCounters struct {
@@ -221,6 +223,11 @@ type Sipcmbeat struct {
 	cnts    statCounters
 	ackCnts ackCounters
 	pubCnts publishCounters
+	// geoip
+	geoipStats   geoipDbStats
+	geoipCnts    geoipCounters
+	geoipChgLock sync.Mutex // lock held when updating or getting geoipH
+	geoipH       *GeoIPdbHandle
 	// version info
 	BaseVer string
 	LongVer string
@@ -283,7 +290,7 @@ func (bt *Sipcmbeat) initCounters() error {
 	if !bt.stats.RegisterDefs(cntDefs[:]) {
 		return errors.New("initCounters: failed to register stat counters")
 	}
-	return nil
+	return bt.initGeoIPcounters()
 }
 
 // lookup key into the keystore and return the associated value or error
@@ -430,6 +437,13 @@ func New(b *beat.Beat, cfg *common.Config) (beat.Beater, error) {
 	if err := bt.initCounters(); err != nil {
 		return nil, errors.WithMessage(err, "sipcmbeat.New")
 	}
+
+	if bt.Config.GeoIPdb != "" {
+		if err := bt.openGeoIPh(bt.Config.GeoIPdb); err != nil {
+			return nil, fmt.Errorf("failed to open geoip db %q: %w\n",
+				bt.Config.GeoIPdb, err)
+		}
+	}
 	return bt, nil
 }
 
@@ -502,6 +516,7 @@ func (bt *Sipcmbeat) Stop() {
 
 func (bt *Sipcmbeat) consumeEv() {
 	defer bt.wg.Done()
+	geoipHandle := bt.getGeoIPh()
 waitsig:
 	for {
 		select {
@@ -514,7 +529,9 @@ waitsig:
 			for bt.evIdx != last {
 				ev, nxtIdx, err := bt.evRing.Get(bt.evIdx)
 				if ev != nil {
-					bt.publishEv(ev)
+					// update geoip handle (if needed)
+					geoipHandle = bt.updateGeoIPh(geoipHandle)
+					bt.publishEv(geoipHandle, ev)
 					bt.evRing.Put(bt.evIdx)
 					if bt.stats.Get(bt.cnts.EvNilConsec) != 0 {
 						if Log.INFOon() {
@@ -709,7 +726,7 @@ func (bt *Sipcmbeat) getDstIP(ed *calltr.EventData, encFlags *FormatFlags) net.I
 	return ed.Dst
 }
 
-func (bt *Sipcmbeat) publishEv(srcEv *calltr.EventData) {
+func (bt *Sipcmbeat) publishEv(geoipH *GeoIPdbHandle, srcEv *calltr.EventData) {
 	if bt.client == nil { // dev null
 		return
 	}
@@ -940,6 +957,11 @@ func (bt *Sipcmbeat) publishEv(srcEv *calltr.EventData) {
 	addFields(event.Fields, "dbg.last_method", ed.LastMethod)
 	addFields(event.Fields, "dbg.last_status", ed.LastStatus)
 	addFields(event.Fields, "dbg.msg_trace", ed.LastMsgs.String())
+
+	// geoip info
+	if bt.Config.GeoIPLookup {
+		bt.addGeoIPinfo(geoipH, event, &ed, &encFlags)
+	}
 
 	// encrypted flags
 	if encFlags != 0 {

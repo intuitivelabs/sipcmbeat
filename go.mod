@@ -39,7 +39,7 @@ require (
 	github.com/intuitivelabs/anonymization v1.2.0
 	github.com/intuitivelabs/calltr v1.1.1
 	github.com/intuitivelabs/counters v0.2.0
-	github.com/intuitivelabs/sipcallmon v0.8.2-0.20210920090854-9d4a4ec45ea3
+	github.com/intuitivelabs/sipcallmon v0.8.2-0.20210929152938-1be42c175deb
 	github.com/intuitivelabs/sipsp v1.1.1
 	github.com/intuitivelabs/slog v0.0.2
 	github.com/josephspurrier/goversioninfo v1.2.0 // indirect
@@ -47,6 +47,7 @@ require (
 	github.com/mattn/go-colorable v0.1.8 // indirect
 	github.com/mitchellh/gox v1.0.1
 	github.com/mitchellh/hashstructure v1.0.0 // indirect
+	github.com/oschwald/maxminddb-golang v1.8.0
 	github.com/pierrre/gotestcover v0.0.0-20160517101806-924dca7d15f0
 	github.com/pkg/errors v0.9.1
 	github.com/prometheus/procfs v0.2.0 // indirect
