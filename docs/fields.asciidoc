@@ -7378,7 +7378,7 @@ example: call-start
 *`encrypt_flags`*::
 +
 --
-Bit flags describing event encryption -  0 for default, 1 encrypted client IP, 2 encrypted server IP, 4 encrypted CallID, 8 encrypted URIs.
+Bit flags describing event encryption -  0 for default, 1 encrypted client IP, 2 encrypted server IP, 4 encrypted CallID, 8 encrypted URIs, 16 encrypted reason field, 32 encrypted geoip country iso_code, 64 encrypted geoip city_id
 
 
 type: keyword
@@ -7758,6 +7758,60 @@ type: date
 --
 key used for rate computation (all events having the same key will be used for computing the rate)
 
+
+type: keyword
+
+--
+
+[float]
+=== geoip
+
+geoip information
+
+
+[float]
+=== src
+
+geoip information for the source (client) ip
+
+
+*`geoip.src.iso_code`*::
++
+--
+country iso code, can be encrypted
+
+type: keyword
+
+--
+
+*`geoip.src.city_id`*::
++
+--
+city id, can be encrypted
+
+type: keyword
+
+--
+
+[float]
+=== dst
+
+geoip information for the destination (server) ip
+
+
+*`geoip.dst.iso_code`*::
++
+--
+country iso code, can be encrypted
+
+type: keyword
+
+--
+
+*`geoip.dst.city_id`*::
++
+--
+city id, can be encrypted
 
 type: keyword
 
