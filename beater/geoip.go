@@ -27,6 +27,7 @@ type geoipLookupCounters struct {
 	NotFound  counters.Handle
 	NoCountry counters.Handle
 	NoCity    counters.Handle
+	NoSubDiv  counters.Handle
 }
 
 type geoipCounters struct {
@@ -69,6 +70,8 @@ func (bt *Sipcmbeat) initGeoIPcounters() error {
 			"non-empty lookup with no country"},
 		{&bt.geoipCnts.Src.NoCity, 0, nil, nil, "city_empty",
 			"non-empty lookup with no city"},
+		{&bt.geoipCnts.Src.NoSubDiv, 0, nil, nil, "subdiv_empty",
+			"non-empty lookup with no subdivisions"},
 	}
 	dstCntDefs := [...]counters.Def{
 		{&bt.geoipCnts.Dst.Ok, 0, nil, nil, "lookup_ok",
@@ -85,6 +88,8 @@ func (bt *Sipcmbeat) initGeoIPcounters() error {
 			"non-empty lookup with no country"},
 		{&bt.geoipCnts.Dst.NoCity, 0, nil, nil, "city_empty",
 			"non-empty lookup with no city"},
+		{&bt.geoipCnts.Dst.NoSubDiv, 0, nil, nil, "subdiv_empty",
+			"non-empty lookup with no subdivisions"},
 	}
 	bt.geoipStats.main.Init("geoip", nil, len(geoipCntDefs))
 	if !bt.geoipStats.main.RegisterDefs(geoipCntDefs[:]) {
@@ -205,7 +210,7 @@ func (bt *Sipcmbeat) addGeoIPinfo(geoip *GeoIPdbHandle, event beat.Event,
 	var rec1, rec2 struct {
 		Country struct {
 			GeoNameID uint   `maxminddb:"geoname_id"`
-			ISOCode   string `maxminddb:"iso_code"`
+			ISOcode   string `maxminddb:"iso_code"`
 		} `maxminddb:"country"`
 		City struct {
 			GeoNameID uint `maxminddb:"geoname_id"`
@@ -216,6 +221,10 @@ func (bt *Sipcmbeat) addGeoIPinfo(geoip *GeoIPdbHandle, event beat.Event,
 				Code string `maxminddb:"code"`
 			} `maxminddb:"postal"`
 		*/
+		Subdivisions []struct {
+			GeoNameID uint   `maxminddb:"geoname_id"`
+			ISOcode   string `maxminddb:"iso_code"`
+		} `maxminddb:"subdivisions"`
 	}
 
 	// src
@@ -241,8 +250,8 @@ func (bt *Sipcmbeat) addGeoIPinfo(geoip *GeoIPdbHandle, event beat.Event,
 					" src ip (%q): %v\n", offs, ed.Src, err)
 			}
 		} else {
-			if len(rec1.Country.ISOCode) != 0 {
-				isoCode := []byte(rec1.Country.ISOCode)
+			if len(rec1.Country.ISOcode) != 0 {
+				isoCode := []byte(rec1.Country.ISOcode)
 				if !bt.evAddEncBField(event, "geoip.src.iso_code", isoCode,
 					bt.Config.UseIPAnonymization(),
 					FormatCountryISOencF, encFlags) {
@@ -261,6 +270,29 @@ func (bt *Sipcmbeat) addGeoIPinfo(geoip *GeoIPdbHandle, event beat.Event,
 				}
 			} else {
 				bt.geoipStats.lookup.src.Inc(bt.geoipCnts.Src.NoCity)
+			}
+			if len(rec1.Subdivisions) > 0 {
+				if len(rec1.Subdivisions[0].ISOcode) != 0 {
+					isoCode := []byte(rec1.Subdivisions[0].ISOcode)
+					if !bt.evAddEncBField(event, "geoip.src.sub1_code",
+						isoCode,
+						bt.Config.UseIPAnonymization(),
+						FormatCityIDencF, encFlags) {
+						bt.geoipStats.lookup.src.Inc(bt.geoipCnts.Src.EncErr)
+					}
+				}
+				if len(rec1.Subdivisions) > 1 &&
+					len(rec1.Subdivisions[1].ISOcode) != 0 {
+					isoCode := []byte(rec1.Subdivisions[1].ISOcode)
+					if !bt.evAddEncBField(event, "geoip.src.sub2_code",
+						isoCode,
+						bt.Config.UseIPAnonymization(),
+						FormatCityIDencF, encFlags) {
+						bt.geoipStats.lookup.src.Inc(bt.geoipCnts.Src.EncErr)
+					}
+				}
+			} else {
+				bt.geoipStats.lookup.src.Inc(bt.geoipCnts.Src.NoSubDiv)
 			}
 			/*
 				if len(rec1.City.Names["en"]) != 0 {
@@ -295,8 +327,8 @@ func (bt *Sipcmbeat) addGeoIPinfo(geoip *GeoIPdbHandle, event beat.Event,
 			Log.ERR("geoip: failed to decode record at offset %d for"+
 				" dst ip (%q): %v\n", offs, ed.Dst, err)
 		} else {
-			if len(rec2.Country.ISOCode) != 0 {
-				isoCode := []byte(rec2.Country.ISOCode)
+			if len(rec2.Country.ISOcode) != 0 {
+				isoCode := []byte(rec2.Country.ISOcode)
 				if !bt.evAddEncBField(event, "geoip.dst.iso_code", isoCode,
 					bt.Config.UseIPAnonymization(),
 					FormatCountryISOencF, encFlags) {
@@ -315,6 +347,29 @@ func (bt *Sipcmbeat) addGeoIPinfo(geoip *GeoIPdbHandle, event beat.Event,
 				}
 			} else {
 				bt.geoipStats.lookup.dst.Inc(bt.geoipCnts.Dst.NoCity)
+			}
+			if len(rec2.Subdivisions) > 0 {
+				if len(rec2.Subdivisions[0].ISOcode) != 0 {
+					isoCode := []byte(rec2.Subdivisions[0].ISOcode)
+					if !bt.evAddEncBField(event, "geoip.dst.sub1_code",
+						isoCode,
+						bt.Config.UseIPAnonymization(),
+						FormatCityIDencF, encFlags) {
+						bt.geoipStats.lookup.dst.Inc(bt.geoipCnts.Dst.EncErr)
+					}
+				}
+				if len(rec2.Subdivisions) > 1 &&
+					len(rec2.Subdivisions[1].ISOcode) != 0 {
+					isoCode := []byte(rec2.Subdivisions[1].ISOcode)
+					if !bt.evAddEncBField(event, "geoip.dst.sub2_code",
+						isoCode,
+						bt.Config.UseIPAnonymization(),
+						FormatCityIDencF, encFlags) {
+						bt.geoipStats.lookup.dst.Inc(bt.geoipCnts.Dst.EncErr)
+					}
+				}
+			} else {
+				bt.geoipStats.lookup.dst.Inc(bt.geoipCnts.Dst.NoSubDiv)
 			}
 			/*
 				if len(rec2.City.Names["en"]) != 0 {
