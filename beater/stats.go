@@ -9,7 +9,9 @@
 package beater
 
 import (
+	"sync/atomic"
 	"time"
+	"unsafe"
 
 	"github.com/elastic/beats/v7/libbeat/beat"
 	"github.com/elastic/beats/v7/libbeat/common"
@@ -20,19 +22,31 @@ import (
 const cntLongFormat = 128
 
 func (bt *Sipcmbeat) initStatsGrps() {
+	now := time.Now()
+	statsCntGrps := ([]statsGrpIntvl)(nil)
 	for _, gname := range bt.Config.StatsGrps {
 		var grp *counters.Group
-		if gname == "all" || gname == "*" {
-			bt.statsCntGrps = []*counters.Group{&counters.RootGrp}
-			break
-		} else if gname == "none" || gname == "-" {
+		if gname == "none" || gname == "-" {
 			continue
 		}
-		grp, _ = counters.RootGrp.GetSubGroupDot(gname)
+		if gname == "all" || gname == "*" {
+			grp = &counters.RootGrp
+			gname = "all"
+		} else {
+			grp, _ = counters.RootGrp.GetSubGroupDot(gname)
+		}
 		if grp != nil {
-			bt.statsCntGrps = append(bt.statsCntGrps, grp)
+			statsCntGrps = append(statsCntGrps,
+				statsGrpIntvl{
+					name:  gname,
+					grp:   grp,
+					intvl: bt.Config.StatsInterval,
+					last:  now,
+				})
 		}
 	}
+	pStatsRepGrps := (*unsafe.Pointer)(unsafe.Pointer(&bt.statsRepGrps))
+	atomic.StorePointer(pStatsRepGrps, (unsafe.Pointer)(&statsCntGrps))
 }
 
 // publishStats will publish all the counters stats.
@@ -55,10 +69,15 @@ func (bt *Sipcmbeat) publishCounters() {
 
 	flags := counters.PrRec | counters.PrFullName |
 		cntLongFormat /* | counters.PrDesc */
-	for _, g := range bt.statsCntGrps {
-		if g == nil {
+	now := time.Now() // TODO: pass as param
+	p := atomic.LoadPointer((*unsafe.Pointer)(unsafe.Pointer(&bt.statsRepGrps)))
+	for _, pinfo := range *((*[]statsGrpIntvl)(p)) {
+		g := pinfo.grp
+		if g == nil || pinfo.intvl == 0 ||
+			pinfo.last.After(now.Add(-pinfo.intvl)) {
 			continue
 		}
+		pinfo.last = now
 
 		addGroup(cntHash, g, flags)
 		if flags&counters.PrRec != 0 {

@@ -203,6 +203,13 @@ func (p eventer) DroppedOnPublish(beat.Event) {
 	p.stats.Inc(p.cnts.EvPubDropped)
 }
 
+type statsGrpIntvl struct {
+	name  string
+	grp   *counters.Group
+	intvl time.Duration // send interval
+	last  time.Time     // last sent time
+}
+
 // Sipcmbeat configuration.
 type Sipcmbeat struct {
 	done         chan struct{}
@@ -210,8 +217,8 @@ type Sipcmbeat struct {
 	evIdx        sipcallmon.EvRingIdx // curent position in the ring
 	evRing       *sipcallmon.EvRing
 	wg           *sync.WaitGroup
-	statsT       *time.Ticker      // periodic timer for stats
-	statsCntGrps []*counters.Group // counter groups reported by stats events
+	statsT       *time.Ticker     // periodic timer for stats
+	statsRepGrps *[]statsGrpIntvl // reporting counter group info
 	Config       sipcallmon.Config
 	ipcipher     *anonymization.Ipcipher
 	validator    anonymization.Validator
