@@ -27,7 +27,7 @@ type geoipLookupCounters struct {
 	NotFound  counters.Handle
 	NoCountry counters.Handle
 	NoCity    counters.Handle
-	NoSubDiv  counters.Handle
+	//NoSubDiv  counters.Handle
 }
 
 type geoipCounters struct {
@@ -70,8 +70,10 @@ func (bt *Sipcmbeat) initGeoIPcounters() error {
 			"non-empty lookup with no country"},
 		{&bt.geoipCnts.Src.NoCity, 0, nil, nil, "city_empty",
 			"non-empty lookup with no city"},
-		{&bt.geoipCnts.Src.NoSubDiv, 0, nil, nil, "subdiv_empty",
-			"non-empty lookup with no subdivisions"},
+		/*
+			{&bt.geoipCnts.Src.NoSubDiv, 0, nil, nil, "subdiv_empty",
+				"non-empty lookup with no subdivisions"},
+		*/
 	}
 	dstCntDefs := [...]counters.Def{
 		{&bt.geoipCnts.Dst.Ok, 0, nil, nil, "lookup_ok",
@@ -88,8 +90,10 @@ func (bt *Sipcmbeat) initGeoIPcounters() error {
 			"non-empty lookup with no country"},
 		{&bt.geoipCnts.Dst.NoCity, 0, nil, nil, "city_empty",
 			"non-empty lookup with no city"},
-		{&bt.geoipCnts.Dst.NoSubDiv, 0, nil, nil, "subdiv_empty",
-			"non-empty lookup with no subdivisions"},
+		/*
+			{&bt.geoipCnts.Dst.NoSubDiv, 0, nil, nil, "subdiv_empty",
+				"non-empty lookup with no subdivisions"},
+		*/
 	}
 	bt.geoipStats.main.Init("geoip", nil, len(geoipCntDefs))
 	if !bt.geoipStats.main.RegisterDefs(geoipCntDefs[:]) {
@@ -209,8 +213,8 @@ func (bt *Sipcmbeat) addGeoIPinfo(geoip *GeoIPdbHandle, event beat.Event,
 	}
 	var rec1, rec2 struct {
 		Country struct {
-			GeoNameID uint   `maxminddb:"geoname_id"`
-			ISOcode   string `maxminddb:"iso_code"`
+			// GeoNameID uint   `maxminddb:"geoname_id"`
+			ISOcode string `maxminddb:"iso_code"`
 		} `maxminddb:"country"`
 		City struct {
 			GeoNameID uint `maxminddb:"geoname_id"`
@@ -221,10 +225,12 @@ func (bt *Sipcmbeat) addGeoIPinfo(geoip *GeoIPdbHandle, event beat.Event,
 				Code string `maxminddb:"code"`
 			} `maxminddb:"postal"`
 		*/
-		Subdivisions []struct {
-			GeoNameID uint   `maxminddb:"geoname_id"`
-			ISOcode   string `maxminddb:"iso_code"`
-		} `maxminddb:"subdivisions"`
+		/*
+			Subdivisions []struct {
+				GeoNameID uint   `maxminddb:"geoname_id"`
+				ISOcode   string `maxminddb:"iso_code"`
+			} `maxminddb:"subdivisions"`
+		*/
 	}
 
 	// src
@@ -271,6 +277,7 @@ func (bt *Sipcmbeat) addGeoIPinfo(geoip *GeoIPdbHandle, event beat.Event,
 			} else {
 				bt.geoipStats.lookup.src.Inc(bt.geoipCnts.Src.NoCity)
 			}
+			/* subdivisions disabled
 			if len(rec1.Subdivisions) > 0 {
 				if len(rec1.Subdivisions[0].ISOcode) != 0 {
 					isoCode := []byte(rec1.Subdivisions[0].ISOcode)
@@ -294,15 +301,6 @@ func (bt *Sipcmbeat) addGeoIPinfo(geoip *GeoIPdbHandle, event beat.Event,
 			} else {
 				bt.geoipStats.lookup.src.Inc(bt.geoipCnts.Src.NoSubDiv)
 			}
-			/*
-				if len(rec1.City.Names["en"]) != 0 {
-					addFields(event.Fields,
-						"geoip.src.city", rec1.City.Names["en"])
-				}
-				if len(rec1.Postal.Code) != 0 {
-					addFields(event.Fields,
-						"geoip.src.zip", rec1.Postal.Code)
-				}
 			*/
 		}
 	}
@@ -348,6 +346,7 @@ func (bt *Sipcmbeat) addGeoIPinfo(geoip *GeoIPdbHandle, event beat.Event,
 			} else {
 				bt.geoipStats.lookup.dst.Inc(bt.geoipCnts.Dst.NoCity)
 			}
+			/* subdivisions disabled
 			if len(rec2.Subdivisions) > 0 {
 				if len(rec2.Subdivisions[0].ISOcode) != 0 {
 					isoCode := []byte(rec2.Subdivisions[0].ISOcode)
@@ -371,14 +370,6 @@ func (bt *Sipcmbeat) addGeoIPinfo(geoip *GeoIPdbHandle, event beat.Event,
 			} else {
 				bt.geoipStats.lookup.dst.Inc(bt.geoipCnts.Dst.NoSubDiv)
 			}
-			/*
-				if len(rec2.City.Names["en"]) != 0 {
-					addFields(event.Fields,
-						"geoip.dst.city", rec2.City.Names["en"])
-				}
-				if len(rec2.Postal.Code) != 0 {
-					addFields(event.Fields, "geoip.dst.zip", rec2.Postal.Code)
-				}
 			*/
 		}
 	}
