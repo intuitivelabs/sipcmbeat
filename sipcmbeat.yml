@@ -123,6 +123,11 @@ sipcmbeat:
   # (no error if found in config, backward compatibility option
   # to allow running a config for a newer version).
   cfg_ignore_unknown: []
+  # perform geoip lookup for src & dst ip, default false
+  # needs also a valid geo_ip_db
+  geo_ip_on: false
+  # geoip database file, maxmind format, default empty
+  geo_ip_db: ""
 
 # ================================== General ===================================
 
