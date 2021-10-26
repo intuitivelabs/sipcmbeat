@@ -114,10 +114,15 @@ sipcmbeat:
   # turn on/off CallID encryption, default off
   # (requires a set encryption_passphrase or encryption_key)
   encrypt_call_ids: false
-  # interval for generating statistics/counters events (default 5min).
+  # minimum interval for generating statistics/counters events (default 5min),
+  # also doubles as  keep alive interval (an empty stats event will be sent
+  # if there are no statistics groups candidates).
   stats_interval: 5m
   # list of counter groups reported by the statistics events, default "all".
   # (special values: "all" or "*" and "none" or "-")
+  # Format: [ "grp1"[:interval], grp2[:interval] ...]
+  # E.g.: [regs:2s, calls:30s,  all:5m]
+  # If no interval is specified, stats_interval is used.
   stats_groups: ["all"]
   # list of not supported config options that are safe to ignore
   # (no error if found in config, backward compatibility option
