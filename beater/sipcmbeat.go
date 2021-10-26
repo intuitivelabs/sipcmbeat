@@ -207,17 +207,18 @@ func (p eventer) DroppedOnPublish(beat.Event) {
 
 // Sipcmbeat configuration.
 type Sipcmbeat struct {
-	done         chan struct{}
-	newEv        chan struct{}        // new events are signalled here
-	evIdx        sipcallmon.EvRingIdx // curent position in the ring
-	evRing       *sipcallmon.EvRing
-	wg           *sync.WaitGroup
-	statsT       *time.Ticker      // periodic timer for stats
-	statsCntGrps []*counters.Group // counter groups reported by stats events
-	Config       sipcallmon.Config
-	ipcipher     *anonymization.Ipcipher
-	validator    anonymization.Validator
-	client       beat.Client
+	done   chan struct{}
+	newEv  chan struct{}        // new events are signalled here
+	evIdx  sipcallmon.EvRingIdx // curent position in the ring
+	evRing *sipcallmon.EvRing
+	wg     *sync.WaitGroup
+
+	pStatsInfo publishStatsInfo // stats event publish internal stuff
+
+	Config    sipcallmon.Config
+	ipcipher  *anonymization.Ipcipher
+	validator anonymization.Validator
+	client    beat.Client
 	// stats
 	stats   counters.Group
 	cnts    statCounters
@@ -401,6 +402,9 @@ func New(b *beat.Beat, cfg *common.Config) (beat.Beater, error) {
 			return nil, fmt.Errorf("Error reading config file: %v", err)
 		}
 	}
+	if err := sipcallmon.CfgFix(&c); err != nil && cfg != nil {
+		return nil, fmt.Errorf("Invalid Config: error fixing: %v", err)
+	}
 	if err := sipcallmon.CfgCheck(&c); err != nil && cfg != nil {
 		return nil, fmt.Errorf("Invalid Config: %v", err)
 	}
@@ -480,11 +484,11 @@ func (bt *Sipcmbeat) Run(b *beat.Beat) error {
 	//pprof.StartCPUProfile(f)
 	bt.wg.Add(1)
 	bt.initStatsGrps()
-	if bt.Config.StatsInterval > 0 {
-		bt.statsT = time.NewTicker(bt.Config.StatsInterval)
+	if bt.pStatsInfo.statsTick > 0 {
+		bt.pStatsInfo.statsT = time.NewTicker(bt.pStatsInfo.statsTick)
 	} else {
 		// init with null channel (== disabled)
-		bt.statsT = &time.Ticker{}
+		bt.pStatsInfo.statsT = &time.Ticker{}
 	}
 	go bt.consumeEv()
 	err = sipcallmon.Run(&bt.Config)
@@ -504,8 +508,8 @@ func (bt *Sipcmbeat) Stop() {
 		bt.client = nil
 	}
 	close(bt.done)
-	if bt.statsT != nil && bt.statsT.C != nil {
-		bt.statsT.Stop()
+	if bt.pStatsInfo.statsT != nil && bt.pStatsInfo.statsT.C != nil {
+		bt.pStatsInfo.statsT.Stop()
 	}
 	if bt.wg != nil {
 		bt.wg.Wait()
@@ -587,9 +591,9 @@ waitsig:
 					bt.evIdx = nxtIdx
 				}
 			}
-		case _, ok := <-bt.statsT.C:
+		case ts, ok := <-bt.pStatsInfo.statsT.C:
 			if ok {
-				bt.publishCounters()
+				bt.publishCounters(ts, bt.pStatsInfo.statsTick/1000)
 			}
 		}
 	}
