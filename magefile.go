@@ -30,6 +30,7 @@ func init() {
 
 	devtools.BeatDescription = "sip call monitor & probe"
 	devtools.BeatVendor = "intuitivelabs"
+	devtools.BeatURL = "https://github.com/intuitivelabs/sipcmbeat/blob/master/README.md"
 	devtools.BeatProjectType = devtools.CommunityProject
 	devtools.CrossBuildMountModcache = true
 
