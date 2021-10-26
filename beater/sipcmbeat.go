@@ -203,13 +203,6 @@ func (p eventer) DroppedOnPublish(beat.Event) {
 	p.stats.Inc(p.cnts.EvPubDropped)
 }
 
-type statsGrpIntvl struct {
-	name  string
-	grp   *counters.Group
-	intvl time.Duration // send interval
-	last  time.Time     // last sent time
-}
-
 // Sipcmbeat configuration.
 type Sipcmbeat struct {
 	done         chan struct{}
@@ -401,6 +394,9 @@ func New(b *beat.Beat, cfg *common.Config) (beat.Beater, error) {
 			return nil, fmt.Errorf("Error reading config file: %v", err)
 		}
 	}
+	if err := sipcallmon.CfgFix(&c); err != nil && cfg != nil {
+		return nil, fmt.Errorf("Invalid Config: error fixing: %v", err)
+	}
 	if err := sipcallmon.CfgCheck(&c); err != nil && cfg != nil {
 		return nil, fmt.Errorf("Invalid Config: %v", err)
 	}
@@ -577,9 +573,9 @@ waitsig:
 					bt.evIdx = nxtIdx
 				}
 			}
-		case _, ok := <-bt.statsT.C:
+		case ts, ok := <-bt.statsT.C:
 			if ok {
-				bt.publishCounters()
+				bt.publishCounters(ts, bt.Config.StatsInterval/1000)
 			}
 		}
 	}

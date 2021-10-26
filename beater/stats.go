@@ -21,10 +21,19 @@ import (
 
 const cntLongFormat = 128
 
+type statsGrpIntvl struct {
+	name  string
+	grp   *counters.Group
+	intvl time.Duration // send interval
+	last  time.Time     // last sent time
+	oos   uint          // out-of-sync count
+}
+
 func (bt *Sipcmbeat) initStatsGrps() {
 	now := time.Now()
 	statsCntGrps := ([]statsGrpIntvl)(nil)
-	for _, gname := range bt.Config.StatsGrps {
+	for _, g := range bt.Config.StatsGrps {
+		gname := g.Name
 		var grp *counters.Group
 		if gname == "none" || gname == "-" {
 			continue
@@ -36,13 +45,19 @@ func (bt *Sipcmbeat) initStatsGrps() {
 			grp, _ = counters.RootGrp.GetSubGroupDot(gname)
 		}
 		if grp != nil {
-			statsCntGrps = append(statsCntGrps,
-				statsGrpIntvl{
-					name:  gname,
-					grp:   grp,
-					intvl: bt.Config.StatsInterval,
-					last:  now,
-				})
+			intvl := g.Intvl
+			if intvl == -1 {
+				intvl = bt.Config.StatsInterval
+			}
+			if intvl != 0 {
+				statsCntGrps = append(statsCntGrps,
+					statsGrpIntvl{
+						name:  gname,
+						grp:   grp,
+						intvl: intvl,
+						last:  now,
+					})
+			}
 		}
 	}
 	pStatsRepGrps := (*unsafe.Pointer)(unsafe.Pointer(&bt.statsRepGrps))
@@ -50,7 +65,8 @@ func (bt *Sipcmbeat) initStatsGrps() {
 }
 
 // publishStats will publish all the counters stats.
-func (bt *Sipcmbeat) publishCounters() {
+// The parameters are the current time and timer error
+func (bt *Sipcmbeat) publishCounters(ts time.Time, terr time.Duration) {
 	if bt.client == nil { // dev null
 		return
 	}
@@ -69,15 +85,45 @@ func (bt *Sipcmbeat) publishCounters() {
 
 	flags := counters.PrRec | counters.PrFullName |
 		cntLongFormat /* | counters.PrDesc */
-	now := time.Now() // TODO: pass as param
+	now := ts
 	p := atomic.LoadPointer((*unsafe.Pointer)(unsafe.Pointer(&bt.statsRepGrps)))
-	for _, pinfo := range *((*[]statsGrpIntvl)(p)) {
-		g := pinfo.grp
-		if g == nil || pinfo.intvl == 0 ||
-			pinfo.last.After(now.Add(-pinfo.intvl)) {
+	statsGrps := *((*[]statsGrpIntvl)(p))
+	for i := 0; i < len(statsGrps); i++ {
+		g := statsGrps[i].grp
+		/* note that all the time comparisons and time.Sub() will use the
+		   process "monotonic" time and not the system time (see go time docs).
+		   However attempting to print the time (convert to string) will
+		   produce the real wall time. Each Time value in go holds
+		   both the wall time and the monotonic per process clock.
+		   time.Add() will add the duration to both internal Time fields.
+
+		   On linux  hibernate/sleep would not cause
+		   the process time to jump (the process clock will not account
+		   for the sleep period), but suspending the process would work as
+		   expected (the per process clock will account for the "suspended"
+		   time).
+		*/
+		if g == nil || statsGrps[i].intvl == 0 ||
+			statsGrps[i].last.After(now.Add(-statsGrps[i].intvl+terr)) {
 			continue
 		}
-		pinfo.last = now
+
+		statsGrps[i].last = statsGrps[i].last.Add(statsGrps[i].intvl)
+		// resync if diff too big or in the future
+		if (statsGrps[i].last.Sub(now) > terr) ||
+			(now.Sub(statsGrps[i].last) > (bt.Config.StatsInterval + terr)) {
+			statsGrps[i].oos++
+			// if out-of-sync more then 3 times in a row or the difference
+			// is really big => re-sync "last" ( => skipping older stats)
+			if statsGrps[i].oos > 3 ||
+				(now.Sub(statsGrps[i].last) >= 2*statsGrps[i].intvl) {
+				// resync
+				statsGrps[i].last = now
+				statsGrps[i].oos = 0
+			}
+		} else {
+			statsGrps[i].oos = 0
+		}
 
 		addGroup(cntHash, g, flags)
 		if flags&counters.PrRec != 0 {
