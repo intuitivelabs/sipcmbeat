@@ -21,6 +21,8 @@ import (
 
 const cntLongFormat = 128
 
+const statsMinTick = 500 * time.Millisecond
+
 type statsGrpIntvl struct {
 	name  string
 	grp   *counters.Group
@@ -30,8 +32,24 @@ type statsGrpIntvl struct {
 }
 
 func (bt *Sipcmbeat) initStatsGrps() {
+	// helper function for finding the greatest common denominator
+	// (works only for positive values)
+	gcd := func(d1, d2 time.Duration) time.Duration {
+		for d2 != 0 {
+			r := d1 % d2
+			d1 = d2
+			d2 = r
+		}
+		return d1
+	}
+
 	now := time.Now()
 	statsCntGrps := ([]statsGrpIntvl)(nil)
+	minIntvl := bt.Config.StatsInterval
+	if minIntvl < 0 {
+		// no default interval
+		minIntvl = 0
+	}
 	for _, g := range bt.Config.StatsGrps {
 		gname := g.Name
 		var grp *counters.Group
@@ -49,7 +67,10 @@ func (bt *Sipcmbeat) initStatsGrps() {
 			if intvl == -1 {
 				intvl = bt.Config.StatsInterval
 			}
-			if intvl != 0 {
+			if intvl > 0 {
+				if intvl < statsMinTick {
+					intvl = statsMinTick
+				}
 				statsCntGrps = append(statsCntGrps,
 					statsGrpIntvl{
 						name:  gname,
@@ -57,9 +78,17 @@ func (bt *Sipcmbeat) initStatsGrps() {
 						intvl: intvl,
 						last:  now,
 					})
+				minIntvl = gcd(intvl, minIntvl)
 			}
 		}
 	}
+	if minIntvl > 0 && minIntvl < statsMinTick {
+		minIntvl = statsMinTick
+	}
+	//bt.statsTick = minIntvl
+	atomic.StoreInt64((*int64)(unsafe.Pointer(&bt.statsTick)), int64(minIntvl))
+	// TODO: atomic, change to timestamp
+	bt.lastStatsEv = now
 	pStatsRepGrps := (*unsafe.Pointer)(unsafe.Pointer(&bt.statsRepGrps))
 	atomic.StorePointer(pStatsRepGrps, (unsafe.Pointer)(&statsCntGrps))
 }
@@ -88,6 +117,7 @@ func (bt *Sipcmbeat) publishCounters(ts time.Time, terr time.Duration) {
 	now := ts
 	p := atomic.LoadPointer((*unsafe.Pointer)(unsafe.Pointer(&bt.statsRepGrps)))
 	statsGrps := *((*[]statsGrpIntvl)(p))
+	added := 0
 	for i := 0; i < len(statsGrps); i++ {
 		g := statsGrps[i].grp
 		/* note that all the time comparisons and time.Sub() will use the
@@ -111,7 +141,7 @@ func (bt *Sipcmbeat) publishCounters(ts time.Time, terr time.Duration) {
 		statsGrps[i].last = statsGrps[i].last.Add(statsGrps[i].intvl)
 		// resync if diff too big or in the future
 		if (statsGrps[i].last.Sub(now) > terr) ||
-			(now.Sub(statsGrps[i].last) > (bt.Config.StatsInterval + terr)) {
+			(now.Sub(statsGrps[i].last) > (bt.statsTick + terr)) {
 			statsGrps[i].oos++
 			// if out-of-sync more then 3 times in a row or the difference
 			// is really big => re-sync "last" ( => skipping older stats)
@@ -129,14 +159,22 @@ func (bt *Sipcmbeat) publishCounters(ts time.Time, terr time.Duration) {
 		if flags&counters.PrRec != 0 {
 			addSubGroups(cntHash, g, flags)
 		}
+		added++
 	}
 
+	if added == 0 && (bt.Config.StatsInterval <= 0 ||
+		now.Sub(bt.lastStatsEv) < (bt.Config.StatsInterval-terr)) {
+		// no event if no counters added and time since last event
+		// < StatsInterval or StatsInterval disabled
+		return
+	}
 	// version fields
 	bt.addVersionToEv(event)
 
 	bt.client.Publish(event)
 	bt.stats.Inc(bt.cnts.EvPub)
 	bt.stats.Inc(bt.cnts.EvStats)
+	bt.lastStatsEv = now
 }
 
 // addCounter adds the specified counter (g.h) to the event fields (m).

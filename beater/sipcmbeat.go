@@ -205,17 +205,21 @@ func (p eventer) DroppedOnPublish(beat.Event) {
 
 // Sipcmbeat configuration.
 type Sipcmbeat struct {
-	done         chan struct{}
-	newEv        chan struct{}        // new events are signalled here
-	evIdx        sipcallmon.EvRingIdx // curent position in the ring
-	evRing       *sipcallmon.EvRing
-	wg           *sync.WaitGroup
+	done   chan struct{}
+	newEv  chan struct{}        // new events are signalled here
+	evIdx  sipcallmon.EvRingIdx // curent position in the ring
+	evRing *sipcallmon.EvRing
+	wg     *sync.WaitGroup
+
 	statsT       *time.Ticker     // periodic timer for stats
 	statsRepGrps *[]statsGrpIntvl // reporting counter group info
-	Config       sipcallmon.Config
-	ipcipher     *anonymization.Ipcipher
-	validator    anonymization.Validator
-	client       beat.Client
+	statsTick    time.Duration
+	lastStatsEv  time.Time // last time a statistics event was sent
+
+	Config    sipcallmon.Config
+	ipcipher  *anonymization.Ipcipher
+	validator anonymization.Validator
+	client    beat.Client
 	// stats
 	stats   counters.Group
 	cnts    statCounters
@@ -469,8 +473,8 @@ func (bt *Sipcmbeat) Run(b *beat.Beat) error {
 	//pprof.StartCPUProfile(f)
 	bt.wg.Add(1)
 	bt.initStatsGrps()
-	if bt.Config.StatsInterval > 0 {
-		bt.statsT = time.NewTicker(bt.Config.StatsInterval)
+	if bt.statsTick > 0 {
+		bt.statsT = time.NewTicker(bt.statsTick)
 	} else {
 		// init with null channel (== disabled)
 		bt.statsT = &time.Ticker{}
