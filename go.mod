@@ -42,6 +42,7 @@ require (
 	github.com/intuitivelabs/sipcallmon v0.8.3-0.20211026154550-f70b66a3f335
 	github.com/intuitivelabs/sipsp v1.1.1
 	github.com/intuitivelabs/slog v0.0.2
+	github.com/intuitivelabs/timestamp v0.0.3
 	github.com/josephspurrier/goversioninfo v1.2.0 // indirect
 	github.com/magefile/mage v1.11.0
 	github.com/mattn/go-colorable v0.1.8 // indirect

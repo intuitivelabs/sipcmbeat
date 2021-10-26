@@ -211,10 +211,7 @@ type Sipcmbeat struct {
 	evRing *sipcallmon.EvRing
 	wg     *sync.WaitGroup
 
-	statsT       *time.Ticker     // periodic timer for stats
-	statsRepGrps *[]statsGrpIntvl // reporting counter group info
-	statsTick    time.Duration
-	lastStatsEv  time.Time // last time a statistics event was sent
+	pStatsInfo publishStatsInfo // stats event publish internal stuff
 
 	Config    sipcallmon.Config
 	ipcipher  *anonymization.Ipcipher
@@ -473,11 +470,11 @@ func (bt *Sipcmbeat) Run(b *beat.Beat) error {
 	//pprof.StartCPUProfile(f)
 	bt.wg.Add(1)
 	bt.initStatsGrps()
-	if bt.statsTick > 0 {
-		bt.statsT = time.NewTicker(bt.statsTick)
+	if bt.pStatsInfo.statsTick > 0 {
+		bt.pStatsInfo.statsT = time.NewTicker(bt.pStatsInfo.statsTick)
 	} else {
 		// init with null channel (== disabled)
-		bt.statsT = &time.Ticker{}
+		bt.pStatsInfo.statsT = &time.Ticker{}
 	}
 	go bt.consumeEv()
 	err = sipcallmon.Run(&bt.Config)
@@ -497,8 +494,8 @@ func (bt *Sipcmbeat) Stop() {
 		bt.client = nil
 	}
 	close(bt.done)
-	if bt.statsT != nil && bt.statsT.C != nil {
-		bt.statsT.Stop()
+	if bt.pStatsInfo.statsT != nil && bt.pStatsInfo.statsT.C != nil {
+		bt.pStatsInfo.statsT.Stop()
 	}
 	if bt.wg != nil {
 		bt.wg.Wait()
@@ -577,9 +574,9 @@ waitsig:
 					bt.evIdx = nxtIdx
 				}
 			}
-		case ts, ok := <-bt.statsT.C:
+		case ts, ok := <-bt.pStatsInfo.statsT.C:
 			if ok {
-				bt.publishCounters(ts, bt.Config.StatsInterval/1000)
+				bt.publishCounters(ts, bt.pStatsInfo.statsTick/1000)
 			}
 		}
 	}

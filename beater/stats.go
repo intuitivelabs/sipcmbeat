@@ -17,6 +17,7 @@ import (
 	"github.com/elastic/beats/v7/libbeat/common"
 
 	"github.com/intuitivelabs/counters"
+	"github.com/intuitivelabs/timestamp"
 )
 
 const cntLongFormat = 128
@@ -27,8 +28,15 @@ type statsGrpIntvl struct {
 	name  string
 	grp   *counters.Group
 	intvl time.Duration // send interval
-	last  time.Time     // last sent time
+	last  timestamp.TS  // last sent time
 	oos   uint          // out-of-sync count
+}
+
+type publishStatsInfo struct {
+	statsT       *time.Ticker     // periodic timer for stats
+	statsRepGrps *[]statsGrpIntvl // reporting counter group info
+	statsTick    time.Duration    // tick for the stat periodic timer
+	lastStatsEv  timestamp.TS     // last time a statistics event was sent
 }
 
 func (bt *Sipcmbeat) initStatsGrps() {
@@ -43,7 +51,7 @@ func (bt *Sipcmbeat) initStatsGrps() {
 		return d1
 	}
 
-	now := time.Now()
+	now := timestamp.Now()
 	statsCntGrps := ([]statsGrpIntvl)(nil)
 	minIntvl := bt.Config.StatsInterval
 	if minIntvl < 0 {
@@ -85,11 +93,11 @@ func (bt *Sipcmbeat) initStatsGrps() {
 	if minIntvl > 0 && minIntvl < statsMinTick {
 		minIntvl = statsMinTick
 	}
-	//bt.statsTick = minIntvl
-	atomic.StoreInt64((*int64)(unsafe.Pointer(&bt.statsTick)), int64(minIntvl))
-	// TODO: atomic, change to timestamp
-	bt.lastStatsEv = now
-	pStatsRepGrps := (*unsafe.Pointer)(unsafe.Pointer(&bt.statsRepGrps))
+	atomic.StoreInt64((*int64)(unsafe.Pointer(&bt.pStatsInfo.statsTick)),
+		int64(minIntvl))
+	timestamp.AtomicStore(&bt.pStatsInfo.lastStatsEv, now)
+	pStatsRepGrps := (*unsafe.Pointer)(unsafe.Pointer(
+		&bt.pStatsInfo.statsRepGrps))
 	atomic.StorePointer(pStatsRepGrps, (unsafe.Pointer)(&statsCntGrps))
 }
 
@@ -114,25 +122,15 @@ func (bt *Sipcmbeat) publishCounters(ts time.Time, terr time.Duration) {
 
 	flags := counters.PrRec | counters.PrFullName |
 		cntLongFormat /* | counters.PrDesc */
-	now := ts
-	p := atomic.LoadPointer((*unsafe.Pointer)(unsafe.Pointer(&bt.statsRepGrps)))
+	now := timestamp.Timestamp(ts)
+	p := atomic.LoadPointer((*unsafe.Pointer)(
+		unsafe.Pointer(&bt.pStatsInfo.statsRepGrps)))
+	pStatsTick := (*int64)(unsafe.Pointer(&bt.pStatsInfo.statsTick))
+
 	statsGrps := *((*[]statsGrpIntvl)(p))
 	added := 0
 	for i := 0; i < len(statsGrps); i++ {
 		g := statsGrps[i].grp
-		/* note that all the time comparisons and time.Sub() will use the
-		   process "monotonic" time and not the system time (see go time docs).
-		   However attempting to print the time (convert to string) will
-		   produce the real wall time. Each Time value in go holds
-		   both the wall time and the monotonic per process clock.
-		   time.Add() will add the duration to both internal Time fields.
-
-		   On linux  hibernate/sleep would not cause
-		   the process time to jump (the process clock will not account
-		   for the sleep period), but suspending the process would work as
-		   expected (the per process clock will account for the "suspended"
-		   time).
-		*/
 		if g == nil || statsGrps[i].intvl == 0 ||
 			statsGrps[i].last.After(now.Add(-statsGrps[i].intvl+terr)) {
 			continue
@@ -141,7 +139,8 @@ func (bt *Sipcmbeat) publishCounters(ts time.Time, terr time.Duration) {
 		statsGrps[i].last = statsGrps[i].last.Add(statsGrps[i].intvl)
 		// resync if diff too big or in the future
 		if (statsGrps[i].last.Sub(now) > terr) ||
-			(now.Sub(statsGrps[i].last) > (bt.statsTick + terr)) {
+			(now.Sub(statsGrps[i].last) >
+				(time.Duration(atomic.LoadInt64(pStatsTick)) + terr)) {
 			statsGrps[i].oos++
 			// if out-of-sync more then 3 times in a row or the difference
 			// is really big => re-sync "last" ( => skipping older stats)
@@ -162,11 +161,14 @@ func (bt *Sipcmbeat) publishCounters(ts time.Time, terr time.Duration) {
 		added++
 	}
 
-	if added == 0 && (bt.Config.StatsInterval <= 0 ||
-		now.Sub(bt.lastStatsEv) < (bt.Config.StatsInterval-terr)) {
-		// no event if no counters added and time since last event
-		// < StatsInterval or StatsInterval disabled
-		return
+	if added == 0 {
+		lastStatsEvTS := timestamp.AtomicLoad(&bt.pStatsInfo.lastStatsEv)
+		if bt.Config.StatsInterval <= 0 ||
+			now.Sub(lastStatsEvTS) < (bt.Config.StatsInterval-terr) {
+			// no event if no counters added and time since last event
+			// < StatsInterval or StatsInterval disabled
+			return
+		}
 	}
 	// version fields
 	bt.addVersionToEv(event)
@@ -174,7 +176,7 @@ func (bt *Sipcmbeat) publishCounters(ts time.Time, terr time.Duration) {
 	bt.client.Publish(event)
 	bt.stats.Inc(bt.cnts.EvPub)
 	bt.stats.Inc(bt.cnts.EvStats)
-	bt.lastStatsEv = now
+	timestamp.AtomicStore(&bt.pStatsInfo.lastStatsEv, now)
 }
 
 // addCounter adds the specified counter (g.h) to the event fields (m).
