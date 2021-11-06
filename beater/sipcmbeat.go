@@ -49,6 +49,7 @@ const (
 	FormatReasonAencF    // reason attr. is enc
 	FormatCountryISOencF // country iso is enc
 	FormatCityIDencF     // city id is enc
+	FormatIpcipherF      // ipcipher is used
 )
 
 type statCounters struct {
@@ -379,14 +380,17 @@ func (bt *Sipcmbeat) initEncryption(b *beat.Beat) error {
 	} else {
 		bt.ipcipher = ipcipher.(*anonymization.Ipcipher)
 	}
+
+	// initialize the IP Prefix-preserving anonymization
+	_ = anonymization.NewPanIPv4(encKey[:])
+
 	// initialize the URI CBC based encryption
-	anonymization.InitUriKeysFromMasterKey(encKey[:], anonymization.EncryptionKeyLen)
+	anonymization.InitUriKeysFromMasterKey(encKey[:])
 	_ = anonymization.NewUriCBC(anonymization.GetUriKeys())
 
-	anonymization.InitCallIdKeysFromMasterKey(encKey[:], anonymization.EncryptionKeyLen)
-	_ = anonymization.NewCallIdCBC(anonymization.GetCallIdKeys())
-
 	// initialize the Call-ID CBC based encryption
+	anonymization.InitCallIdKeysFromMasterKey(encKey[:])
+	_ = anonymization.NewCallIdCBC(anonymization.GetCallIdKeys())
 
 	return nil
 }
@@ -708,9 +712,16 @@ func (bt *Sipcmbeat) getURI(dst, src []byte, encFlags *FormatFlags) ([]byte, err
 func (bt *Sipcmbeat) getSrcIP(ed *calltr.EventData, encFlags *FormatFlags) net.IP {
 	if bt.Config.UseIPAnonymization() {
 		c := make([]byte, len(ed.Src))
-		bt.ipcipher.Encrypt(c, ed.Src)
 		if encFlags != nil {
 			*encFlags |= FormatCltIPencF
+		}
+		if bt.Config.UseIpcipher() || ed.Src.To4() == nil {
+			bt.ipcipher.Encrypt(c, ed.Src)
+			if encFlags != nil {
+				*encFlags |= FormatIpcipherF
+			}
+		} else {
+			anonymization.GetPan4().Encrypt(c, ed.Src)
 		}
 		return net.IP(c[:])
 	}
@@ -721,9 +732,16 @@ func (bt *Sipcmbeat) getSrcIP(ed *calltr.EventData, encFlags *FormatFlags) net.I
 func (bt *Sipcmbeat) getDstIP(ed *calltr.EventData, encFlags *FormatFlags) net.IP {
 	if bt.Config.UseIPAnonymization() {
 		c := make([]byte, len(ed.Dst))
-		bt.ipcipher.Encrypt(c, ed.Dst)
 		if encFlags != nil {
 			*encFlags |= FormatSrvIPencF
+		}
+		if bt.Config.UseIpcipher() || ed.Dst.To4() == nil {
+			bt.ipcipher.Encrypt(c, ed.Dst)
+			if encFlags != nil {
+				*encFlags |= FormatIpcipherF
+			}
+		} else {
+			anonymization.GetPan4().Encrypt(c, ed.Dst)
 		}
 		return net.IP(c[:])
 	}
