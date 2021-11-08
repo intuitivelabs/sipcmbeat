@@ -7,10 +7,6 @@ jobs:
     runs-on: ubuntu-latest
     steps:
 
-    - uses: fusion-engineering/setup-git-credentials@v2
-      with:
-        credentials: ${{secrets.GIT_CREDENTIALS}}
-
     - name: Checkout ${{ github.repository }}
       uses: actions/checkout@v2
 
