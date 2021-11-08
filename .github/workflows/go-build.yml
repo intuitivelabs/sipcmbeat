@@ -1,0 +1,35 @@
+name: Go Build
+on: 
+  push:
+  workflow_dispatch:
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+
+    - uses: fusion-engineering/setup-git-credentials@v2
+      with:
+        credentials: ${{secrets.GIT_CREDENTIALS}}
+
+    - name: Checkout ${{ github.repository }}
+      uses: actions/checkout@v2
+
+    - name: Install make
+      run: sudo apt-get install make
+    
+    - name: Set up Go
+      uses: actions/setup-go@v2
+      with:
+        go-version: 1.15.2
+
+    - name: Install mage
+      run: |
+           git clone https://github.com/magefile/mage
+           cd mage
+           go run bootstrap.go
+
+    - name: Build
+      run: |
+           go env -w GONOPROXY="github.com/intuitivelabs" GONOSUMDB="github.com/intuitivelabs" GOPRIVATE="github.com/intuitivelabs"; go env
+           go get
+           make
