@@ -16,7 +16,7 @@ replace (
 	//	golang.org/x/tools => golang.org/x/tools v0.0.0-20200602230032-c00d67ef29d0 // release 1.14
 	github.com/tonistiigi/fifo => github.com/containerd/fifo v0.0.0-20190816180239-bda0ff6ed73c
 	github.com/intuitivelabs/sipcallmon => github.com/intuitivelabs/sipcallmon v0.8.5-0.20211106190003-4dcd1cf95bea
-	github.com/intuitivelabs/anonymization => github.com/intuitivelabs/anonymization v1.2.1-0.20211105174112-d44fc342bf9d
+	github.com/intuitivelabs/anonymization => github.com/intuitivelabs/anonymization v1.2.1-0.20211108180515-29e3e5008d69
 )
 
 // NOTE: following replace recommended by beats, but breaks sipcallmon
