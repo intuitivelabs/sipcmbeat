@@ -103,13 +103,19 @@ sipcmbeat:
   encryption_salt: 1e22c6fd-7372-4429-a4e4-c39275a95f19
   # turn on/off ip address encryption, default off
   # (requires a set encryption_passphrase or encryption_key)
-  encrypt_ip_addresses: true 
+  encrypt_ip_addresses: false
   # turn on/off URIs encryption, default off
   # (requires a set encryption_passphrase or encryption_key)
   encrypt_uris: true 
   # turn on/off CallID encryption, default off
   # (requires a set encryption_passphrase or encryption_key)
   encrypt_call_ids: true 
+  # perform geoip lookup for src & dst ip, default false
+  # needs also a valid geo_ip_db
+  geo_ip_on: true
+  # geoip database file, maxmind format, default empty
+  geo_ip_db: "/usr/share/GeoLite2/GeoLite2-City.mmdb"
+
 
 # ================================== General ===================================
 
