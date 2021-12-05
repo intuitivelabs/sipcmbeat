@@ -114,6 +114,9 @@ sipcmbeat:
   # turn on/off CallID encryption, default off
   # (requires a set encryption_passphrase or encryption_key)
   encrypt_call_ids: false
+  # turn on/off UA and UAS encryption, default off
+  # (requires a set encryption_passphrase or encryption_key)
+  encrypt_ua: false
   # default interval for generating statistics/counters events for stats_groups
   # with no interval (default 5min).
   # It also doubles as  keep alive interval (an empty stats event will be sent
