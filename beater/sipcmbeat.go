@@ -36,7 +36,7 @@ import (
 )
 
 // FormatFlags defines event structure or field encoding flags.
-type FormatFlags uint8
+type FormatFlags uint16
 
 const FormatNoneF FormatFlags = iota
 
@@ -49,6 +49,7 @@ const (
 	FormatReasonAencF    // reason attr. is enc
 	FormatCountryISOencF // country iso is enc
 	FormatCityIDencF     // city id is enc
+	FormatUAencF         // user-agent is enc
 )
 
 type statCounters struct {
@@ -797,6 +798,18 @@ func (bt *Sipcmbeat) publishEv(geoipH *GeoIPdbHandle, srcEv *calltr.EventData) {
 					logp.Err("failed to add %q to Fields\n",
 						calltr.CallAttrIdx(i).String())
 					bt.stats.Inc(bt.cnts.EvErr)
+				}
+			case calltr.AttrUA, calltr.AttrUAS:
+				if !bt.evAddEncBField(event,
+					calltr.CallAttrIdx(i).String(),
+					ed.Attrs[i].Get(ed.Buf),
+					bt.Config.UseUAAnonymization(), FormatUAencF, &encFlags) {
+					// TODO:  new counter for EncField failure &
+					//        for failing to add filed
+					//        (EvErr should be used only for failing to add
+					//         the whole event)
+					bt.stats.Inc(bt.cnts.EvErr)
+					continue // skip over this attr
 				}
 			case calltr.AttrReason:
 				if ed.Type == calltr.EvParseErr {
