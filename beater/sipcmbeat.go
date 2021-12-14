@@ -786,8 +786,9 @@ func (bt *Sipcmbeat) publishEv(geoipH *GeoIPdbHandle, srcEv *calltr.EventData) {
 				if bt.Config.UseURIAnonymization() {
 					uriBuf = newAnonymizationBuf(len(uri))
 					if uri, err = bt.getURI(uriBuf, uri, &encFlags); err != nil {
-						logp.Err("failed to add %q to Fields: %s\n",
-							calltr.CallAttrIdx(i).String(), err.Error())
+						logp.Err("failed to add %q to Fields: %s for %q\n",
+							calltr.CallAttrIdx(i).String(), err.Error(), uri)
+						// TODO: special counter for URI enc. errs
 						bt.stats.Inc(bt.cnts.EvErr)
 						continue
 					}
@@ -795,8 +796,8 @@ func (bt *Sipcmbeat) publishEv(geoipH *GeoIPdbHandle, srcEv *calltr.EventData) {
 				ok := addFields(event.Fields, calltr.CallAttrIdx(i).String(),
 					str(uri))
 				if !ok {
-					logp.Err("failed to add %q to Fields\n",
-						calltr.CallAttrIdx(i).String())
+					logp.Err("failed to add %q : %q to Fields\n",
+						calltr.CallAttrIdx(i).String(), uri)
 					bt.stats.Inc(bt.cnts.EvErr)
 				}
 			case calltr.AttrUA, calltr.AttrUAS:
@@ -821,8 +822,10 @@ func (bt *Sipcmbeat) publishEv(geoipH *GeoIPdbHandle, srcEv *calltr.EventData) {
 					reason, isEnc, err :=
 						bt.getEncContent(reasonBuf, ed.Buf, ed.Attrs[i])
 					if err != nil {
-						logp.Err("failed to add parse-error %q to Fields: %s\n",
-							calltr.CallAttrIdx(i).String(), err.Error())
+						logp.Err("failed to add parse-error %q to Fields: %s"+
+							" for %q\n",
+							calltr.CallAttrIdx(i).String(), err.Error(),
+							ed.Attrs[i].Get(ed.Buf))
 						bt.stats.Inc(bt.cnts.EvErr)
 						continue
 					}
@@ -833,8 +836,8 @@ func (bt *Sipcmbeat) publishEv(geoipH *GeoIPdbHandle, srcEv *calltr.EventData) {
 						calltr.CallAttrIdx(i).String(),
 						str(reason))
 					if !ok {
-						logp.Err("failed to add %q to Fields\n",
-							calltr.CallAttrIdx(i).String())
+						logp.Err("failed to add %q : %q to Fields\n",
+							calltr.CallAttrIdx(i).String(), reason)
 						bt.stats.Inc(bt.cnts.EvErr)
 					}
 					// added, skip
