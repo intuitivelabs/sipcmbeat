@@ -787,7 +787,8 @@ func (bt *Sipcmbeat) publishEv(geoipH *GeoIPdbHandle, srcEv *calltr.EventData) {
 					uriBuf = newAnonymizationBuf(len(uri))
 					if uri, err = bt.getURI(uriBuf, uri, &encFlags); err != nil {
 						logp.Err("failed to add %q to Fields: %s for %q\n",
-							calltr.CallAttrIdx(i).String(), err.Error(), uri)
+							calltr.CallAttrIdx(i).String(), err.Error(),
+							ed.Attrs[i].Get(ed.Buf))
 						// TODO: special counter for URI enc. errs
 						bt.stats.Inc(bt.cnts.EvErr)
 						continue
