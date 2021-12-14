@@ -695,12 +695,12 @@ func (bt *Sipcmbeat) getURI(attr calltr.CallAttrIdx, dst, src []byte,
 		// anonymize URI
 		var uri sipsp.PsipURI
 		if err, _ := sipsp.ParseURI(src, &uri); err != 0 {
-			return nil, fmt.Errorf("failed to parse SIP URI during anonymization: %w", err)
+			return nil, err
 		}
 		//anonymization.DbgOn()
 		au := anonymization.AnonymURI(uri)
 		if err := au.Anonymize(dst, src, true); err != nil {
-			return nil, fmt.Errorf("failed to anonymize SIP URI: %w", err)
+			return nil, err
 		}
 		if encFlags != nil {
 			*encFlags |= FormatURIencF
@@ -779,6 +779,7 @@ func (bt *Sipcmbeat) publishEv(geoipH *GeoIPdbHandle, srcEv *calltr.EventData) {
 	} else {
 		addFields(event.Fields, "sip.call_id", str(callID))
 	}
+add_attrs:
 	for i := 0; i < len(ed.Attrs); i++ {
 		if !ed.Attrs[i].Empty() {
 			switch calltr.CallAttrIdx(i) {
@@ -793,12 +794,49 @@ func (bt *Sipcmbeat) publishEv(geoipH *GeoIPdbHandle, srcEv *calltr.EventData) {
 					uriBuf = newAnonymizationBuf(len(uri))
 					if uri, err = bt.getURI(calltr.CallAttrIdx(i),
 						uriBuf, uri, &encFlags); err != nil {
-						logp.Err("failed to add %q to Fields: %s for %q\n",
-							calltr.CallAttrIdx(i).String(), err.Error(),
-							ed.Attrs[i].Get(ed.Buf))
 						// TODO: special counter for URI enc. errs
+						// obey configured event type blacklist
+						if sipcallmon.EventsRing.Blacklisted(calltr.EvParseErr) {
+							// TODO: counter? normally
+							//      sipcallmon.evrStats.Inc(evrCnts.blstType)
+							// TODO: drop counter?
+							bt.stats.Inc(bt.cnts.EvErr)
+							return
+						}
+						// force a parse-error event
+						// overwrite event type
+						event.Fields["type"] = calltr.EvParseErr.String()
+						// create an error reason
+						errR := make([]byte, 0, 256)
+						errR = append(errR, "URI ERROR for "...)
+						errR = append(errR,
+							calltr.CallAttrIdx(i).String()...)
+						errR = append(errR, " \""...)
+						errR = append(errR, ed.Attrs[i].Get(ed.Buf)...)
+						errR = append(errR, "\" : "...)
+						errR = append(errR, err.Error()...)
+						// add (or overwrite) the reason, always encrypted
+						//  (because here we are in enc. mode and we add
+						//   the bad uri to it)
+						ok := bt.evAddEncBField(event,
+							calltr.AttrReason.String(), errR,
+							true, // always enc.
+							FormatReasonAencF, &encFlags)
+						if !ok {
+							logp.Err("failed to add enc. %q to Fields\n",
+								calltr.AttrReason.String())
+							//bt.stats.Inc(bt.cnts.EvErr)
+						}
+						/*
+							logp.Err("failed to add %q to Fields: %s for %q\n",
+								calltr.CallAttrIdx(i).String(), err.Error(),
+								ed.Attrs[i].Get(ed.Buf))
+								// skip
+								continue
+						*/
+						// stop here, don't try adding more attrs
 						bt.stats.Inc(bt.cnts.EvErr)
-						continue
+						break add_attrs
 					}
 				}
 				ok := addFields(event.Fields, calltr.CallAttrIdx(i).String(),
