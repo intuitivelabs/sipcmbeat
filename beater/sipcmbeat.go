@@ -684,8 +684,14 @@ func (bt *Sipcmbeat) getEncContent(
 	return content.Get(src), false, nil
 }
 
-func (bt *Sipcmbeat) getURI(dst, src []byte, encFlags *FormatFlags) ([]byte, error) {
+func (bt *Sipcmbeat) getURI(attr calltr.CallAttrIdx, dst, src []byte,
+	encFlags *FormatFlags) ([]byte, error) {
 	if bt.Config.UseURIAnonymization() {
+		if attr == calltr.AttrContact && len(src) == 1 && src[0] == '*' {
+			// Contact: *  -> leave it unencrypte
+			// pass through
+			return src[:], nil
+		}
 		// anonymize URI
 		var uri sipsp.PsipURI
 		if err, _ := sipsp.ParseURI(src, &uri); err != 0 {
@@ -785,7 +791,8 @@ func (bt *Sipcmbeat) publishEv(geoipH *GeoIPdbHandle, srcEv *calltr.EventData) {
 				uri := ed.Attrs[i].Get(ed.Buf)
 				if bt.Config.UseURIAnonymization() {
 					uriBuf = newAnonymizationBuf(len(uri))
-					if uri, err = bt.getURI(uriBuf, uri, &encFlags); err != nil {
+					if uri, err = bt.getURI(calltr.CallAttrIdx(i),
+						uriBuf, uri, &encFlags); err != nil {
 						logp.Err("failed to add %q to Fields: %s for %q\n",
 							calltr.CallAttrIdx(i).String(), err.Error(),
 							ed.Attrs[i].Get(ed.Buf))
