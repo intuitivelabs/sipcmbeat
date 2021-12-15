@@ -807,24 +807,30 @@ add_attrs:
 						// overwrite event type
 						event.Fields["type"] = calltr.EvParseErr.String()
 						// create an error reason
+						const maxURIlen = 60
 						errR := make([]byte, 0, 256)
 						errR = append(errR, "URI ERROR for "...)
 						errR = append(errR,
 							calltr.CallAttrIdx(i).String()...)
 						errR = append(errR, " \""...)
-						errR = append(errR, ed.Attrs[i].Get(ed.Buf)...)
+						val := ed.Attrs[i].Get(ed.Buf)
+						if len(val) > maxURIlen {
+							errR = append(errR, val[:maxURIlen]...)
+							errR = append(errR, "..."...)
+						} else {
+							errR = append(errR, val...)
+						}
 						errR = append(errR, "\" : "...)
 						errR = append(errR, err.Error()...)
 						// add (or overwrite) the reason, always encrypted
 						//  (because here we are in enc. mode and we add
 						//   the bad uri to it)
 						ok := bt.evAddEncBField(event,
-							calltr.AttrReason.String(), errR,
+							"err_info", errR,
 							true, // always enc.
 							FormatReasonAencF, &encFlags)
 						if !ok {
-							logp.Err("failed to add enc. %q to Fields\n",
-								calltr.AttrReason.String())
+							logp.Err("failed to add enc. err_info to Fields\n")
 							//bt.stats.Inc(bt.cnts.EvErr)
 						}
 						/*
@@ -878,12 +884,10 @@ add_attrs:
 					if isEnc {
 						encFlags |= FormatReasonAencF
 					}
-					ok := addFields(event.Fields,
-						calltr.CallAttrIdx(i).String(),
-						str(reason))
+					ok := addFields(event.Fields, "err_info", str(reason))
 					if !ok {
-						logp.Err("failed to add %q : %q to Fields\n",
-							calltr.CallAttrIdx(i).String(), reason)
+						logp.Err("failed to add err_info : %q to Fields\n",
+							reason)
 						bt.stats.Inc(bt.cnts.EvErr)
 					}
 					// added, skip
