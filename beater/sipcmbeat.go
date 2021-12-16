@@ -62,7 +62,11 @@ type statCounters struct {
 	EvNilConsec counters.Handle
 	EvSigs      counters.Handle
 	EvTrunc     counters.Handle
+	EvPreDrop   counters.Handle
 	EvErr       counters.Handle
+	EvCallIDErr counters.Handle
+	EvEInfoErr  counters.Handle
+	EvAttrErr   [calltr.AttrLast]counters.Handle // error adding field/attr
 	EvMaxQ      counters.Handle
 }
 
@@ -267,8 +271,6 @@ func (bt *Sipcmbeat) initCounters() error {
 			"new events signals received"},
 		{&bt.cnts.EvTrunc, 0, nil, nil, "truncated",
 			"truncated event"},
-		{&bt.cnts.EvErr, 0, nil, nil, "error",
-			"error preparing to send event"},
 		{&bt.cnts.EvMaxQ, 0, nil, nil, "max_queued",
 			"maximum number of queued events"},
 		// acker based counters
@@ -287,10 +289,31 @@ func (bt *Sipcmbeat) initCounters() error {
 				" (debugging)"},
 		{&bt.pubCnts.EvPubDropped, 0, nil, nil, "publish_dropped",
 			"events dropped waiting to be sent"},
+		// drop & error counters
+		{&bt.cnts.EvPreDrop, 0, nil, nil, "pre_drop",
+			"events dropped before attempting to publish them (blst a.s.o)"},
+		{&bt.cnts.EvErr, 0, nil, nil, "error",
+			"critical error preparing to send event, event dropped"},
+		{&bt.cnts.EvCallIDErr, 0, nil, nil, "err_callid",
+			"error adding the sip.call_id field to the event"},
+		{&bt.cnts.EvEInfoErr, 0, nil, nil, "err_einfo",
+			"error adding the err_info field to the event"},
 	}
-	bt.stats.Init("events", nil, len(cntDefs))
+	bt.stats.Init("events", nil, len(cntDefs)+len(bt.cnts.EvAttrErr))
 	if !bt.stats.RegisterDefs(cntDefs[:]) {
 		return errors.New("initCounters: failed to register stat counters")
+	}
+	// register the counters for EvAttrErr (error adding attr to ev. field)
+	for i := 0; i < len(bt.cnts.EvAttrErr); i++ {
+		aName := calltr.CallAttrIdx(i).String()
+		cName := "err_" + strings.ReplaceAll(aName, ".", "_")
+		_, ok := bt.stats.RegisterDef(
+			&counters.Def{&bt.cnts.EvAttrErr[i], 0, nil, nil,
+				cName,
+				"error adding the " + aName + " field/attr to the event"})
+		if !ok {
+			return fmt.Errorf("failed to register stat counter %q", cName)
+		}
 	}
 	return bt.initGeoIPcounters()
 }
@@ -775,7 +798,7 @@ func (bt *Sipcmbeat) publishEv(geoipH *GeoIPdbHandle, srcEv *calltr.EventData) {
 	if err != nil {
 		logp.Err("failed to add sip.call_id to Fields: %s\n",
 			err.Error())
-		bt.stats.Inc(bt.cnts.EvErr)
+		bt.stats.Inc(bt.cnts.EvCallIDErr)
 	} else {
 		addFields(event.Fields, "sip.call_id", str(callID))
 	}
@@ -794,13 +817,14 @@ add_attrs:
 					uriBuf = newAnonymizationBuf(len(uri))
 					if uri, err = bt.getURI(calltr.CallAttrIdx(i),
 						uriBuf, uri, &encFlags); err != nil {
-						// TODO: special counter for URI enc. errs
+						// reuse EvAttrErr counter for URI enc. errs:
+						bt.stats.Inc(bt.cnts.EvAttrErr[i])
 						// obey configured event type blacklist
 						if sipcallmon.EventsRing.Blacklisted(calltr.EvParseErr) {
 							// TODO: counter? normally
 							//      sipcallmon.evrStats.Inc(evrCnts.blstType)
-							// TODO: drop counter?
-							bt.stats.Inc(bt.cnts.EvErr)
+							// drop counter
+							bt.stats.Inc(bt.cnts.EvPreDrop)
 							return
 						}
 						// force a parse-error event
@@ -831,7 +855,7 @@ add_attrs:
 							FormatReasonAencF, &encFlags)
 						if !ok {
 							logp.Err("failed to add enc. err_info to Fields\n")
-							//bt.stats.Inc(bt.cnts.EvErr)
+							bt.stats.Inc(bt.cnts.EvEInfoErr)
 						}
 						/*
 							logp.Err("failed to add %q to Fields: %s for %q\n",
@@ -841,7 +865,6 @@ add_attrs:
 								continue
 						*/
 						// stop here, don't try adding more attrs
-						bt.stats.Inc(bt.cnts.EvErr)
 						break add_attrs
 					}
 				}
@@ -850,7 +873,7 @@ add_attrs:
 				if !ok {
 					logp.Err("failed to add %q : %q to Fields\n",
 						calltr.CallAttrIdx(i).String(), uri)
-					bt.stats.Inc(bt.cnts.EvErr)
+					bt.stats.Inc(bt.cnts.EvAttrErr[i])
 				}
 			case calltr.AttrUA, calltr.AttrUAS:
 				if !bt.evAddEncBField(event,
@@ -861,7 +884,7 @@ add_attrs:
 					//        for failing to add filed
 					//        (EvErr should be used only for failing to add
 					//         the whole event)
-					bt.stats.Inc(bt.cnts.EvErr)
+					bt.stats.Inc(bt.cnts.EvAttrErr[i])
 					continue // skip over this attr
 				}
 			case calltr.AttrReason:
@@ -878,7 +901,7 @@ add_attrs:
 							" for %q\n",
 							calltr.CallAttrIdx(i).String(), err.Error(),
 							ed.Attrs[i].Get(ed.Buf))
-						bt.stats.Inc(bt.cnts.EvErr)
+						bt.stats.Inc(bt.cnts.EvAttrErr[i])
 						continue
 					}
 					if isEnc {
@@ -888,7 +911,7 @@ add_attrs:
 					if !ok {
 						logp.Err("failed to add err_info : %q to Fields\n",
 							reason)
-						bt.stats.Inc(bt.cnts.EvErr)
+						bt.stats.Inc(bt.cnts.EvEInfoErr)
 					}
 					// added, skip
 					break
@@ -900,7 +923,7 @@ add_attrs:
 				if !ok {
 					logp.Err("failed to add %q to Fields\n",
 						calltr.CallAttrIdx(i).String())
-					bt.stats.Inc(bt.cnts.EvErr)
+					bt.stats.Inc(bt.cnts.EvAttrErr[i])
 				}
 				//	event.Fields[calltr.CallAttrIdx(i).String()] =
 				//		str(ed.Attrs[i].Get(ed.Buf))
