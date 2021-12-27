@@ -15,8 +15,8 @@ replace (
 	github.com/insomniacslk/dhcp => github.com/elastic/dhcp v0.0.0-20200227161230-57ec251c7eb3 // indirect
 	//	golang.org/x/tools => golang.org/x/tools v0.0.0-20200602230032-c00d67ef29d0 // release 1.14
 	github.com/tonistiigi/fifo => github.com/containerd/fifo v0.0.0-20190816180239-bda0ff6ed73c
-	github.com/intuitivelabs/sipcallmon => github.com/intuitivelabs/sipcallmon v0.8.5-0.20211106190003-4dcd1cf95bea
-	github.com/intuitivelabs/anonymization => github.com/intuitivelabs/anonymization v1.2.1-0.20211108180515-29e3e5008d69
+//github.com/intuitivelabs/sipcallmon => github.com/intuitivelabs/sipcallmon v0.8.5-0.20211106190003-4dcd1cf95bea
+//github.com/intuitivelabs/anonymization => github.com/intuitivelabs/anonymization v1.2.1-0.20211108180515-29e3e5008d69
 )
 
 // NOTE: following replace recommended by beats, but breaks sipcallmon
@@ -38,15 +38,15 @@ require (
 	github.com/fatih/color v1.9.0 // indirect
 	github.com/go-sourcemap/sourcemap v2.1.3+incompatible // indirect
 	github.com/hashicorp/errwrap v1.1.0 // indirect
-	github.com/intuitivelabs/anonymization v1.2.0
-	github.com/intuitivelabs/calltr v1.1.3
+	github.com/intuitivelabs/anonymization v1.3.0
+	github.com/intuitivelabs/calltr v1.1.5
 	github.com/intuitivelabs/counters v0.2.0
-	github.com/intuitivelabs/sipcallmon v0.8.4
-	github.com/intuitivelabs/sipsp v1.1.1
+	github.com/intuitivelabs/sipcallmon v0.8.8
+	github.com/intuitivelabs/sipsp v1.1.2
 	github.com/intuitivelabs/slog v0.0.2
 	github.com/intuitivelabs/timestamp v0.0.3
 	github.com/josephspurrier/goversioninfo v1.2.0 // indirect
-	github.com/magefile/mage v1.11.0
+	github.com/magefile/mage v1.12.1
 	github.com/mattn/go-colorable v0.1.8 // indirect
 	github.com/mitchellh/gox v1.0.1
 	github.com/mitchellh/hashstructure v1.0.0 // indirect
