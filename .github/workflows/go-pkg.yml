@@ -16,6 +16,7 @@ jobs:
 
     - name: Checkout ${{ github.repository }}
       uses: actions/checkout@v2
+      run: git fetch --prune --unshallow --tags
 
     - name: Install make
       run: sudo apt-get install make
