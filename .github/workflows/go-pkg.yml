@@ -34,7 +34,7 @@ jobs:
            USER=`whoami`; sudo usermod -a -G docker $USER
 
     - name: Package
-      run: export PLATFORMS="linux/amd64"; export BEAT_NAME=polda; mage -v package
+      run: export PLATFORMS="linux/amd64"; export BEAT_NAME=sipcmbeat; export BEAT_GO_VERSION=1.15.12; mage -v package
 
     - name: Archive packages
       uses: actions/upload-artifact@v2
