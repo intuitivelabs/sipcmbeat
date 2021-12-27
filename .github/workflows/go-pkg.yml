@@ -17,10 +17,11 @@ jobs:
 
     - name: Checkout ${{ github.repository }}
       uses: actions/checkout@v2
+      with:
+        # Number of commits to fetch. 0 indicates all history for all branches and tags.
+        # Bring in everything...
+        fetch-depth: '0'
     
-    - name: Get tags for ${{ github.repository }}
-      run: git fetch --prune --unshallow --tags
-
     - name: Install make
       run: sudo apt-get install make
     
