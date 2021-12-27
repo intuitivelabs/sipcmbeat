@@ -1,0 +1,43 @@
+name: Go Package
+on: 
+  pull_request:
+    types: [closed]
+  workflow_dispatch:
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+
+    - name: Checkout ${{ github.repository }}
+      uses: actions/checkout@v2
+
+    - name: Install make
+      run: sudo apt-get install make
+    
+    - name: Install pcap
+      run: sudo apt-get install libpcap0.8 libpcap0.8-dev
+    
+    - name: Set up Go
+      uses: actions/setup-go@v2
+      with:
+        go-version: 1.15.2
+
+    - name: Install mage
+      run: |
+           git clone https://github.com/magefile/mage
+           cd mage
+           go run bootstrap.go
+
+    - name: Install docker 
+      run: |
+           sudo apt-get install runc containerd docker.io
+           USER=`whoami`; sudo usermod -a -G docker $USER
+
+    - name: Package
+      run: export PLATFORMS="linux/amd64"; export BEAT_NAME=polda; mage -v package
+
+    - name: Archive packages
+      uses: actions/upload-artifact@v2
+      with:
+        name: poldabeat-packages
+        path: build/distributions/
