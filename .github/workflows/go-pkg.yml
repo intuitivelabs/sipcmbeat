@@ -38,8 +38,14 @@ jobs:
       run: |
            sudo apt-get install runc containerd docker.io
            USER=`whoami`; sudo usermod -a -G docker $USER
+    
+    - name: Build on local machine
+      run: |
+           go env -w GONOPROXY="github.com/intuitivelabs" GONOSUMDB="github.com/intuitivelabs" GOPRIVATE="github.com/intuitivelabs"; go env
+           go get
+           make
 
-    - name: Package
+    - name: Package (uses docker container)
       run: export PLATFORMS="linux/amd64"; export BEAT_NAME=sipcmbeat; export BEAT_GO_VERSION=1.15.12; make release
 
     - name: Archive packages
