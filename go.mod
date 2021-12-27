@@ -37,10 +37,10 @@ require (
 	github.com/go-sourcemap/sourcemap v2.1.3+incompatible // indirect
 	github.com/hashicorp/errwrap v1.1.0 // indirect
 	github.com/intuitivelabs/anonymization v1.3.0
-	github.com/intuitivelabs/calltr v1.1.3
+	github.com/intuitivelabs/calltr v1.1.5
 	github.com/intuitivelabs/counters v0.2.0
 	github.com/intuitivelabs/sipcallmon v0.8.8
-	github.com/intuitivelabs/sipsp v1.1.1
+	github.com/intuitivelabs/sipsp v1.1.2
 	github.com/intuitivelabs/slog v0.0.2
 	github.com/intuitivelabs/timestamp v0.0.3
 	github.com/josephspurrier/goversioninfo v1.2.0 // indirect
