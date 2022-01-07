@@ -276,20 +276,21 @@ func (bt *Sipcmbeat) initCounters() error {
 			"maximum number of queued events"},
 		// acker based counters
 		{&bt.ackCnts.EvPubAdd, 0, nil, nil, "publish_add",
-			"events queued for transport/client publish"},
+			"events that passed the output pipeline processors filters"},
 		{&bt.ackCnts.EvPubDropFilter, 0, nil, nil, "publish_filtered",
 			"events filtered out by the output pipeline processors"},
 		{&bt.ackCnts.EvPubAck, 0, nil, nil, "publish_ack",
-			"events published and acknowledged"},
+			"events published and acknowledged by the remote side"},
 		{&bt.pubCnts.EvPubOk, 0, nil, nil, "publish_ok",
-			"events published ok (should be equivalent to publish_ack)"},
+			"events successfully forwarded to the publisher pipeline" +
+				" (should be the same as publish_add)"},
 		{&bt.ackCnts.EvBatchAck, counters.CntMaxF, nil, nil, "batch_acks",
 			"event acks received in a batch (debugging)"},
 		{&bt.pubCnts.EvPubFiltered, 0, nil, nil, "publish_filtered2",
 			"events filtered out by the output pipeline processors" +
 				" (debugging)"},
 		{&bt.pubCnts.EvPubDropped, 0, nil, nil, "publish_dropped",
-			"events dropped waiting to be sent"},
+			"events dropped waiting for the queue (libbeat)"},
 		// drop & error counters
 		{&bt.cnts.EvPreDrop, 0, nil, nil, "pre_drop",
 			"events dropped before attempting to publish them (blst a.s.o)"},
@@ -898,10 +899,6 @@ add_attrs:
 					calltr.CallAttrIdx(i).String(),
 					ed.Attrs[i].Get(ed.Buf),
 					bt.Config.UseUAAnonymization(), FormatUAencF, &encFlags) {
-					// TODO:  new counter for EncField failure &
-					//        for failing to add filed
-					//        (EvErr should be used only for failing to add
-					//         the whole event)
 					bt.stats.Inc(bt.cnts.EvAttrErr[i])
 					continue // skip over this attr
 				}
