@@ -7536,6 +7536,26 @@ type: long
 
 --
 
+*`sip.fromtag`*::
++
+--
+From tag
+
+
+type: keyword
+
+--
+
+*`sip.totag`*::
++
+--
+To tag
+
+
+type: keyword
+
+--
+
 
 *`sip.request.method`*::
 +
@@ -7842,26 +7862,6 @@ type: keyword
 +
 --
 previous internal states
-
-
-type: keyword
-
---
-
-*`dbg.fromtag`*::
-+
---
-From tag
-
-
-type: keyword
-
---
-
-*`dbg.totag`*::
-+
---
-To tag
 
 
 type: keyword

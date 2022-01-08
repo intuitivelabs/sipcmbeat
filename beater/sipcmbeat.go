@@ -1026,6 +1026,9 @@ add_attrs:
 	default:
 		addFields(event.Fields, "sip.response.last", ed.ReplStatus)
 	}
+	// fromtag & totag moved from dbg
+	addFields(event.Fields, "sip.fromtag", str(ed.FromTag.Get(ed.Buf)))
+	addFields(event.Fields, "sip.totag", str(ed.ToTag.Get(ed.Buf)))
 
 	addFields(event.Fields, "event.call_start", ed.FinReplTS)
 	addFields(event.Fields, "client.transport", ed.ProtoF.ProtoName())
@@ -1047,8 +1050,6 @@ add_attrs:
 	// dbg
 	addFields(event.Fields, "dbg.state", ed.State.String())
 	addFields(event.Fields, "dbg.prev_state", ed.PrevState.String())
-	addFields(event.Fields, "dbg.fromtag", str(ed.FromTag.Get(ed.Buf)))
-	addFields(event.Fields, "dbg.totag", str(ed.ToTag.Get(ed.Buf)))
 	addFields(event.Fields, "dbg.lastev", ed.LastEv.String())
 	addFields(event.Fields, "dbg.evflags", ed.EvFlags.String())
 	addFields(event.Fields, "dbg.evgen", ed.EvGen.String())

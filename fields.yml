@@ -5236,6 +5236,14 @@
             description: >
                 delay (in ms) between the request and the final reply.
                 Present only for reg-new and auth-failed events.
+          - name: fromtag
+            type: keyword
+            description: >
+                From tag
+          - name: totag
+            type: keyword
+            description: >
+                To tag
           - name: request
             type: group
             fields:
@@ -5395,14 +5403,6 @@
             type: keyword
             description: >
                 previous internal states
-          - name: fromtag
-            type: keyword
-            description: >
-                From tag
-          - name: totag
-            type: keyword
-            description: >
-                To tag
           - name: lastev
             type: keyword
             description: >
