@@ -580,6 +580,11 @@ waitsig:
 						}
 					}
 					bt.stats.Set(bt.cnts.EvNilConsec, 0)
+					if bt.evIdx == nxtIdx {
+						Log.BUG("got same next event idx: %d ==  nxt: %d "+
+							"(last: %d  LastIdx %d)\n",
+							bt.evIdx, nxtIdx, last, bt.evRing.LastIdx())
+					}
 					bt.evIdx = nxtIdx
 				} else {
 					bt.stats.Inc(bt.cnts.EvNilTotal)
@@ -621,6 +626,11 @@ waitsig:
 						// Note:  could be moved to the above error checks
 						//        for ErrOutOfRangeHigh and ErrLast
 						last = bt.evRing.LastIdx()
+					}
+					if bt.evIdx == nxtIdx {
+						Log.BUG("err ev: got same next event idx:"+
+							" %d ==  nxt: %d (last: %d  LastIdx %d)\n",
+							bt.evIdx, nxtIdx, last, bt.evRing.LastIdx())
 					}
 					bt.evIdx = nxtIdx
 				}
