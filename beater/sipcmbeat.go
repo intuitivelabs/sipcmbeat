@@ -434,13 +434,6 @@ func New(b *beat.Beat, cfg *common.Config) (beat.Beater, error) {
 	if err := sipcallmon.CfgFix(&c); err != nil && cfg != nil {
 		return nil, fmt.Errorf("Invalid Config: error fixing: %v", err)
 	}
-	if err := sipcallmon.CfgCheck(&c); err != nil && cfg != nil {
-		return nil, fmt.Errorf("Invalid Config: %v", err)
-	}
-
-	if o := unknownCfgOption(cfg, &c); o != "" {
-		return nil, fmt.Errorf("Unknown config option: %q", o)
-	}
 
 	bt := &Sipcmbeat{
 		done:    make(chan struct{}),
@@ -451,6 +444,21 @@ func New(b *beat.Beat, cfg *common.Config) (beat.Beater, error) {
 		LongVer: CrtVersion(),
 		CommitH: CommitId(),
 		BuildT:  BuildTime(),
+	}
+
+	// we need all the counters init before CfgCheck
+	// (or else we cannot use counters names defined inside the beat in
+	//  the cfg file)
+	if err := bt.initCounters(); err != nil {
+		return nil, errors.WithMessage(err, "sipcmbeat.New")
+	}
+
+	if err := sipcallmon.CfgCheck(&c); err != nil && cfg != nil {
+		return nil, fmt.Errorf("Invalid Config: %v", err)
+	}
+
+	if o := unknownCfgOption(cfg, &c); o != "" {
+		return nil, fmt.Errorf("Unknown config option: %q", o)
 	}
 
 	// init sipcmbeat logging
@@ -466,9 +474,6 @@ func New(b *beat.Beat, cfg *common.Config) (beat.Beater, error) {
 		if err := bt.initEncryption(b); err != nil {
 			return nil, fmt.Errorf("Invalid configuration for encryption: %v", err)
 		}
-	}
-	if err := bt.initCounters(); err != nil {
-		return nil, errors.WithMessage(err, "sipcmbeat.New")
 	}
 
 	if bt.Config.GeoIPdb != "" {
