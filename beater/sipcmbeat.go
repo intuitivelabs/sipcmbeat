@@ -569,7 +569,7 @@ waitsig:
 				if ev != nil {
 					// update geoip handle (if needed)
 					geoipHandle = bt.updateGeoIPh(geoipHandle)
-					bt.publishEv(geoipHandle, ev)
+					bt.publishEv(geoipHandle, ev, bt.evIdx, nxtIdx)
 					bt.evRing.Put(bt.evIdx)
 					if bt.stats.Get(bt.cnts.EvNilConsec) != 0 {
 						if Log.INFOon() {
@@ -784,7 +784,9 @@ func (bt *Sipcmbeat) getDstIP(ed *calltr.EventData, encFlags *FormatFlags) net.I
 	return ed.Dst
 }
 
-func (bt *Sipcmbeat) publishEv(geoipH *GeoIPdbHandle, srcEv *calltr.EventData) {
+// evIdx & nxtIdx used only for debuging (added to dbg)
+func (bt *Sipcmbeat) publishEv(geoipH *GeoIPdbHandle, srcEv *calltr.EventData,
+	evIdx, nxtIdx sipcallmon.EvRingIdx) {
 	if bt.client == nil { // dev null
 		return
 	}
@@ -1071,7 +1073,10 @@ add_attrs:
 	addFields(event.Fields, "dbg.last_method", ed.LastMethod)
 	addFields(event.Fields, "dbg.last_status", ed.LastStatus)
 	addFields(event.Fields, "dbg.msg_trace", ed.LastMsgs.String())
+	// event uniquenes dbg: current ev no , idx in ring and next idx
 	addFields(event.Fields, "dbg.event_cnt", bt.stats.Get(bt.cnts.EvPub))
+	addFields(event.Fields, "dbg.event_idx", evIdx)
+	addFields(event.Fields, "dbg.event_next_idx", nxtIdx)
 
 	// geoip info
 	if bt.Config.GeoIPLookup {
