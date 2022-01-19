@@ -1071,6 +1071,7 @@ add_attrs:
 	addFields(event.Fields, "dbg.last_method", ed.LastMethod)
 	addFields(event.Fields, "dbg.last_status", ed.LastStatus)
 	addFields(event.Fields, "dbg.msg_trace", ed.LastMsgs.String())
+	addFields(event.Fields, "dbg.event_cnt", bt.stats.Get(bt.cnts.EvPub))
 
 	// geoip info
 	if bt.Config.GeoIPLookup {
