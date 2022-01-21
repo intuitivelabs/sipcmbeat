@@ -185,6 +185,10 @@ func addCounter(m common.MapStr,
 	g *counters.Group, h counters.Handle, flags int) bool {
 
 	f := g.GetFlags(h)
+	if f&counters.CntHideAllF != 0 {
+		// hidden counter
+		return true
+	}
 
 	if flags&cntLongFormat != 0 {
 		// Format:
