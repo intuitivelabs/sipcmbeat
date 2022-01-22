@@ -30,6 +30,8 @@ sipcmbeat:
   run_forever: false
   # interface to capture packets from
   iface: ""
+  # capture buffer size in kb
+  pcap_buf_kb: 4096  # 4Mb
   # berkley packet filter for capture
   bpf: ""
   # udp destination ports used fo vxlan (tunnel endpoint).
@@ -44,7 +46,9 @@ sipcmbeat:
   tcp_gc_int: 20s
   tcp_reorder_timeout: 60s
   tcp_connection_timeout: 1800s
-  max_blocked_timeout: 5s
+  # maximum time blocked waiting for packets and also
+  # the maximum packet receive delay or timestamp error (for now)
+  max_blocked_timeout: 250ms
   # maximum tracked calls (0 for unlimited)
   calls_max_entries: 0
   # maximum memory for keeping call state (0 for unlimited)
