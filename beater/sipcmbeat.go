@@ -71,6 +71,22 @@ type statCounters struct {
 	EvMaxQ      counters.Handle
 }
 
+// counters for extra event related information
+type evDbgCounters struct {
+	EvCEndDuration   counters.Handle
+	EvCEndDuration2  counters.Handle
+	EvCEndDuration3  counters.Handle
+	EvCEndNoDuration counters.Handle
+	EvPDD            counters.Handle
+	EvNoPDD          counters.Handle
+	EvRingT          counters.Handle
+	EvNoRingT        counters.Handle
+	EvLifetime       counters.Handle
+	EvNoLifetime     counters.Handle
+	EvFrDelay        counters.Handle
+	EvNoFrDelay      counters.Handle
+}
+
 type ackCounters struct {
 	EvPubAdd        counters.Handle
 	EvPubDropFilter counters.Handle
@@ -230,6 +246,9 @@ type Sipcmbeat struct {
 	cnts    statCounters
 	ackCnts ackCounters
 	pubCnts publishCounters
+	// event debug stats
+	evDbgGrp  counters.Group
+	evDbgCnts evDbgCounters
 	// geoip
 	geoipStats   geoipDbStats
 	geoipCnts    geoipCounters
@@ -317,6 +336,46 @@ func (bt *Sipcmbeat) initCounters() error {
 			return fmt.Errorf("failed to register stat counter %q", cName)
 		}
 	}
+
+	edc := &bt.evDbgCnts
+	evDbgDefs := [...]counters.Def{
+		{&edc.EvCEndDuration, 0, nil, nil, "cend_duration",
+			"events (call-end) with call duration succesfully added"},
+		{&edc.EvCEndDuration2, 0, nil, nil, "cend_duration2",
+			"events (call-end) where fallback to duration2" +
+				" based on early dialog was used"},
+		{&edc.EvCEndDuration3, 0, nil, nil, "cend_duration3",
+			"events (call-end) where fallback to duration3" +
+				" based on call-start timestamp was used"},
+		{&edc.EvCEndNoDuration, 0, nil, nil, "cend_noduration",
+			"events (call-end) for which no call duration could be computed"},
+
+		{&edc.EvPDD, 0, nil, nil, "pdd_ok",
+			"events for which pdd (post dial delay) was succesfully added"},
+		{&edc.EvNoPDD, 0, nil, nil, "pdd_failed",
+			"events for which no pdd (post dial delay) could be added"},
+
+		{&edc.EvRingT, 0, nil, nil, "ringt_ok",
+			"events for which ring time was succesfully added"},
+		{&edc.EvNoRingT, 0, nil, nil, "ringt_failed",
+			"events for which no ring could be added"},
+
+		{&edc.EvLifetime, 0, nil, nil, "lifetime_ok",
+			"events for which lifetime was succesfully added"},
+		{&edc.EvNoLifetime, 0, nil, nil, "lifetime_failed",
+			"events for which no lifetime could be added"},
+
+		{&edc.EvFrDelay, 0, nil, nil, "fr_delay_ok",
+			"events for which fr_delay was succesfully added"},
+		{&edc.EvNoFrDelay, 0, nil, nil, "fr_delay_failed",
+			"events for which no fr_delay could be added"},
+	}
+	bt.evDbgGrp.Init("dbg", &bt.stats, len(evDbgDefs))
+	if !bt.evDbgGrp.RegisterDefs(evDbgDefs[:]) {
+		return errors.New("initCounters: failed to register events.dbg" +
+			" counters")
+	}
+
 	return bt.initGeoIPcounters()
 }
 
@@ -971,20 +1030,26 @@ add_attrs:
 			// (otherwise the current monitoring part will get confused)
 			addFields(event.Fields, "event.duration",
 				ed.TS.Sub(ed.FinReplTS)/time.Second)
+			bt.evDbgGrp.Inc(bt.evDbgCnts.EvCEndDuration)
 		} else if !ed.EarlyDlgTS.IsZero() {
 			// fallback no known final reply. but we have a 18x (early dialog)
 			addFields(event.Fields, "event.duration2",
 				ed.TS.Sub(ed.EarlyDlgTS)/time.Second)
-		} else if ed.EvFlags&calltr.EvCallStartF != 0 {
+			bt.evDbgGrp.Inc(bt.evDbgCnts.EvCEndDuration2)
+		} else if ed.EvFlags&(calltr.EvCallStartF|calltr.EvCallAttemptF|
+			calltr.EvAuthFailedF) != 0 {
 			// fallback no final reply and no 18x, but we somehow generated
 			// a call start
 			// TODO: record CInitTS in calltr, propagate & use here
+			//       or record inside ed.CFlags when 1st INV seen
 			addFields(event.Fields, "event.duration3",
 				ed.TS.Sub(ed.CreatedTS)/time.Second)
+			bt.evDbgGrp.Inc(bt.evDbgCnts.EvCEndDuration3)
 		} else {
 			// add a min_length field containing the minimum call duration^
 			addFields(event.Fields, "event.min_length",
 				ed.TS.SubTime(sipcallmon.StartTS)/time.Second)
+			bt.evDbgGrp.Inc(bt.evDbgCnts.EvCEndNoDuration)
 		}
 		if ed.CFlags&calltr.CFForcedTimeout != 0 {
 			addFields(event.Fields, "sip.originator", "timeout-terminated")
@@ -1012,15 +1077,24 @@ add_attrs:
 		pdd := time.Duration(0)
 		if !ed.EarlyDlgTS.IsZero() {
 			pdd = ed.EarlyDlgTS.Sub(ed.CreatedTS)
+			bt.evDbgGrp.Inc(bt.evDbgCnts.EvPDD)
 		}
 		// ring time: delay between 18x and final response
 		rt := time.Duration(0)
 		if !ed.FinReplTS.IsZero() {
 			if !ed.EarlyDlgTS.IsZero() {
 				rt = ed.FinReplTS.Sub(ed.EarlyDlgTS)
+				bt.evDbgGrp.Inc(bt.evDbgCnts.EvRingT)
 			} else {
 				// no 18x =>  0 ring time and pdd = final repl time
 				pdd = ed.FinReplTS.Sub(ed.CreatedTS)
+				bt.evDbgGrp.Inc(bt.evDbgCnts.EvPDD)
+				bt.evDbgGrp.Inc(bt.evDbgCnts.EvNoRingT)
+			}
+		} else {
+			bt.evDbgGrp.Inc(bt.evDbgCnts.EvNoRingT)
+			if pdd == 0 {
+				bt.evDbgGrp.Inc(bt.evDbgCnts.EvNoPDD)
 			}
 		}
 		addFields(event.Fields, "sip.pdd", pdd/time.Millisecond)
@@ -1035,10 +1109,12 @@ add_attrs:
 			// (otherwise the current monitoring part will get confused)
 			addFields(event.Fields, "event.lifetime",
 				ed.TS.Sub(ed.FinReplTS)/time.Second)
+			bt.evDbgGrp.Inc(bt.evDbgCnts.EvLifetime)
 		} else {
-			// add a min_length field containing the minimum call duration^
+			// add a min_length field containing the minimum call duration
 			addFields(event.Fields, "event.min_lifetime",
 				ed.TS.SubTime(sipcallmon.StartTS)/time.Second)
+			bt.evDbgGrp.Inc(bt.evDbgCnts.EvNoLifetime)
 		}
 		addFields(event.Fields, "sip.response.last", ed.ReplStatus)
 
@@ -1047,6 +1123,9 @@ add_attrs:
 		frd := time.Duration(0) // final reply delay, time till final reply
 		if !ed.FinReplTS.IsZero() {
 			frd = ed.FinReplTS.Sub(ed.CreatedTS)
+			bt.evDbgGrp.Inc(bt.evDbgCnts.EvFrDelay)
+		} else {
+			bt.evDbgGrp.Inc(bt.evDbgCnts.EvNoFrDelay)
 		}
 		addFields(event.Fields, "sip.fr_delay", frd/time.Millisecond)
 
