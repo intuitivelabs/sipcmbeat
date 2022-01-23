@@ -971,6 +971,16 @@ add_attrs:
 			// (otherwise the current monitoring part will get confused)
 			addFields(event.Fields, "event.duration",
 				ed.TS.Sub(ed.FinReplTS)/time.Second)
+		} else if !ed.EarlyDlgTS.IsZero() {
+			// fallback no known final reply. but we have a 18x (early dialog)
+			addFields(event.Fields, "event.duration2",
+				ed.TS.Sub(ed.EarlyDlgTS)/time.Second)
+		} else if ed.EvFlags&calltr.EvCallStartF != 0 {
+			// fallback no final reply and no 18x, but we somehow generated
+			// a call start
+			// TODO: record CInitTS in calltr, propagate & use here
+			addFields(event.Fields, "event.duration3",
+				ed.TS.Sub(ed.CreatedTS)/time.Second)
 		} else {
 			// add a min_length field containing the minimum call duration^
 			addFields(event.Fields, "event.min_length",
