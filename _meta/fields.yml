@@ -136,11 +136,23 @@
           - name: duration
             type: long
             description: >
-                call duration
+                call duration, computed between final 2xx reply and BYE
+          - name: duration2
+            type: long
+            description: >
+                fallback if duration could not be determined (no final reply),
+                use time since 18x
+          - name: duration3
+            type: long
+            description: >
+                fallback if duration or duration2 could not be determined
+                (no final reply and no 18x), use time since call creation
+                request (if a call-start was generated and the call did not
+                time out yet)
           - name: min_length
             type: long
             description: >
-                minimum call duration, added if duration cannot be computed
+                minimum call duration, added if no duration can be computed
           - name: lifetime
             type: long
             description: >

@@ -7618,7 +7618,27 @@ type: keyword
 *`event.duration`*::
 +
 --
-call duration
+call duration, computed between final 2xx reply and BYE
+
+
+type: long
+
+--
+
+*`event.duration2`*::
++
+--
+fallback if duration could not be determined (no final reply), use time since 18x
+
+
+type: long
+
+--
+
+*`event.duration3`*::
++
+--
+fallback if duration or duration2 could not be determined (no final reply and no 18x), use time since call creation request (if a call-start was generated and the call did not time out yet)
 
 
 type: long
@@ -7628,7 +7648,7 @@ type: long
 *`event.min_length`*::
 +
 --
-minimum call duration, added if duration cannot be computed
+minimum call duration, added if no duration can be computed
 
 
 type: long
