@@ -53,6 +53,23 @@ sipcmbeat:
   calls_max_entries: 0
   # maximum memory for keeping call state (0 for unlimited)
   calls_max_mem: 0
+  # timeouts for each call state in the format { state_name: timeout, }
+  # The timeout value is a duration (e.g. 10s or 1h30m) and it will be always
+  # rounded down to seconds. A negative or zero value will cause the default
+  # value to be used (no effect).
+  # The state name are:
+  #   inv_1st                   - first invite seen
+  #   inv_early_dlg             - early dialog
+  #   inv_neg                   - negative reply for invite based call seen
+  #   inv_established           - call established
+  #   inv_bye_seen              - bye detected
+  #   inv_bye_repl              - bye replied
+  #   inv_canceled              - call canceled
+  #   non_inv_1st               - initial non-invite
+  #   non_inv_neg               - non-invite negative reply
+  #   non_inv_fin               - non-invite finished
+  # E.g.:  {inv_1st: 30s, inv_early_dlg: 2m, inv_established: 2h}
+  calls_timeouts: {}
   # how many events will be buffered
   event_buffer_size:  10240
   # list of event types that should be blacklisted : [ event1, event2...]
