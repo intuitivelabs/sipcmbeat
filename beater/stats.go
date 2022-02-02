@@ -184,10 +184,23 @@ func (bt *Sipcmbeat) publishCounters(ts time.Time, terr time.Duration) {
 func addCounter(m common.MapStr,
 	g *counters.Group, h counters.Handle, flags int) bool {
 
+	var v counters.Val
+
 	f := g.GetFlags(h)
 	if f&counters.CntHideAllF != 0 {
 		// hidden counter
 		return true
+	}
+	// skip if PrHideZero or CntHideZeroF
+	if (flags&counters.PrHideZero != 0) || (f&counters.CntHideZeroF != 0) {
+		v = g.Get(h)
+		if v == 0 {
+			// hidden
+			return true
+		}
+	} else if f&counters.CntHideVal == 0 {
+		// get value only if not hidden
+		v = g.Get(h)
 	}
 
 	if flags&cntLongFormat != 0 {
@@ -202,7 +215,7 @@ func addCounter(m common.MapStr,
 		//  the counter type/flags)
 		name := g.GetFullName(h)
 		if f&counters.CntHideVal == 0 {
-			addFields(m, name+".val", g.Get(h))
+			addFields(m, name+".val", v)
 		}
 		if f&counters.CntMinF != 0 {
 			min := g.GetMin(h)
@@ -234,7 +247,7 @@ func addCounter(m common.MapStr,
 	}
 
 	if f&counters.CntHideVal == 0 {
-		addFields(m, name, g.Get(h))
+		addFields(m, name, v)
 	}
 	if f&counters.CntMinF != 0 {
 		min := g.GetMin(h)
