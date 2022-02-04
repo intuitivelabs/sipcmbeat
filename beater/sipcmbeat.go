@@ -1062,10 +1062,11 @@ add_attrs:
 	case calltr.EvCallStart, calltr.EvCallAttempt:
 		// hack for using different event field name for call-end last resp.
 		if ed.Type == calltr.EvCallEnd {
-			if ed.ReplStatus == 0 {
+			if ed.ReplStatus == 0 || ed.EvFlags&calltr.EvCallStartF == 0 {
 				// created by a BYE, no INVITE seen (no call-start)
 				addFields(event.Fields, "sip.unmatched_invite", true)
-			} else {
+			}
+			if ed.ReplStatus != 0 {
 				// for CallEnd we do not add sip.response.status
 				addFields(event.Fields, "sip.response.last", ed.ReplStatus)
 			}
