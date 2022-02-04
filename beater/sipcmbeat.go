@@ -1128,13 +1128,16 @@ add_attrs:
 			bt.evDbgGrp.Inc(bt.evDbgCnts.EvNoFrDelay)
 		}
 		addFields(event.Fields, "sip.fr_delay", frd/time.Millisecond)
-
+	case calltr.EvParseErr, calltr.EvNonSIPprobe:
+		// nothing, no response or orther special fields
 	default:
 		addFields(event.Fields, "sip.response.last", ed.ReplStatus)
 	}
 	// fromtag & totag moved from dbg
-	addFields(event.Fields, "sip.fromtag", str(ed.FromTag.Get(ed.Buf)))
-	addFields(event.Fields, "sip.totag", str(ed.ToTag.Get(ed.Buf)))
+	if ed.Type != calltr.EvParseErr && ed.Type != calltr.EvNonSIPprobe {
+		addFields(event.Fields, "sip.fromtag", str(ed.FromTag.Get(ed.Buf)))
+		addFields(event.Fields, "sip.totag", str(ed.ToTag.Get(ed.Buf)))
+	}
 
 	addFields(event.Fields, "event.call_start", ed.FinReplTS)
 	addFields(event.Fields, "client.transport", ed.ProtoF.ProtoName())
