@@ -38,6 +38,10 @@ sipcmbeat:
   # Packets arriving on these ports will be automatically decapsulated.
   # An empty lists means disabled. The standard vxlan port is 4789.
   vxlan_ports: []
+  # tcp destination ports for websocket traffic.
+  # Packets arriving on these ports are interpreted as HTTP and after
+  # an HTTP Upgrade to websocket/sip as sip over websockets.
+  websocket_ports: []
   # port for the internal http server, 0 == disable
   http_port: 8080
   # listen address for the internal http server
