@@ -9,6 +9,7 @@ package beater
 import (
 	"github.com/elastic/beats/v7/libbeat/beat"
 
+	"github.com/intuitivelabs/evencflags"
 	"github.com/intuitivelabs/sipsp"
 )
 
@@ -17,8 +18,8 @@ func (bt *Sipcmbeat) evAddEncBField(event beat.Event,
 	field string,
 	val []byte,
 	doEnc bool,
-	setEncFlg FormatFlags, // flags set if field encrypted
-	encFlags *FormatFlags) bool {
+	setEncFlg evencflags.F, // flags set if field encrypted
+	encFlags *evencflags.F) bool {
 	if doEnc {
 		buf := newAnonymizationBuf(len(val))
 		encVal, isEnc, err :=

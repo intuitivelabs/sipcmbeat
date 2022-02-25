@@ -29,28 +29,11 @@ import (
 	"github.com/intuitivelabs/anonymization"
 	"github.com/intuitivelabs/calltr"
 	"github.com/intuitivelabs/counters"
+	"github.com/intuitivelabs/evencflags"
 	"github.com/intuitivelabs/sipcallmon"
 	"github.com/intuitivelabs/sipsp"
 	"github.com/intuitivelabs/slog"
 	//	"github.com/intuitivelabs/timestamp"
-)
-
-// FormatFlags defines event structure or field encoding flags.
-type FormatFlags uint16
-
-const FormatNoneF FormatFlags = iota
-
-// rest of the flags starting from 1
-const (
-	FormatCltIPencF = (FormatFlags)(1) << iota
-	FormatSrvIPencF
-	FormatCallIDencF
-	FormatURIencF
-	FormatReasonAencF    // reason attr. is enc
-	FormatCountryISOencF // country iso is enc
-	FormatCityIDencF     // city id is enc
-	FormatUAencF         // user-agent is enc
-	FormatIpcipherF      // ipcipher is used
 )
 
 type statCounters struct {
@@ -738,7 +721,7 @@ func newAnonymizationBuf(l int) []byte {
 	return make([]byte, 3*l)
 }
 
-func (bt *Sipcmbeat) getCallID(dst, src []byte, callID sipsp.PField, encFlags *FormatFlags) ([]byte, error) {
+func (bt *Sipcmbeat) getCallID(dst, src []byte, callID sipsp.PField, encFlags *evencflags.F) ([]byte, error) {
 	if bt.Config.UseCallIDAnonymization() && (len(src) > 0) {
 		// anonymize Call-ID
 		//anonymization.DbgOn()
@@ -749,7 +732,7 @@ func (bt *Sipcmbeat) getCallID(dst, src []byte, callID sipsp.PField, encFlags *F
 			return nil, fmt.Errorf("Call-ID field processing error: %w", err)
 		}
 		if encFlags != nil {
-			*encFlags |= FormatCallIDencF
+			*encFlags |= evencflags.CallIDencF
 		}
 		return ac.PField.Get(dst), nil
 	}
@@ -787,7 +770,7 @@ func (bt *Sipcmbeat) getEncContent(
 }
 
 func (bt *Sipcmbeat) getURI(attr calltr.CallAttrIdx, dst, src []byte,
-	encFlags *FormatFlags) ([]byte, error) {
+	encFlags *evencflags.F) ([]byte, error) {
 	if bt.Config.UseURIAnonymization() {
 		if attr == calltr.AttrContact && len(src) == 1 && src[0] == '*' {
 			// Contact: *  -> leave it unencrypte
@@ -805,7 +788,7 @@ func (bt *Sipcmbeat) getURI(attr calltr.CallAttrIdx, dst, src []byte,
 			return nil, err
 		}
 		if encFlags != nil {
-			*encFlags |= FormatURIencF
+			*encFlags |= evencflags.URIencF
 		}
 		return (*sipsp.PsipURI)(&au).Flat(dst), nil
 	}
@@ -814,16 +797,16 @@ func (bt *Sipcmbeat) getURI(attr calltr.CallAttrIdx, dst, src []byte,
 }
 
 // return event source ip (possibly encrypted) and sets encFlags
-func (bt *Sipcmbeat) getSrcIP(ed *calltr.EventData, encFlags *FormatFlags) net.IP {
+func (bt *Sipcmbeat) getSrcIP(ed *calltr.EventData, encFlags *evencflags.F) net.IP {
 	if bt.Config.UseIPAnonymization() {
 		c := make([]byte, len(ed.Src))
 		if encFlags != nil {
-			*encFlags |= FormatCltIPencF
+			*encFlags |= evencflags.CltIPencF
 		}
 		if bt.Config.UseIpcipher() || ed.Src.To4() == nil {
 			bt.ipcipher.Encrypt(c, ed.Src)
 			if encFlags != nil {
-				*encFlags |= FormatIpcipherF
+				*encFlags |= evencflags.IpcipherF
 			}
 		} else {
 			anonymization.GetPan4().Encrypt(c, ed.Src)
@@ -834,16 +817,16 @@ func (bt *Sipcmbeat) getSrcIP(ed *calltr.EventData, encFlags *FormatFlags) net.I
 }
 
 // return event destination ip (possibly encrypted) and sets encFlags
-func (bt *Sipcmbeat) getDstIP(ed *calltr.EventData, encFlags *FormatFlags) net.IP {
+func (bt *Sipcmbeat) getDstIP(ed *calltr.EventData, encFlags *evencflags.F) net.IP {
 	if bt.Config.UseIPAnonymization() {
 		c := make([]byte, len(ed.Dst))
 		if encFlags != nil {
-			*encFlags |= FormatSrvIPencF
+			*encFlags |= evencflags.SrvIPencF
 		}
 		if bt.Config.UseIpcipher() || ed.Dst.To4() == nil {
 			bt.ipcipher.Encrypt(c, ed.Dst)
 			if encFlags != nil {
-				*encFlags |= FormatIpcipherF
+				*encFlags |= evencflags.IpcipherF
 			}
 		} else {
 			anonymization.GetPan4().Encrypt(c, ed.Dst)
@@ -883,7 +866,7 @@ func (bt *Sipcmbeat) publishEv(geoipH *GeoIPdbHandle, srcEv *calltr.EventData,
 			//		"sip.call_id": str(ed.CallID.Get(ed.Buf)),
 		},
 	}
-	var encFlags FormatFlags
+	var encFlags evencflags.F
 
 	var callIDBuf []byte
 	if bt.Config.UseCallIDAnonymization() {
@@ -947,7 +930,7 @@ add_attrs:
 						ok := bt.evAddEncBField(event,
 							"err_info", errR,
 							true, // always enc.
-							FormatReasonAencF, &encFlags)
+							evencflags.ReasonAencF, &encFlags)
 						if !ok {
 							logp.Err("failed to add enc. err_info to Fields\n")
 							bt.stats.Inc(bt.cnts.EvEInfoErr)
@@ -974,7 +957,8 @@ add_attrs:
 				if !bt.evAddEncBField(event,
 					calltr.CallAttrIdx(i).String(),
 					ed.Attrs[i].Get(ed.Buf),
-					bt.Config.UseUAAnonymization(), FormatUAencF, &encFlags) {
+					bt.Config.UseUAAnonymization(),
+					evencflags.UAencF, &encFlags) {
 					bt.stats.Inc(bt.cnts.EvAttrErr[i])
 					continue // skip over this attr
 				}
@@ -996,7 +980,7 @@ add_attrs:
 						continue
 					}
 					if isEnc {
-						encFlags |= FormatReasonAencF
+						encFlags |= evencflags.ReasonAencF
 					}
 					ok := addFields(event.Fields, "err_info", str(reason))
 					if !ok {

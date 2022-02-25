@@ -17,6 +17,7 @@ import (
 
 	"github.com/intuitivelabs/calltr"
 	"github.com/intuitivelabs/counters"
+	"github.com/intuitivelabs/evencflags"
 )
 
 type geoipLookupCounters struct {
@@ -206,7 +207,7 @@ func (bt *Sipcmbeat) updateGeoIPh(cached *GeoIPdbHandle) *GeoIPdbHandle {
 
 func (bt *Sipcmbeat) addGeoIPinfo(geoip *GeoIPdbHandle, event beat.Event,
 	ed *calltr.EventData,
-	encFlags *FormatFlags) {
+	encFlags *evencflags.F) {
 
 	if geoip == nil || geoip.dbh == nil {
 		return
@@ -260,7 +261,7 @@ func (bt *Sipcmbeat) addGeoIPinfo(geoip *GeoIPdbHandle, event beat.Event,
 				isoCode := []byte(rec1.Country.ISOcode)
 				if !bt.evAddEncBField(event, "geoip.src.iso_code", isoCode,
 					bt.Config.UseIPAnonymization(),
-					FormatCountryISOencF, encFlags) {
+					evencflags.CountryISOencF, encFlags) {
 					bt.geoipStats.lookup.src.Inc(bt.geoipCnts.Src.EncErr)
 				}
 			} else {
@@ -271,7 +272,7 @@ func (bt *Sipcmbeat) addGeoIPinfo(geoip *GeoIPdbHandle, event beat.Event,
 					strconv.FormatUint(uint64(rec1.City.GeoNameID), 10))
 				if !bt.evAddEncBField(event, "geoip.src.city_id", cityID,
 					bt.Config.UseIPAnonymization(),
-					FormatCityIDencF, encFlags) {
+					evencflags.CityIDencF, encFlags) {
 					bt.geoipStats.lookup.src.Inc(bt.geoipCnts.Src.EncErr)
 				}
 			} else {
@@ -284,7 +285,7 @@ func (bt *Sipcmbeat) addGeoIPinfo(geoip *GeoIPdbHandle, event beat.Event,
 					if !bt.evAddEncBField(event, "geoip.src.sub1_code",
 						isoCode,
 						bt.Config.UseIPAnonymization(),
-						FormatCityIDencF, encFlags) {
+						evencflags.CityIDencF, encFlags) {
 						bt.geoipStats.lookup.src.Inc(bt.geoipCnts.Src.EncErr)
 					}
 				}
@@ -294,7 +295,7 @@ func (bt *Sipcmbeat) addGeoIPinfo(geoip *GeoIPdbHandle, event beat.Event,
 					if !bt.evAddEncBField(event, "geoip.src.sub2_code",
 						isoCode,
 						bt.Config.UseIPAnonymization(),
-						FormatCityIDencF, encFlags) {
+						evencflags.CityIDencF, encFlags) {
 						bt.geoipStats.lookup.src.Inc(bt.geoipCnts.Src.EncErr)
 					}
 				}
@@ -329,7 +330,7 @@ func (bt *Sipcmbeat) addGeoIPinfo(geoip *GeoIPdbHandle, event beat.Event,
 				isoCode := []byte(rec2.Country.ISOcode)
 				if !bt.evAddEncBField(event, "geoip.dst.iso_code", isoCode,
 					bt.Config.UseIPAnonymization(),
-					FormatCountryISOencF, encFlags) {
+					evencflags.CountryISOencF, encFlags) {
 					bt.geoipStats.lookup.dst.Inc(bt.geoipCnts.Dst.EncErr)
 				}
 			} else {
@@ -340,7 +341,7 @@ func (bt *Sipcmbeat) addGeoIPinfo(geoip *GeoIPdbHandle, event beat.Event,
 					strconv.FormatUint(uint64(rec2.City.GeoNameID), 10))
 				if !bt.evAddEncBField(event, "geoip.dst.city_id", cityID,
 					bt.Config.UseIPAnonymization(),
-					FormatCityIDencF, encFlags) {
+					evencflags.CityIDencF, encFlags) {
 					bt.geoipStats.lookup.dst.Inc(bt.geoipCnts.Dst.EncErr)
 				}
 			} else {
@@ -353,7 +354,7 @@ func (bt *Sipcmbeat) addGeoIPinfo(geoip *GeoIPdbHandle, event beat.Event,
 					if !bt.evAddEncBField(event, "geoip.dst.sub1_code",
 						isoCode,
 						bt.Config.UseIPAnonymization(),
-						FormatCityIDencF, encFlags) {
+						evencflags.CityIDencF, encFlags) {
 						bt.geoipStats.lookup.dst.Inc(bt.geoipCnts.Dst.EncErr)
 					}
 				}
@@ -363,7 +364,7 @@ func (bt *Sipcmbeat) addGeoIPinfo(geoip *GeoIPdbHandle, event beat.Event,
 					if !bt.evAddEncBField(event, "geoip.dst.sub2_code",
 						isoCode,
 						bt.Config.UseIPAnonymization(),
-						FormatCityIDencF, encFlags) {
+						evencflags.CityIDencF, encFlags) {
 						bt.geoipStats.lookup.dst.Inc(bt.geoipCnts.Dst.EncErr)
 					}
 				}

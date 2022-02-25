@@ -416,6 +416,8 @@ github.com/intuitivelabs/calltr v1.1.10-0.20220216085008-a55996e86c52 h1:kc1hK9Y
 github.com/intuitivelabs/calltr v1.1.10-0.20220216085008-a55996e86c52/go.mod h1:V5c4uVqDdsedktA1E5NyXuOLdUZ9mcH0gHmx+eETywM=
 github.com/intuitivelabs/counters v0.3.1 h1:jfyTWCJdHNjzIjJ3O8ydLkFZcxI/QbL0zWaEysfw30E=
 github.com/intuitivelabs/counters v0.3.1/go.mod h1:gg2mPscHiatkLfDWF7bSuUeHcmsiTazGQx1pW62uJ0w=
+github.com/intuitivelabs/evencflags v0.0.2-0.20220225110815-fb4165d7ced5 h1:jJCb7fYxbP4w8S0V+pRKCmlRTnDHZtQunzq6PkMIcpY=
+github.com/intuitivelabs/evencflags v0.0.2-0.20220225110815-fb4165d7ced5/go.mod h1:RdCBQJobeVUhMWBJHSV434hOa4X3W/XT5i80rXkaSrg=
 github.com/intuitivelabs/httpsp v0.0.0-20220205181623-d4b1c471f1d0 h1:LcpCrypGWahet1cx5ObaeWCEI2yL/QxV4UMmAsZ38jE=
 github.com/intuitivelabs/httpsp v0.0.0-20220205181623-d4b1c471f1d0/go.mod h1:hO16uPAfO2hOZtseOStT95MLe/0efqNz51kiEq1x3w4=
 github.com/intuitivelabs/ipcrypt v1.1.0 h1:nLWT//mwecB7JC2/e7XSHasjRetJVqBnOCYrNW6WmQ4=
