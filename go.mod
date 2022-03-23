@@ -36,7 +36,7 @@ require (
 	github.com/fatih/color v1.9.0 // indirect
 	github.com/go-sourcemap/sourcemap v2.1.3+incompatible // indirect
 	github.com/hashicorp/errwrap v1.1.0 // indirect
-	github.com/intuitivelabs/anonymization v1.3.0
+	github.com/intuitivelabs/anonymization v1.4.0
 	github.com/intuitivelabs/calltr v1.1.9
 	github.com/intuitivelabs/counters v0.3.1
 	github.com/intuitivelabs/sipcallmon v0.8.12
