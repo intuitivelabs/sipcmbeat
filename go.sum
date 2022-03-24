@@ -409,6 +409,10 @@ github.com/intuitivelabs/anonymization v1.3.0 h1:sKV42Gyn6JeKWZ9nm++jeIb2mNOoCBh
 github.com/intuitivelabs/anonymization v1.3.0/go.mod h1:dXjVv/m2YD94lEYSZvbPGxxTaT4c3L8UL6TdaTMq6RY=
 github.com/intuitivelabs/anonymization v1.4.0 h1:0WVnPyn1EP0bc3QJezIAulfT918go/9XIrMVfHspFcQ=
 github.com/intuitivelabs/anonymization v1.4.0/go.mod h1:dXjVv/m2YD94lEYSZvbPGxxTaT4c3L8UL6TdaTMq6RY=
+github.com/intuitivelabs/anonymization v1.4.1-0.20220324141834-27bfd2e93465 h1:Kpe71YPVt3D2103l8ZUhGqZUQqVIDURi43AyO8iWwW8=
+github.com/intuitivelabs/anonymization v1.4.1-0.20220324141834-27bfd2e93465/go.mod h1:dXjVv/m2YD94lEYSZvbPGxxTaT4c3L8UL6TdaTMq6RY=
+github.com/intuitivelabs/anonymization v1.4.1 h1:YpXQPWboKFjo7BubtboK6v/YwB5Yqhl48lpuIbMjKQc=
+github.com/intuitivelabs/anonymization v1.4.1/go.mod h1:dXjVv/m2YD94lEYSZvbPGxxTaT4c3L8UL6TdaTMq6RY=
 github.com/intuitivelabs/bytescase v1.0.2-0.20210217091653-e8baf7a3651d/go.mod h1:Gr+B79bV8+mDKvYr4hja6qPVHtYG4Knem0K8gzZKHHU=
 github.com/intuitivelabs/bytescase v1.0.2 h1:Yz2aO9cw3Erdnyb9k7/SS/ckFkOG8KWr4UcgUxWjnqE=
 github.com/intuitivelabs/bytescase v1.0.2/go.mod h1:Gr+B79bV8+mDKvYr4hja6qPVHtYG4Knem0K8gzZKHHU=

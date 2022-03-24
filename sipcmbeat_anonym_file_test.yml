@@ -6,7 +6,7 @@ sipcmbeat:
   # (very) verbose parser/ capture
   verbose: false
   # general log level: BUG -3, CRIT -2; ERR -1; WARN 0, NOTICE 1, INFO 2, DBG 3
-  log_level: 2
+  log_level: 3
   # log message options, flags:
   #    short filename:line - 1, long - 2, time stamp:  - 4,
   #    back trace short - 8, long - 16
@@ -103,7 +103,7 @@ sipcmbeat:
   encryption_salt: 1e22c6fd-7372-4429-a4e4-c39275a95f19
   # turn on/off ip address encryption, default off
   # (requires a set encryption_passphrase or encryption_key)
-  encrypt_ip_addresses: false
+  encrypt_ip_addresses: true
   # turn on/off URIs encryption, default off
   # (requires a set encryption_passphrase or encryption_key)
   encrypt_uris: true 

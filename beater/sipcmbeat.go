@@ -440,6 +440,11 @@ func (bt *Sipcmbeat) initEncryption(b *beat.Beat) error {
 			return err
 		}
 	}
+	anonymizer, err := anonymization.NewAnonymizer(salt)
+	if err != nil {
+		return err
+	}
+	bt.anonymizer = *anonymizer
 	if _, err := bt.anonymizer.UpdateKeys(anonymization.Keys[:]); err != nil {
 		return err
 	}
@@ -710,7 +715,7 @@ func (bt *Sipcmbeat) getCallID(dst, src []byte, callID sipsp.PField, encFlags *F
 	if bt.Config.UseCallIDAnonymization() && (len(src) > 0) {
 		// anonymize Call-ID
 		//anonymization.DbgOn()
-		bt.anonymizer.CallId.PField = callID
+		bt.anonymizer.CallId.SetPField(&callID)
 		aCallId, err := bt.anonymizer.CallId.Anonymize(dst, src)
 		if err != nil {
 			return nil, fmt.Errorf("Call-ID field processing error: %w", err)
@@ -738,7 +743,7 @@ func (bt *Sipcmbeat) getEncContent(
 
 	if bt.Config.UseAnonymization() && (len(src) > 0) {
 		// anonymize src, the same way as Call-ID
-		bt.anonymizer.CallId.PField = content
+		bt.anonymizer.CallId.SetPField(&content)
 		aContent, err := bt.anonymizer.CallId.Anonymize(dst, src)
 		if err != nil {
 			return nil, false,
