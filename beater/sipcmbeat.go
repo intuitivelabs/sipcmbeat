@@ -7,12 +7,9 @@
 package beater
 
 import (
-	"encoding/hex"
 	"fmt"
 	"strconv"
 	//	"runtime/pprof"
-	"crypto"
-	"crypto/subtle"
 	"net"
 	"reflect"
 	"strings"
@@ -237,10 +234,9 @@ type Sipcmbeat struct {
 
 	pStatsInfo publishStatsInfo // stats event publish internal stuff
 
-	Config    sipcallmon.Config
-	ipcipher  *anonymization.Ipcipher
-	validator anonymization.Validator
-	client    beat.Client
+	Config     sipcallmon.Config
+	anonymizer anonymization.Anonymizer
+	client     beat.Client
 	// stats
 	stats   counters.Group
 	cnts    statCounters
@@ -399,8 +395,6 @@ func keystoreVal(b *beat.Beat, key string) (string, error) {
 }
 
 func (bt *Sipcmbeat) initEncryption(b *beat.Beat) error {
-	var encKey [anonymization.EncryptionKeyLen]byte
-	var authKey [anonymization.AuthenticationKeyLen]byte
 	const ksPrefix = "keystore:"
 
 	salt := bt.Config.EncryptionValSalt
@@ -417,7 +411,7 @@ func (bt *Sipcmbeat) initEncryption(b *beat.Beat) error {
 		}
 	}
 	if len(bt.Config.EncryptionPassphrase) > 0 {
-		// generate encryption key from passphrase
+		// generate all keys from passphrase
 		pass := bt.Config.EncryptionPassphrase
 		if len(pass) >= len(ksPrefix) && strings.HasPrefix(pass, ksPrefix) {
 			// starts with the keystore prefix -> look for the pass in the
@@ -428,9 +422,9 @@ func (bt *Sipcmbeat) initEncryption(b *beat.Beat) error {
 				return errors.WithMessage(err, "initEncryption: passphrase")
 			}
 		}
-		anonymization.GenerateKeyFromPassphraseAndCopy(pass,
-			anonymization.EncryptionKeyLen, encKey[:])
+		anonymization.GenerateAllKeysWithPassphrase(pass)
 	} else {
+		// generate all keys from master key
 		cfgKey := bt.Config.EncryptionKey
 		if len(cfgKey) >= len(ksPrefix) && strings.HasPrefix(cfgKey, ksPrefix) {
 			// starts with the keystore prefix -> look for the key in the
@@ -441,40 +435,19 @@ func (bt *Sipcmbeat) initEncryption(b *beat.Beat) error {
 				return errors.WithMessage(err, "initEncryption: key")
 			}
 		}
-		// copy the configured key into the one used during realtime processing
-		if decoded, err := hex.DecodeString(cfgKey); err != nil {
+		// decode the hex encoded master key
+		if err := anonymization.GenerateAllKeysWithHexMasterKey(cfgKey); err != nil {
 			return err
-		} else {
-			subtle.ConstantTimeCopy(1, encKey[:], decoded)
 		}
 	}
-
-	// generate authentication (HMAC) key from encryption key
-	anonymization.GenerateKeyFromBytesAndCopy(encKey[:], anonymization.AuthenticationKeyLen, authKey[:])
-	// validation code is the first 5 bytes of HMAC(SHA256) of random nonce; each thread needs its own validator!
-	if validator, err := anonymization.NewKeyValidator(crypto.SHA256, authKey[:],
-		5 /*length*/, salt, anonymization.NonceNone, false /*withNonce*/, true /*pre-allocated HMAC*/); err != nil {
+	anonymizer, err := anonymization.NewAnonymizer(salt)
+	if err != nil {
 		return err
-	} else {
-		bt.validator = validator
 	}
-
-	if ipcipher, err := anonymization.NewCipher(encKey[:]); err != nil {
+	bt.anonymizer = *anonymizer
+	if _, err := bt.anonymizer.UpdateKeys(anonymization.Keys[:]); err != nil {
 		return err
-	} else {
-		bt.ipcipher = ipcipher.(*anonymization.Ipcipher)
 	}
-
-	// initialize the IP Prefix-preserving anonymization
-	_ = anonymization.NewPanIPv4(encKey[:])
-
-	// initialize the URI CBC based encryption
-	anonymization.InitUriKeysFromMasterKey(encKey[:])
-	_ = anonymization.NewUriCBC(anonymization.GetUriKeys())
-
-	// initialize the Call-ID CBC based encryption
-	anonymization.InitCallIdKeysFromMasterKey(encKey[:])
-	_ = anonymization.NewCallIdCBC(anonymization.GetCallIdKeys())
 
 	return nil
 }
@@ -742,16 +715,15 @@ func (bt *Sipcmbeat) getCallID(dst, src []byte, callID sipsp.PField, encFlags *F
 	if bt.Config.UseCallIDAnonymization() && (len(src) > 0) {
 		// anonymize Call-ID
 		//anonymization.DbgOn()
-		ac := anonymization.AnonymPField{
-			PField: callID,
-		}
-		if err := ac.Anonymize(dst, src); err != nil {
+		bt.anonymizer.CallId.SetPField(&callID)
+		aCallId, err := bt.anonymizer.CallId.Anonymize(dst, src)
+		if err != nil {
 			return nil, fmt.Errorf("Call-ID field processing error: %w", err)
 		}
 		if encFlags != nil {
 			*encFlags |= FormatCallIDencF
 		}
-		return ac.PField.Get(dst), nil
+		return aCallId, nil
 	}
 	// pass through
 	return callID.Get(src), nil
@@ -771,16 +743,15 @@ func (bt *Sipcmbeat) getEncContent(
 
 	if bt.Config.UseAnonymization() && (len(src) > 0) {
 		// anonymize src, the same way as Call-ID
-		ac := anonymization.AnonymPField{
-			PField: content,
-		}
-		if err := ac.Anonymize(dst, src); err != nil {
+		bt.anonymizer.CallId.SetPField(&content)
+		aContent, err := bt.anonymizer.CallId.Anonymize(dst, src)
+		if err != nil {
 			return nil, false,
 				fmt.Errorf("field content processing error: %w", err)
 		}
 		// ac.Anonymize above will change ac.PField to point to the enc
 		// version
-		return ac.PField.Get(dst), true, nil
+		return aContent, true, nil
 	}
 	// pass through
 	return content.Get(src), false, nil
@@ -794,20 +765,15 @@ func (bt *Sipcmbeat) getURI(attr calltr.CallAttrIdx, dst, src []byte,
 			// pass through
 			return src[:], nil
 		}
-		// anonymize URI
-		var uri sipsp.PsipURI
-		if err, _ := sipsp.ParseURI(src, &uri); err != 0 {
-			return nil, err
-		}
-		//anonymization.DbgOn()
-		au := anonymization.AnonymURI(uri)
-		if err := au.Anonymize(dst, src, true); err != nil {
+		// anonymize URI _including_ parameters
+		aUri, err := bt.anonymizer.Uri.Anonymize(dst, src)
+		if err != nil {
 			return nil, err
 		}
 		if encFlags != nil {
 			*encFlags |= FormatURIencF
 		}
-		return (*sipsp.PsipURI)(&au).Flat(dst), nil
+		return aUri, nil
 	}
 	// pass through
 	return src[:], nil
@@ -821,12 +787,12 @@ func (bt *Sipcmbeat) getSrcIP(ed *calltr.EventData, encFlags *FormatFlags) net.I
 			*encFlags |= FormatCltIPencF
 		}
 		if bt.Config.UseIpcipher() || ed.Src.To4() == nil {
-			bt.ipcipher.Encrypt(c, ed.Src)
+			bt.anonymizer.Ipcipher.Encrypt(c, ed.Src)
 			if encFlags != nil {
 				*encFlags |= FormatIpcipherF
 			}
 		} else {
-			anonymization.GetPan4().Encrypt(c, ed.Src)
+			bt.anonymizer.Pan.Encrypt(c, ed.Src)
 		}
 		return net.IP(c[:])
 	}
@@ -841,12 +807,12 @@ func (bt *Sipcmbeat) getDstIP(ed *calltr.EventData, encFlags *FormatFlags) net.I
 			*encFlags |= FormatSrvIPencF
 		}
 		if bt.Config.UseIpcipher() || ed.Dst.To4() == nil {
-			bt.ipcipher.Encrypt(c, ed.Dst)
+			bt.anonymizer.Ipcipher.Encrypt(c, ed.Dst)
 			if encFlags != nil {
 				*encFlags |= FormatIpcipherF
 			}
 		} else {
-			anonymization.GetPan4().Encrypt(c, ed.Dst)
+			bt.anonymizer.Pan.Encrypt(c, ed.Dst)
 		}
 		return net.IP(c[:])
 	}
@@ -1188,10 +1154,10 @@ add_attrs:
 
 	// encrypted flags
 	if encFlags != 0 {
-		if bt.validator != nil {
+		if bt.anonymizer.Validator != nil {
 			// the precomputed validation code cand be used as long nonce is NOT used
 			addFields(event.Fields, "encrypt_flags", strconv.Itoa(int(encFlags)))
-			addFields(event.Fields, "encrypt", bt.validator.Code())
+			addFields(event.Fields, "encrypt", bt.anonymizer.Validator.Code())
 		}
 	} else {
 		addFields(event.Fields, "encrypt_flags", "0")
