@@ -22,6 +22,9 @@ jobs:
         # Bring in everything...
         fetch-depth: '0'
     
+    - name: update ubuntu 
+      run: sudo apt-get update
+    
     - name: Install make
       run: sudo apt-get install make
     
