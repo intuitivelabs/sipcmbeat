@@ -703,14 +703,6 @@ func addFields(m common.MapStr, label string, val interface{}) bool {
 	return true
 }
 
-// allocates a buffer which can be used for anonymizing sip header fields
-func newAnonymizationBuf(l int) []byte {
-	if l < 32 {
-		l = 32
-	}
-	return make([]byte, 3*l)
-}
-
 func (bt *Sipcmbeat) getCallID(dst, src []byte, callID sipsp.PField, encFlags *FormatFlags) ([]byte, error) {
 	if bt.Config.UseCallIDAnonymization() && (len(src) > 0) {
 		// anonymize Call-ID
@@ -761,7 +753,7 @@ func (bt *Sipcmbeat) getURI(attr calltr.CallAttrIdx, dst, src []byte,
 	encFlags *FormatFlags) ([]byte, error) {
 	if bt.Config.UseURIAnonymization() {
 		if attr == calltr.AttrContact && len(src) == 1 && src[0] == '*' {
-			// Contact: *  -> leave it unencrypte
+			// Contact: *  -> leave it unencrypted
 			// pass through
 			return src[:], nil
 		}
@@ -853,7 +845,7 @@ func (bt *Sipcmbeat) publishEv(geoipH *GeoIPdbHandle, srcEv *calltr.EventData,
 
 	var callIDBuf []byte
 	if bt.Config.UseCallIDAnonymization() {
-		callIDBuf = newAnonymizationBuf(len(ed.CallID.Get(ed.Buf)))
+		callIDBuf = anonymization.AnonymizeBuf(len(ed.CallID.Get(ed.Buf)))
 	}
 	callID, err := bt.getCallID(callIDBuf, ed.Buf, ed.CallID, &encFlags)
 	if err != nil {
@@ -875,7 +867,7 @@ add_attrs:
 				)
 				uri := ed.Attrs[i].Get(ed.Buf)
 				if bt.Config.UseURIAnonymization() {
-					uriBuf = newAnonymizationBuf(len(uri))
+					uriBuf = anonymization.AnonymizeBuf(len(uri))
 					if uri, err = bt.getURI(calltr.CallAttrIdx(i),
 						uriBuf, uri, &encFlags); err != nil {
 						// reuse EvAttrErr counter for URI enc. errs:
@@ -949,7 +941,7 @@ add_attrs:
 					var reasonBuf []byte
 					if bt.Config.UseAnonymization() {
 						reasonBuf =
-							newAnonymizationBuf(len(ed.Attrs[i].Get(ed.Buf)))
+							anonymization.AnonymizeBuf(len(ed.Attrs[i].Get(ed.Buf)))
 					}
 					reason, isEnc, err :=
 						bt.getEncContent(reasonBuf, ed.Buf, ed.Attrs[i])
