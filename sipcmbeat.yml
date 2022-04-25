@@ -102,6 +102,9 @@ sipcmbeat:
   # event rate periodic GC target: GC will stop if the number of
   # remaining entries is less then this value
   evr_gc_target: 10
+  # RegDel event generation delay to work around quick reg-del re-reg
+  # (in seconds). If 0 the RegDel event is generated immediately on reply.
+  reg_del_delay: 0
   # extra REGISTER expiration delta for absorbing delayed re-REGISTERs
   reg_exp_delta: 30
   # maximum tracked register bindings (0 for unlimited)
