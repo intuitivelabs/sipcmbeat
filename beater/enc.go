@@ -8,6 +8,7 @@ package beater
 
 import (
 	"github.com/elastic/beats/v7/libbeat/beat"
+	"github.com/intuitivelabs/anonymization"
 
 	"github.com/intuitivelabs/sipsp"
 )
@@ -20,7 +21,7 @@ func (bt *Sipcmbeat) evAddEncBField(event beat.Event,
 	setEncFlg FormatFlags, // flags set if field encrypted
 	encFlags *FormatFlags) bool {
 	if doEnc {
-		buf := newAnonymizationBuf(len(val))
+		buf := anonymization.AnonymizeBuf(len(val))
 		encVal, isEnc, err :=
 			bt.getEncContent(buf, val,
 				sipsp.PField{Offs: 0, Len: sipsp.OffsT(len(val))})

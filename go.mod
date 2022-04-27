@@ -13,6 +13,7 @@ replace (
 	github.com/fsnotify/fsevents => github.com/elastic/fsevents v0.0.0-20181029231046-e1d381a4d270
 	github.com/fsnotify/fsnotify => github.com/adriansr/fsnotify v0.0.0-20180417234312-c9bbe1f46f1d
 	github.com/insomniacslk/dhcp => github.com/elastic/dhcp v0.0.0-20200227161230-57ec251c7eb3 // indirect
+	github.com/intuitivelabs/anonymization => github.com/intuitivelabs/anonymization v1.4.2-0.20220425150840-f9004de7ebff
 	//	golang.org/x/tools => golang.org/x/tools v0.0.0-20200602230032-c00d67ef29d0 // release 1.14
 	github.com/tonistiigi/fifo => github.com/containerd/fifo v0.0.0-20190816180239-bda0ff6ed73c
 )
@@ -44,7 +45,7 @@ require (
 	github.com/intuitivelabs/slog v0.0.2
 	github.com/intuitivelabs/timestamp v0.0.3
 	github.com/josephspurrier/goversioninfo v1.2.0 // indirect
-	github.com/magefile/mage v1.12.1
+	github.com/magefile/mage v1.13.0
 	github.com/mattn/go-colorable v0.1.8 // indirect
 	github.com/mitchellh/gox v1.0.1
 	github.com/mitchellh/hashstructure v1.0.0 // indirect
