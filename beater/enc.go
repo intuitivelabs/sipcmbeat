@@ -21,7 +21,7 @@ func (bt *Sipcmbeat) evAddEncBField(event beat.Event,
 	setEncFlg FormatFlags, // flags set if field encrypted
 	encFlags *FormatFlags) bool {
 	if doEnc {
-		buf := anonymization.AnonymizeBuf(len(val))
+		buf := anonymization.NewAnonymizationBuf(len(val))
 		encVal, isEnc, err :=
 			bt.getEncContent(buf, val,
 				sipsp.PField{Offs: 0, Len: sipsp.OffsT(len(val))})

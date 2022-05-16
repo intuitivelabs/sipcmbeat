@@ -448,6 +448,10 @@ func (bt *Sipcmbeat) initEncryption(b *beat.Beat) error {
 	if _, err := bt.anonymizer.UpdateKeys(anonymization.Keys[:]); err != nil {
 		return err
 	}
+	if !bt.Config.UseCbcURI() {
+		// use prefix preserving anonymization for URIs
+		bt.anonymizer.Uri.WithPan()
+	}
 
 	return nil
 }
@@ -784,7 +788,7 @@ func (bt *Sipcmbeat) getSrcIP(ed *calltr.EventData, encFlags *FormatFlags) net.I
 				*encFlags |= FormatIpcipherF
 			}
 		} else {
-			bt.anonymizer.Pan.Encrypt(c, ed.Src)
+			((*anonymization.Pan)(bt.anonymizer.PanIPv4)).Encrypt(c, ed.Src)
 		}
 		return net.IP(c[:])
 	}
@@ -804,7 +808,7 @@ func (bt *Sipcmbeat) getDstIP(ed *calltr.EventData, encFlags *FormatFlags) net.I
 				*encFlags |= FormatIpcipherF
 			}
 		} else {
-			bt.anonymizer.Pan.Encrypt(c, ed.Dst)
+			((*anonymization.Pan)(bt.anonymizer.PanIPv4)).Encrypt(c, ed.Dst)
 		}
 		return net.IP(c[:])
 	}
@@ -845,7 +849,7 @@ func (bt *Sipcmbeat) publishEv(geoipH *GeoIPdbHandle, srcEv *calltr.EventData,
 
 	var callIDBuf []byte
 	if bt.Config.UseCallIDAnonymization() {
-		callIDBuf = anonymization.AnonymizeBuf(len(ed.CallID.Get(ed.Buf)))
+		callIDBuf = anonymization.NewAnonymizationBuf(len(ed.CallID.Get(ed.Buf)))
 	}
 	callID, err := bt.getCallID(callIDBuf, ed.Buf, ed.CallID, &encFlags)
 	if err != nil {
@@ -867,7 +871,7 @@ add_attrs:
 				)
 				uri := ed.Attrs[i].Get(ed.Buf)
 				if bt.Config.UseURIAnonymization() {
-					uriBuf = anonymization.AnonymizeBuf(len(uri))
+					uriBuf = anonymization.NewAnonymizationBuf(len(uri))
 					if uri, err = bt.getURI(calltr.CallAttrIdx(i),
 						uriBuf, uri, &encFlags); err != nil {
 						// reuse EvAttrErr counter for URI enc. errs:
@@ -941,7 +945,7 @@ add_attrs:
 					var reasonBuf []byte
 					if bt.Config.UseAnonymization() {
 						reasonBuf =
-							anonymization.AnonymizeBuf(len(ed.Attrs[i].Get(ed.Buf)))
+							anonymization.NewAnonymizationBuf(len(ed.Attrs[i].Get(ed.Buf)))
 					}
 					reason, isEnc, err :=
 						bt.getEncContent(reasonBuf, ed.Buf, ed.Attrs[i])

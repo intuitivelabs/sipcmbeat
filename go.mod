@@ -13,6 +13,8 @@ replace (
 	github.com/fsnotify/fsevents => github.com/elastic/fsevents v0.0.0-20181029231046-e1d381a4d270
 	github.com/fsnotify/fsnotify => github.com/adriansr/fsnotify v0.0.0-20180417234312-c9bbe1f46f1d
 	github.com/insomniacslk/dhcp => github.com/elastic/dhcp v0.0.0-20200227161230-57ec251c7eb3 // indirect
+	github.com/intuitivelabs/anonymization => github.com/intuitivelabs/anonymization v1.4.2-0.20220503140711-12f42dd95f32
+	github.com/intuitivelabs/sipcallmon => github.com/intuitivelabs/sipcallmon v0.8.15-0.20220516110423-11b96710a1af
 	//	golang.org/x/tools => golang.org/x/tools v0.0.0-20200602230032-c00d67ef29d0 // release 1.14
 	github.com/tonistiigi/fifo => github.com/containerd/fifo v0.0.0-20190816180239-bda0ff6ed73c
 )
