@@ -36,6 +36,8 @@ sipcmbeat:
   encryption_salt: 1e22c6fd-7372-4429-a4e4-c39275a95f19
 
 
+seccomp.enabled: false
+
 # ================================== General ===================================
 
 # The name of the shipper that publishes the network data. It can be used to group
