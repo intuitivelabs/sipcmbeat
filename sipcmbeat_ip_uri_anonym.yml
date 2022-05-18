@@ -6,8 +6,8 @@ sipcmbeat:
   # Defines how often an event is sent to the output
   verbose: true 
   # parse / capture log level (same values as log_level above)
-  parse_log_level: 3
-  log_level: 3
+  parse_log_level: 1
+  log_level: 1 
   pcap: ""
   replay: false
   replay_min_delay: 275ms
@@ -35,7 +35,7 @@ sipcmbeat:
   # include a salt in password verification checksum
   encryption_salt: 1e22c6fd-7372-4429-a4e4-c39275a95f19
 
-
+seccomp.enabled: false
 # ================================== General ===================================
 
 # The name of the shipper that publishes the network data. It can be used to group
@@ -139,7 +139,7 @@ processors:
 
 # Sets log level. The default log level is info.
 # Available log levels are: error, warning, info, debug
-logging.level: debug
+logging.level: error
 
 # At debug level, you can selectively enable logging only for some components.
 # To enable all selectors use ["*"]. Examples of other selectors are "beat",
