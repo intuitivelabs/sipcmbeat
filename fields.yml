@@ -5167,7 +5167,8 @@
           Bit flags describing event encryption - 
           0 for default, 1 encrypted client IP, 2 encrypted server IP,
           4 encrypted CallID, 8 encrypted URIs, 16 encrypted err_info field,
-          32 encrypted geoip country iso_code, 64 encrypted geoip city_id
+          32 encrypted geoip country iso_code, 64 encrypted geoip city_id,
+          128 encrypted user agent, 256 ipcipher is used for ip encryption
       example: 3 (encrypted client and server IPs)
     - name: encrypt 
       type: keyword 
