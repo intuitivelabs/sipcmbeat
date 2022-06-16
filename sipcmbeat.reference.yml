@@ -141,6 +141,12 @@ sipcmbeat:
   # turn on/off UA and UAS encryption, default off
   # (requires a set encryption_passphrase or encryption_key)
   encrypt_ua: false
+  # turn off geoip country iso code encryption (automatically turned on
+  # by IP anonymization: encrypt_ip_addresses)
+  unencrypted_country_iso: false
+  # turn off geoip city id encryption (automatically turned on
+  # by IP anonymization: encrypt_ip_addresses)
+  unencrypted_city_id: false
   # default interval for generating statistics/counters events for stats_groups
   # with no interval (default 5min).
   # It also doubles as  keep alive interval (an empty stats event will be sent
