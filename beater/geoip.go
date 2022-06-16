@@ -328,7 +328,8 @@ func (bt *Sipcmbeat) addGeoIPinfo(geoip *GeoIPdbHandle, event beat.Event,
 			if len(rec2.Country.ISOcode) != 0 {
 				isoCode := []byte(rec2.Country.ISOcode)
 				if !bt.evAddEncBField(event, "geoip.dst.iso_code", isoCode,
-					bt.Config.UseIPAnonymization(),
+					bt.Config.UseIPAnonymization() &&
+						!bt.Config.ClearTxtCountryISO,
 					FormatCountryISOencF, encFlags) {
 					bt.geoipStats.lookup.dst.Inc(bt.geoipCnts.Dst.EncErr)
 				}
@@ -339,7 +340,8 @@ func (bt *Sipcmbeat) addGeoIPinfo(geoip *GeoIPdbHandle, event beat.Event,
 				cityID := []byte(
 					strconv.FormatUint(uint64(rec2.City.GeoNameID), 10))
 				if !bt.evAddEncBField(event, "geoip.dst.city_id", cityID,
-					bt.Config.UseIPAnonymization(),
+					bt.Config.UseIPAnonymization() &&
+						!bt.Config.ClearTxtCityID,
 					FormatCityIDencF, encFlags) {
 					bt.geoipStats.lookup.dst.Inc(bt.geoipCnts.Dst.EncErr)
 				}
