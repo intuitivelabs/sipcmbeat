@@ -7569,6 +7569,18 @@ example: INVITE
 
 --
 
+*`sip.request.sig`*::
++
+--
+sip request message signature (experimental)
+
+
+type: keyword
+
+example: 26352041
+
+--
+
 
 *`sip.response.status`*::
 +

@@ -5253,6 +5253,11 @@
                   description: >
                       sip request method
                   example: INVITE
+                - name: sig
+                  type: keyword
+                  description: >
+                      sip request message signature (experimental)
+                  example: 26352041
           - name: response
             type: group
             fields:
