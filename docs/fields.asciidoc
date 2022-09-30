@@ -7577,7 +7577,7 @@ sip request message signature (experimental)
 
 type: keyword
 
-example: 26352041
+example: 16352047I200a11F2000C0c
 
 --
 

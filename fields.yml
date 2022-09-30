@@ -5257,7 +5257,7 @@
                   type: keyword
                   description: >
                       sip request message signature (experimental)
-                  example: 26352041
+                  example: 16352047I200a11F2000C0c
           - name: response
             type: group
             fields:
