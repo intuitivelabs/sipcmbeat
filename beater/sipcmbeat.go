@@ -1096,6 +1096,12 @@ add_attrs:
 	default:
 		addFields(event.Fields, "sip.response.last", ed.ReplStatus)
 	}
+	// req sip msg signature
+	if ed.Type != calltr.EvParseErr && ed.Type != calltr.EvNonSIPprobe &&
+		ed.ReqSig.Method != sipsp.MUndef && ed.ReqSig.HdrSigLen != 0 {
+		addFields(event.Fields, "sip.request.sig", ed.ReqSig.String())
+	}
+
 	// fromtag & totag moved from dbg
 	if ed.Type != calltr.EvParseErr && ed.Type != calltr.EvNonSIPprobe {
 		addFields(event.Fields, "sip.fromtag", str(ed.FromTag.Get(ed.Buf)))
