@@ -422,8 +422,8 @@ github.com/intuitivelabs/ipcrypt v1.1.0 h1:nLWT//mwecB7JC2/e7XSHasjRetJVqBnOCYrN
 github.com/intuitivelabs/ipcrypt v1.1.0/go.mod h1:1Tbk2GMxSflaUSwrQaFnMrg1VvTDM4JO3Jbh7RzPjSs=
 github.com/intuitivelabs/mallocs/qmalloc v0.0.3 h1:t1yPsjaykyayZn4TYbhIZQZwMl91VJhXUY65hQQa630=
 github.com/intuitivelabs/mallocs/qmalloc v0.0.3/go.mod h1:VwS4Dzl2y9m+W/tkEy82Cy2g+EwM3vgBldnRbt18zgQ=
-github.com/intuitivelabs/sipcallmon v0.8.17 h1:QyYxIGn+ANBkiTybw9cNIXp6/4a+LZfAw4IRc4+uQhs=
-github.com/intuitivelabs/sipcallmon v0.8.17/go.mod h1:TYWeK7ZSniQIeSXqQxrKgqHnuhAJASSp4PQVyxMS+gA=
+github.com/intuitivelabs/sipcallmon v0.8.18 h1:40byj1y82QXf/eg5CgKhvRCutwRCdGIwGgss2WUfZ6c=
+github.com/intuitivelabs/sipcallmon v0.8.18/go.mod h1:TYWeK7ZSniQIeSXqQxrKgqHnuhAJASSp4PQVyxMS+gA=
 github.com/intuitivelabs/sipsp v1.0.2/go.mod h1:Hms31r05e3BO/rpYICAIa/N01Ju0eLuUB3IE1GXVqXo=
 github.com/intuitivelabs/sipsp v1.1.5 h1:l0+/W0Y0Ahoc+1OXeRcfgNPSqcS9U5mbC5m2xHNcQzw=
 github.com/intuitivelabs/sipsp v1.1.5/go.mod h1:7+wtNx415M+VzHUrXWSf4NOraw7pMx+fhJkKoLAff7A=
@@ -486,6 +486,8 @@ github.com/magefile/mage v1.9.0/go.mod h1:z5UZb/iS3GoOSn0JgWuiw7dxlurVYTu+/jHXqQ
 github.com/magefile/mage v1.10.0/go.mod h1:z5UZb/iS3GoOSn0JgWuiw7dxlurVYTu+/jHXqQg881A=
 github.com/magefile/mage v1.14.0 h1:6QDX3g6z1YvJ4olPhT1wksUcSa/V0a1B+pJb73fBjyo=
 github.com/magefile/mage v1.14.0/go.mod h1:z5UZb/iS3GoOSn0JgWuiw7dxlurVYTu+/jHXqQg881A=
+github.com/magefile/mage v1.15.0 h1:BvGheCMAsG3bWUDbZ8AyXXpCNwU9u5CB6sM+HNb9HYg=
+github.com/magefile/mage v1.15.0/go.mod h1:z5UZb/iS3GoOSn0JgWuiw7dxlurVYTu+/jHXqQg881A=
 github.com/mailru/easyjson v0.0.0-20160728113105-d5b7844b561a/go.mod h1:C1wdFJiN94OJF2b5HbByQZoLdCWB1Yqtg26g4irojpc=
 github.com/mailru/easyjson v0.7.1/go.mod h1:KAzv3t3aY1NaHWoQz1+4F1ccyAH66Jk7yos7ldAVICs=
 github.com/markbates/pkger v0.17.0/go.mod h1:0JoVlrol20BSywW79rN3kdFFsE5xYM+rSCQDXbLhiuI=
