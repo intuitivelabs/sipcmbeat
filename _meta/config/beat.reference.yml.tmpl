@@ -171,3 +171,20 @@ sipcmbeat:
   geo_ip_on: false
   # geoip database file, maxmind format, default empty
   geo_ip_db: ""
+  # enable writing per call pcap (pcap_dump_dir must also be set),
+  #default false
+  pcap_dump_on: false
+  # enable writing messages that caused errors if the call-id could 
+  # be retrieved and there is an existing dump for the corresponding call-id
+  pcap_dump_onerr: false
+  # pcap dump directory, must be non-empty if pcap_dump_on is set to true
+  pcap_dump_dir: ""
+  # prefix added to each pcap dump filename 
+  # (filename = prefix + escape(callid)+pcap_dump_suffix + pcap_dump_extension)
+  pcap_dump_prefix: "callid_"
+  pcap_dump_suffix: ""
+  pcap_dump_extension: "pcap"
+  # number of pcap dump "threads", writing in parallel
+  pcap_dump_workers: 1
+  # pcap dump message queue size per worker
+  pcap_dump_queue_len: 10240
