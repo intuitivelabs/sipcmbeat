@@ -1165,6 +1165,15 @@ add_attrs:
 		addFields(event.Fields, "encrypt_flags", "0")
 	}
 
+	// pcap dump file
+	if bt.Config.WpcapDumpOn && !bt.Config.UseAnonymization() &&
+		len(callID) > 4 {
+		fname := sipcallmon.PcapDumperCfg.PcapFileRelPath(callID)
+		if len(fname) > 0 {
+			addFields(event.Fields, "attrs.filename", fname)
+		}
+	}
+
 	// version fields
 	bt.addVersionToEv(event)
 
