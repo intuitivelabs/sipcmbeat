@@ -184,6 +184,11 @@ sipcmbeat:
   pcap_dump_prefix: "callid_"
   pcap_dump_suffix: ""
   pcap_dump_extension: "pcap"
+  # number of auto-created subdirectories for distributing the pcap files
+  # (default 0 - write everything directly in pcap_dump_dir)
+  pcap_dump_subdirs: 0
+  # flags for configuring pcap dump. Reserved for future use.
+  pcap_dump_flags: 0
   # number of pcap dump "threads", writing in parallel
   pcap_dump_workers: 1
   # pcap dump message queue size per worker

@@ -336,32 +336,37 @@
             type: keyword
             description: >
                 message trace (last messages seen)
-- key: ecs
-  title: ECS
-  description: ECS sipcmbeat extra Fields
-  fields:
     - name: agent
+      description: sipcmbeat extra agent version fields
       type: group
       fields:
           - name: version_base
             type: keyword
             description: >
-                base version
+              base version
             example: v0.7.0
           - name: version_long
             type: keyword
             description: >
-                long version, including possible commit ids
+              long version, including possible commit ids
             example: v0.6.14-108-g340e63c
           - name: commit_hash
             type: keyword
             description: >
-                top commit hash for the code used to built this agent
+              top commit hash for the code used to built this agent
             example: 340e63c2
           - name: build_time
             type: keyword
             description: >
-                build time for this agent
+              build time for this agent
             example: 2021/09/16 08:29 UTC
-
+    - name: attrs
+      type: group
+      fields:
+          - name: filename
+            type: keyword
+            description: >
+              filename for the generated pcap file corresponding to this
+              event call-id
+            example: "3/tcp_1E24EFE3-5A7882E8000CECE6-2AD5E700_sipcm.pcap"
 
