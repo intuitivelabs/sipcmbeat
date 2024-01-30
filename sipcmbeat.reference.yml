@@ -42,6 +42,10 @@ sipcmbeat:
   # Packets arriving on these ports are interpreted as HTTP and after
   # an HTTP Upgrade to websocket/sip as sip over websockets.
   websocket_ports: []
+  # acme/oracle sbc ipfix collector listen address
+  ipfix_addr: ""
+  # acme/oracle sbc ipfix collector listen port, 0 for disabled
+  ipfix_port: 0
   # port for the internal http server, 0 == disable
   http_port: 8080
   # listen address for the internal http server

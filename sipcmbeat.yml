@@ -42,6 +42,10 @@ sipcmbeat:
   # Packets arriving on these ports are interpreted as HTTP and after
   # an HTTP Upgrade to websocket/sip as sip over websockets.
   websocket_ports: []
+  # acme/oracle sbc ipfix collector listen address
+  ipfix_addr: ""
+  # acme/oracle sbc ipfix collector listen port, 0 for disabled
+  ipfix_port: 0
   # port for the internal http server, 0 == disable
   http_port: 8080
   # listen address for the internal http server
@@ -136,15 +140,9 @@ sipcmbeat:
   # turn on/off ip address encryption, default off
   # (requires a set encryption_passphrase or encryption_key)
   encrypt_ip_addresses: false
-  # turn on/off ipcipher algorithm for IP address anonymization, default off
-  # (requires a set encryption_passphrase or encryption_key)
-  encrypt_ipcipher: false
   # turn on/off URIs encryption, default off
   # (requires a set encryption_passphrase or encryption_key)
   encrypt_uris: false
-  # turn on/off AES CBC mode algorithm for URI encryption, default off
-  # (requires a set encryption_passphrase or encryption_key)
-  encrypt_cbc_uri: false
   # turn on/off CallID encryption, default off
   # (requires a set encryption_passphrase or encryption_key)
   encrypt_call_ids: false
