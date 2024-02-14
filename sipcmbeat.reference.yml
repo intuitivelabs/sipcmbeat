@@ -57,6 +57,10 @@ sipcmbeat:
   # If one of the min or max values is 0, it will be set to the other
   # non-zero value. If both are 0, any keepalive value will be accepted.
   ipfix_timeout_max: 0
+  # ignore ingress sip messages over ipfix
+  # ipfix_ignore_ingress: false
+  # ignore egress sip messages over ipfix
+  # ipfix_ignore_egress:  false
   # port for the internal http server, 0 == disable
   http_port: 8080
   # listen address for the internal http server
