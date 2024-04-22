@@ -416,8 +416,8 @@ github.com/intuitivelabs/ipcrypt v1.1.0 h1:nLWT//mwecB7JC2/e7XSHasjRetJVqBnOCYrN
 github.com/intuitivelabs/ipcrypt v1.1.0/go.mod h1:1Tbk2GMxSflaUSwrQaFnMrg1VvTDM4JO3Jbh7RzPjSs=
 github.com/intuitivelabs/mallocs/qmalloc v0.0.3 h1:t1yPsjaykyayZn4TYbhIZQZwMl91VJhXUY65hQQa630=
 github.com/intuitivelabs/mallocs/qmalloc v0.0.3/go.mod h1:VwS4Dzl2y9m+W/tkEy82Cy2g+EwM3vgBldnRbt18zgQ=
-github.com/intuitivelabs/sipcallmon v0.8.19-0.20240418102751-a2294d0791e1 h1:uwGGJI1Z2F++4c2zQgd8L6q7dfLuOzPWjVpv40In/xg=
-github.com/intuitivelabs/sipcallmon v0.8.19-0.20240418102751-a2294d0791e1/go.mod h1:GYyQOpkkt4b2Ok7RM1W9nKDpkNJfIrTlHCg6aI4iVe8=
+github.com/intuitivelabs/sipcallmon v0.8.19 h1:CJ2DJRxs9ESEpByYiwHhbAtgTcYd6doqLf12el/dgn4=
+github.com/intuitivelabs/sipcallmon v0.8.19/go.mod h1:GYyQOpkkt4b2Ok7RM1W9nKDpkNJfIrTlHCg6aI4iVe8=
 github.com/intuitivelabs/sipsp v1.0.2/go.mod h1:Hms31r05e3BO/rpYICAIa/N01Ju0eLuUB3IE1GXVqXo=
 github.com/intuitivelabs/sipsp v1.1.5 h1:l0+/W0Y0Ahoc+1OXeRcfgNPSqcS9U5mbC5m2xHNcQzw=
 github.com/intuitivelabs/sipsp v1.1.5/go.mod h1:7+wtNx415M+VzHUrXWSf4NOraw7pMx+fhJkKoLAff7A=
