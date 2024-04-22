@@ -42,6 +42,25 @@ sipcmbeat:
   # Packets arriving on these ports are interpreted as HTTP and after
   # an HTTP Upgrade to websocket/sip as sip over websockets.
   websocket_ports: []
+  # acme/oracle sbc ipfix collector listen address
+  ipfix_addr: ""
+  # acme/oracle sbc ipfix collector listen port, 0 for disabled
+  ipfix_port: 0
+  # acme/oracle sbc minimum io timeout, 0 for disable
+  ipfix_timeout_min: 0
+  # acme/oracle sbc maximum io timeout, 0 for disable
+  # The actual io timeout value will be be set depending on the 
+  # remote/probe proposed keepalive (during the connection handshake)
+  # and the ipfix_timeout_min and ipfix_timeout_max. If the keepalive
+  # value multiplied by 2 is withing the timeout interval it will be used
+  # as-is, otherwise it will be adjusted.
+  # If one of the min or max values is 0, it will be set to the other
+  # non-zero value. If both are 0, any keepalive value will be accepted.
+  ipfix_timeout_max: 0
+  # ignore ingress sip messages over ipfix
+  # ipfix_ignore_ingress: false
+  # ignore egress sip messages over ipfix
+  # ipfix_ignore_egress:  false
   # port for the internal http server, 0 == disable
   http_port: 8080
   # listen address for the internal http server
