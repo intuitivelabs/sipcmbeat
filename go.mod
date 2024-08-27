@@ -1,6 +1,8 @@
 module github.com/intuitivelabs/sipcmbeat
 
-go 1.19
+go 1.21
+
+toolchain go1.21.8
 
 replace (
 	github.com/Azure/go-autorest => github.com/Azure/go-autorest v12.2.0+incompatible
@@ -30,7 +32,7 @@ require (
 	github.com/intuitivelabs/anonymization v1.5.0
 	github.com/intuitivelabs/calltr v1.1.13
 	github.com/intuitivelabs/counters v0.3.1
-	github.com/intuitivelabs/sipcallmon v0.8.20
+	github.com/intuitivelabs/sipcallmon v0.8.21
 	github.com/intuitivelabs/sipsp v1.1.5
 	github.com/intuitivelabs/slog v0.0.2
 	github.com/intuitivelabs/timestamp v0.0.3
