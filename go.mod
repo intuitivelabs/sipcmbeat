@@ -29,13 +29,13 @@ replace (
 
 require (
 	github.com/elastic/beats/v7 v7.9.2
-	github.com/intuitivelabs/anonymization v1.5.0
-	github.com/intuitivelabs/calltr v1.1.13
-	github.com/intuitivelabs/counters v0.3.1
-	github.com/intuitivelabs/sipcallmon v0.8.21
-	github.com/intuitivelabs/sipsp v1.1.5
-	github.com/intuitivelabs/slog v0.0.2
-	github.com/intuitivelabs/timestamp v0.0.3
+	github.com/intuitivelabs/anonymization v1.5.3
+	github.com/intuitivelabs/calltr v1.1.14
+	github.com/intuitivelabs/counters v0.3.3
+	github.com/intuitivelabs/sipcallmon v0.8.22
+	github.com/intuitivelabs/sipsp v1.1.6
+	github.com/intuitivelabs/slog v0.0.3
+	github.com/intuitivelabs/timestamp v0.0.4
 	github.com/magefile/mage v1.15.0
 	github.com/mitchellh/gox v1.0.1
 	github.com/oschwald/maxminddb-golang v1.8.0
@@ -115,14 +115,14 @@ require (
 	github.com/haya14busa/go-actions-toolkit v0.0.0-20200105081403-ca0307860f01 // indirect
 	github.com/imdario/mergo v0.3.6 // indirect
 	github.com/inconshreveable/mousetrap v1.0.0 // indirect
-	github.com/intuitivelabs/bytescase v1.0.2 // indirect
-	github.com/intuitivelabs/bytespool v0.0.3 // indirect
-	github.com/intuitivelabs/httpsp v0.0.9 // indirect
+	github.com/intuitivelabs/bytescase v1.0.3 // indirect
+	github.com/intuitivelabs/bytespool v0.0.4 // indirect
+	github.com/intuitivelabs/httpsp v0.0.10 // indirect
 	github.com/intuitivelabs/ipcrypt v1.1.0 // indirect
-	github.com/intuitivelabs/mallocs/qmalloc v0.0.3 // indirect
-	github.com/intuitivelabs/unsafeconv v0.0.1 // indirect
-	github.com/intuitivelabs/websocket v0.0.1 // indirect
-	github.com/intuitivelabs/wtimer v0.0.2 // indirect
+	github.com/intuitivelabs/mallocs/qmalloc v0.0.4 // indirect
+	github.com/intuitivelabs/unsafeconv v0.0.2 // indirect
+	github.com/intuitivelabs/websocket v0.0.2 // indirect
+	github.com/intuitivelabs/wtimer v0.0.3 // indirect
 	github.com/jcmturner/gofork v1.0.0 // indirect
 	github.com/joeshaw/multierror v0.0.0-20140124173710-69b34d4ec901 // indirect
 	github.com/josephspurrier/goversioninfo v1.2.0 // indirect

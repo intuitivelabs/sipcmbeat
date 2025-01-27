@@ -8,8 +8,8 @@ import (
 	//"time"
 
 	"github.com/elastic/beats/v7/libbeat/version"
-	"github.com/intuitivelabs/sipcmbeat/beater"
 	"github.com/spf13/cobra"
+	"github.com/intuitivelabs/sipcmbeat/beater"
 )
 
 var longVer bool
