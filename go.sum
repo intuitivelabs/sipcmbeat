@@ -491,6 +491,8 @@ github.com/intuitivelabs/calltr v1.1.13 h1:M3ixMmkXAkZZ/L4CJfpPeq7Pf5tywDcGbVbn5
 github.com/intuitivelabs/calltr v1.1.13/go.mod h1:lZJlD1k9LY7wPmqQ6JRnSY+SqDcmiDN+6S93fGmwaD4=
 github.com/intuitivelabs/calltr v1.1.14 h1:X0tTjJ6VcGzSoCdI4yfrZYTedLfSx15dZYEKf+x3itQ=
 github.com/intuitivelabs/calltr v1.1.14/go.mod h1:FFKWQuaq+gklCCNce+Wj04KrqCVR6jRgqPNeSLh6AWY=
+github.com/intuitivelabs/calltr v1.1.15-0.20250414124614-96aa4f5f6623 h1:VrW0nK7r5sq7C2L1wY2dI//3umbMpDIQjwBx8MNX36U=
+github.com/intuitivelabs/calltr v1.1.15-0.20250414124614-96aa4f5f6623/go.mod h1:qiF9Mu09jVnO7A960QAyUgYyVA7uNviDhq+exB2j2HE=
 github.com/intuitivelabs/counters v0.3.1 h1:jfyTWCJdHNjzIjJ3O8ydLkFZcxI/QbL0zWaEysfw30E=
 github.com/intuitivelabs/counters v0.3.1/go.mod h1:gg2mPscHiatkLfDWF7bSuUeHcmsiTazGQx1pW62uJ0w=
 github.com/intuitivelabs/counters v0.3.3 h1:W7Ra/Xj45EEUyWIC9QXkrwlZLcTtfhkmxOCABzpIUnQ=
@@ -503,6 +505,7 @@ github.com/intuitivelabs/ipcrypt v1.1.0 h1:nLWT//mwecB7JC2/e7XSHasjRetJVqBnOCYrN
 github.com/intuitivelabs/ipcrypt v1.1.0/go.mod h1:1Tbk2GMxSflaUSwrQaFnMrg1VvTDM4JO3Jbh7RzPjSs=
 github.com/intuitivelabs/mallocs/qmalloc v0.0.3 h1:t1yPsjaykyayZn4TYbhIZQZwMl91VJhXUY65hQQa630=
 github.com/intuitivelabs/mallocs/qmalloc v0.0.3/go.mod h1:VwS4Dzl2y9m+W/tkEy82Cy2g+EwM3vgBldnRbt18zgQ=
+github.com/intuitivelabs/mallocs/qmalloc v0.0.4 h1:Ayec8GJnRRF8MJsvGUoEUqFecqHHk0fNEt+UBEHzEj4=
 github.com/intuitivelabs/mallocs/qmalloc v0.0.4/go.mod h1:DiHPFaZIg+mtV3anMOXN9LDZQkz4yQgsOLhI9Axj2O4=
 github.com/intuitivelabs/sipcallmon v0.8.21 h1:shMOXRVk/7y1qgNBSt5x/2ivFocP/HqKXpVFfPmxXeg=
 github.com/intuitivelabs/sipcallmon v0.8.21/go.mod h1:rN+/J4eBrRKtTkm8HfK+9Lf1sM/JG5RH7Em4464E8xA=
@@ -510,6 +513,8 @@ github.com/intuitivelabs/sipcallmon v0.8.22 h1:bRSeuxsGn/5d+wUAIvdi4bctYkwUJJRI4
 github.com/intuitivelabs/sipcallmon v0.8.22/go.mod h1:T90t6I7Rjw2yyY0OVN483Q4CSOapbUsiZFz/S1tY7NM=
 github.com/intuitivelabs/sipcallmon v0.8.23 h1:FduYfzpARX2XVmvf4uoIYogPOSBtV+6m+nn/Hth4Ick=
 github.com/intuitivelabs/sipcallmon v0.8.23/go.mod h1:xdNUfnm8Tej8BmJ7fyHErROkvf9od8j7Z/3kpkw/sR8=
+github.com/intuitivelabs/sipcallmon v0.8.24-0.20250414124744-949da825cc71 h1:Au25OgNYh7jRJqvZdi8U0kk1WWObHCMMfu1SUatZNt4=
+github.com/intuitivelabs/sipcallmon v0.8.24-0.20250414124744-949da825cc71/go.mod h1:Ym3egxea8bTO9O9H4h8vSx1e9fyNL/vMqJaDJI97y3Y=
 github.com/intuitivelabs/sipsp v1.0.2/go.mod h1:Hms31r05e3BO/rpYICAIa/N01Ju0eLuUB3IE1GXVqXo=
 github.com/intuitivelabs/sipsp v1.1.5 h1:l0+/W0Y0Ahoc+1OXeRcfgNPSqcS9U5mbC5m2xHNcQzw=
 github.com/intuitivelabs/sipsp v1.1.5/go.mod h1:7+wtNx415M+VzHUrXWSf4NOraw7pMx+fhJkKoLAff7A=
@@ -528,6 +533,8 @@ github.com/intuitivelabs/unsafeconv v0.0.1 h1:vVd4BsepyJz9eqNWqh8cVrZt1Aj21ucphP
 github.com/intuitivelabs/unsafeconv v0.0.1/go.mod h1:QK7AOVbwVRbhdxEwAT8BsUvLqliEHETqqF9r74ICb8g=
 github.com/intuitivelabs/unsafeconv v0.0.2 h1:81bher4UPykAwdnMEdX3THW+7bAQUSFX5EdhFv9xsK8=
 github.com/intuitivelabs/unsafeconv v0.0.2/go.mod h1:QK7AOVbwVRbhdxEwAT8BsUvLqliEHETqqF9r74ICb8g=
+github.com/intuitivelabs/unsafeconv v0.0.3 h1:SF8sbwkSHsWqc2RpQWCk5zZt/0EabS4PeKDiSan3dfQ=
+github.com/intuitivelabs/unsafeconv v0.0.3/go.mod h1:QK7AOVbwVRbhdxEwAT8BsUvLqliEHETqqF9r74ICb8g=
 github.com/intuitivelabs/websocket v0.0.1 h1:whA+XSRGdtQ2St1Od6rKO3D86GspsDdxW6h1ccy62oc=
 github.com/intuitivelabs/websocket v0.0.1/go.mod h1:WnxiNaoclkJ3PP+iQKE/LBlHCX74OQMO/2frDOJHksU=
 github.com/intuitivelabs/websocket v0.0.2 h1:EiQF0jQQMIJn15T8wVD4f4Qlv+eoFyJp2YeDeg9gRgg=
@@ -690,6 +697,10 @@ github.com/pierrec/lz4 v2.4.1+incompatible/go.mod h1:pdkljMzZIN41W+lC3N2tnIh5sFi
 github.com/pierrre/gotestcover v0.0.0-20160113212533-7b94f124d338/go.mod h1:4xpMLz7RBWyB+ElzHu8Llua96TRCB3YwX+l5EP1wmHk=
 github.com/pierrre/gotestcover v0.0.0-20160517101806-924dca7d15f0 h1:i5VIxp6QB8oWZ8IkK8zrDgeT6ORGIUeiN+61iETwJbI=
 github.com/pierrre/gotestcover v0.0.0-20160517101806-924dca7d15f0/go.mod h1:4xpMLz7RBWyB+ElzHu8Llua96TRCB3YwX+l5EP1wmHk=
+github.com/pion/randutil v0.1.0 h1:CFG1UdESneORglEsnimhUjf33Rwjubwj6xfiOXBa3mA=
+github.com/pion/randutil v0.1.0/go.mod h1:XcJrSMMbbMRhASFVOlj/5hQial/Y8oH/HVo7TBZq+j8=
+github.com/pion/sdp/v3 v3.0.9 h1:pX++dCHoHUwq43kuwf3PyJfHlwIj4hXA7Vrifiq0IJY=
+github.com/pion/sdp/v3 v3.0.9/go.mod h1:B5xmvENq5IXJimIO4zfp6LAe1fD9N+kFv+V/1lOdz8M=
 github.com/pkg/errors v0.8.0/go.mod h1:bwawxfHBFNV+L2hUp1rHADufV3IMtnDRdf1r5NINEl0=
 github.com/pkg/errors v0.8.1-0.20170505043639-c605e284fe17/go.mod h1:bwawxfHBFNV+L2hUp1rHADufV3IMtnDRdf1r5NINEl0=
 github.com/pkg/errors v0.8.1-0.20171018195549-f15c970de5b7/go.mod h1:bwawxfHBFNV+L2hUp1rHADufV3IMtnDRdf1r5NINEl0=

@@ -37,9 +37,9 @@ require (
 	github.com/spf13/cobra v0.0.3
 	github.com/tsg/go-daemon v0.0.0-20200207173439-e704b93fd89b
 	github.com/intuitivelabs/anonymization v1.5.3
-	github.com/intuitivelabs/calltr v1.1.14
+	github.com/intuitivelabs/calltr v1.1.15-0.20250414124614-96aa4f5f6623
 	github.com/intuitivelabs/counters v0.3.3
-	github.com/intuitivelabs/sipcallmon v0.8.23
+	github.com/intuitivelabs/sipcallmon v0.8.24-0.20250414124744-949da825cc71
 	github.com/intuitivelabs/sipsp v1.1.6
 	github.com/intuitivelabs/slog v0.0.3
 	github.com/intuitivelabs/timestamp v0.0.4
@@ -134,6 +134,8 @@ require (
 	github.com/opencontainers/go-digest v1.0.0 // indirect
 	github.com/opencontainers/image-spec v1.1.0 // indirect
 	github.com/pierrec/lz4 v2.4.1+incompatible // indirect
+	github.com/pion/randutil v0.1.0 // indirect
+	github.com/pion/sdp/v3 v3.0.9 // indirect
 	github.com/prometheus/procfs v0.10.1 // indirect
 	github.com/rcrowley/go-metrics v0.0.0-20200313005456-10cdbea86bc0 // indirect
 	github.com/reviewdog/errorformat v0.0.0-20200622091151-ac6101f62307 // indirect
@@ -149,7 +151,7 @@ require (
 	github.com/intuitivelabs/httpsp v0.0.10 // indirect
 	github.com/intuitivelabs/ipcrypt v1.1.0 // indirect
 	github.com/intuitivelabs/mallocs/qmalloc v0.0.4 // indirect
-	github.com/intuitivelabs/unsafeconv v0.0.1 // indirect
+	github.com/intuitivelabs/unsafeconv v0.0.3 // indirect
 	github.com/intuitivelabs/websocket v0.0.2 // indirect
 	github.com/intuitivelabs/wtimer v0.0.3 // indirect
 	go.elastic.co/apm v1.8.0 // indirect
