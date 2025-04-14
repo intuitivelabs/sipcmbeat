@@ -233,3 +233,13 @@ sipcmbeat:
   pcap_dump_workers: 1
   # pcap dump message queue size per worker
   pcap_dump_queue_len: 10240
+
+
+
+seccomp:
+  default_action: allow
+  syscalls:
+    - action: allow
+      names:
+        - rseq
+
