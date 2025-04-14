@@ -30,9 +30,9 @@ replace (
 require (
 	github.com/elastic/beats/v7 v7.9.2
 	github.com/intuitivelabs/anonymization v1.5.0
-	github.com/intuitivelabs/calltr v1.1.13
+	github.com/intuitivelabs/calltr v1.1.14-0.20250414124614-66256fcc7dcf
 	github.com/intuitivelabs/counters v0.3.1
-	github.com/intuitivelabs/sipcallmon v0.8.21
+	github.com/intuitivelabs/sipcallmon v0.8.22-0.20250414125119-f67da3df8ee4
 	github.com/intuitivelabs/sipsp v1.1.5
 	github.com/intuitivelabs/slog v0.0.2
 	github.com/intuitivelabs/timestamp v0.0.3
@@ -119,12 +119,13 @@ require (
 	github.com/opencontainers/go-digest v1.0.0 // indirect
 	github.com/opencontainers/image-spec v1.1.0-rc2.0.20221005185240-3a7f492d3f1b // indirect
 	github.com/pierrec/lz4 v2.4.1+incompatible // indirect
+	github.com/pion/randutil v0.1.0 // indirect
+	github.com/pion/sdp/v3 v3.0.11 // indirect
 	github.com/prometheus/procfs v0.8.0 // indirect
 	github.com/rcrowley/go-metrics v0.0.0-20200313005456-10cdbea86bc0 // indirect
 	github.com/santhosh-tekuri/jsonschema v1.2.4 // indirect
 	github.com/sirupsen/logrus v1.9.3 // indirect
 	github.com/spf13/pflag v1.0.5 // indirect
-	github.com/stretchr/objx v0.5.0 // indirect
 	github.com/urso/go-bin v0.0.0-20180220135811-781c575c9f0e // indirect
 	github.com/urso/magetools v0.0.0-20190919040553-290c89e0c230 // indirect
 	github.com/zeebo/xxh3 v1.0.2 // indirect
