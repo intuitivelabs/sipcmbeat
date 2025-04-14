@@ -29,6 +29,13 @@ replace (
 
 require (
 	github.com/elastic/beats/v7 v7.9.2
+	github.com/mitchellh/gox v1.0.1
+	github.com/oschwald/maxminddb-golang v1.8.0
+	github.com/pierrre/gotestcover v0.0.0-20160113212533-7b94f124d338
+	github.com/pkg/errors v0.9.1
+	github.com/reviewdog/reviewdog v0.10.2
+	github.com/spf13/cobra v0.0.3
+	github.com/tsg/go-daemon v0.0.0-20200207173439-e704b93fd89b
 	github.com/intuitivelabs/anonymization v1.5.3
 	github.com/intuitivelabs/calltr v1.1.14
 	github.com/intuitivelabs/counters v0.3.3
@@ -36,13 +43,6 @@ require (
 	github.com/intuitivelabs/sipsp v1.1.6
 	github.com/intuitivelabs/slog v0.0.3
 	github.com/intuitivelabs/timestamp v0.0.4
-	github.com/mitchellh/gox v1.0.1
-	github.com/oschwald/maxminddb-golang v1.8.0
-	github.com/pierrre/gotestcover v0.0.0-20160517101806-924dca7d15f0
-	github.com/pkg/errors v0.9.1
-	github.com/reviewdog/reviewdog v0.10.2
-	github.com/spf13/cobra v0.0.3
-	github.com/tsg/go-daemon v0.0.0-20200207173439-e704b93fd89b
 	golang.org/x/lint v0.0.0-20200302205851-738671d3881b
 	golang.org/x/tools v0.21.1-0.20240508182429-e35e4ccd0d2d
 )
@@ -114,14 +114,6 @@ require (
 	github.com/haya14busa/go-actions-toolkit v0.0.0-20200105081403-ca0307860f01 // indirect
 	github.com/imdario/mergo v0.3.6 // indirect
 	github.com/inconshreveable/mousetrap v1.0.0 // indirect
-	github.com/intuitivelabs/bytescase v1.0.3 // indirect
-	github.com/intuitivelabs/bytespool v0.0.4 // indirect
-	github.com/intuitivelabs/httpsp v0.0.10 // indirect
-	github.com/intuitivelabs/ipcrypt v1.1.0 // indirect
-	github.com/intuitivelabs/mallocs/qmalloc v0.0.4 // indirect
-	github.com/intuitivelabs/unsafeconv v0.0.1 // indirect
-	github.com/intuitivelabs/websocket v0.0.2 // indirect
-	github.com/intuitivelabs/wtimer v0.0.3 // indirect
 	github.com/jcmturner/gofork v1.0.0 // indirect
 	github.com/joeshaw/multierror v0.0.0-20140124173710-69b34d4ec901 // indirect
 	github.com/josharian/intern v1.0.0 // indirect
@@ -152,6 +144,14 @@ require (
 	github.com/urso/magetools v0.0.0-20190919040553-290c89e0c230 // indirect
 	github.com/xanzy/go-gitlab v0.32.1 // indirect
 	github.com/zeebo/xxh3 v1.0.2 // indirect
+	github.com/intuitivelabs/bytescase v1.0.3 // indirect
+	github.com/intuitivelabs/bytespool v0.0.4 // indirect
+	github.com/intuitivelabs/httpsp v0.0.10 // indirect
+	github.com/intuitivelabs/ipcrypt v1.1.0 // indirect
+	github.com/intuitivelabs/mallocs/qmalloc v0.0.4 // indirect
+	github.com/intuitivelabs/unsafeconv v0.0.1 // indirect
+	github.com/intuitivelabs/websocket v0.0.2 // indirect
+	github.com/intuitivelabs/wtimer v0.0.3 // indirect
 	go.elastic.co/apm v1.8.0 // indirect
 	go.elastic.co/apm/module/apmelasticsearch v1.7.2 // indirect
 	go.elastic.co/apm/module/apmhttp v1.7.2 // indirect
@@ -199,6 +199,7 @@ require (
 )
 
 tool github.com/golangci/golangci-lint/v2/cmd/golangci-lint
+
 
 require (
 	cloud.google.com/go/compute v1.23.3 // indirect

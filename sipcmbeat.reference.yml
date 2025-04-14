@@ -34,7 +34,13 @@ sipcmbeat:
   pcap_buf_kb: 4096  # 4Mb
   # berkley packet filter for capture
   bpf: ""
-  # udp destination ports used fo vxlan (tunnel endpoint).
+  # destination ports used for sip on udp and tcp.
+  # Packets arriving on these ports will be attempted to be parsed as sip.
+  # An empty lists means every packet will be treated as sip and 
+  # a attempted to be parsed (this conflicts with having rtp support
+  # enabled).
+  sip_ports: []
+  # udp destination ports used for vxlan (tunnel endpoint).
   # Packets arriving on these ports will be automatically decapsulated.
   # An empty lists means disabled. The standard vxlan port is 4789.
   vxlan_ports: []
@@ -65,6 +71,17 @@ sipcmbeat:
   http_port: 8080
   # listen address for the internal http server
   http_addr: "127.0.0.1"
+  # sdp support
+  # If on sdp information will be stored allong the call state. It will
+  # cause extra memory usage.
+  # It is required for rtp support.
+  sdp: off
+  # maximum memory allocated for keeping sdp information, in Mb.
+  # Default: 0 (no sdp information will be stored)
+  sdp_total_mem: 0
+  # maximum size in memory for the sdp information corresponding to
+  # one call side (callee/caller), in bytes. Default: 65535.
+  sdp_max_entry_mem: 65535
   # tcp connections garbage collection interval
   tcp_gc_int: 20s
   tcp_reorder_timeout: 60s
@@ -98,7 +115,11 @@ sipcmbeat:
   # list of event types that should be blacklisted : [ event1, event2...]
   # e.g.: [[msg-probe, other-failed, other-timeout, other-ok, parse-error]
   # blacklisted events will not be generated
-  event_types_blst: ["msg-probe", "other-failed", "other-timeout", "other-ok", "parse-error"]
+  # Possible values: call-start, call-end, call-attempt, auth-failed,
+  #                  action-log, reg-new, reg-del, reg-expired,
+  #                  sub-new, sub-del, other-failed, other-timeout, other-ok,
+  #                  parse-error, msg-probe, sdp-update
+  event_types_blst: ["msg-probe", "other-failed", "other-timeout", "other-ok", "parse-error", "sdp-update"]
   # maximum tracked event rates
   evr_max_entries: 1048576
   # event rate max values list (if any exceeded the event will be blacklisted)
