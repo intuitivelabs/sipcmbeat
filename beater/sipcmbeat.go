@@ -9,6 +9,7 @@ package beater
 import (
 	"fmt"
 	"strconv"
+
 	//	"runtime/pprof"
 	"net"
 	"reflect"
@@ -258,12 +259,12 @@ type Sipcmbeat struct {
 }
 
 /*
-func dbg_fileno() uintptr {
-	file, _ := os.Open("/dev/zero")
-	fd := file.Fd()
-	file.Close()
-	return fd
-}
+	func dbg_fileno() uintptr {
+		file, _ := os.Open("/dev/zero")
+		fd := file.Fd()
+		file.Close()
+		return fd
+	}
 */
 func (bt *Sipcmbeat) initCounters() error {
 	cntDefs := [...]counters.Def{
@@ -679,7 +680,7 @@ waitsig:
 	}
 }
 
-//quick hack to avoid copying
+// quick hack to avoid copying
 func str(b []byte) (s string) {
 	s = *(*string)(unsafe.Pointer(&b))
 	return
@@ -1064,6 +1065,55 @@ add_attrs:
 		addFields(event.Fields, "sip.ring_time", rt/time.Millisecond)
 		// note: fr_delay == pdd+ring_time can also be computed from
 		//       dbg.call_start - dbg.created
+
+		// add rtp related fields
+		if ed.RTPsessNo != 0 {
+			// they are added as 2 array of values, one array per
+			// side (a and b). Each array element corresponds to
+			// a rtp session (linked to an m-line in the sdp)
+			// Eg.: rtp-stats-a : [ { packets: 0, ...}, ... ]
+			rtpStArrayA := make([]common.MapStr, ed.RTPsessNo)
+			rtpStArrayB := make([]common.MapStr, ed.RTPsessNo)
+			for i := 0; i < int(ed.RTPsessNo); i++ {
+				rtpStArrayA[i] = make(common.MapStr)
+				rtpStArrayB[i] = make(common.MapStr)
+
+				rtpA := &ed.RTP[i][0]
+				rtpB := &ed.RTP[i][1]
+
+				addFields(rtpStArrayA[i], "bytes", rtpA.RTPbytes)
+				addFields(rtpStArrayA[i], "total_bytes", rtpA.Bytes)
+				addFields(rtpStArrayA[i], "packets", rtpA.RTPpkts)
+				addFields(rtpStArrayA[i], "non_rtp_pkts",
+					rtpA.Pkts-rtpA.RTPpkts)
+				addFields(rtpStArrayA[i], "expected", rtpA.Expected)
+				addFields(rtpStArrayA[i], "jitter", rtpA.Jitter)
+				addFields(rtpStArrayA[i], "loss", rtpA.Loss)
+
+				addFields(rtpStArrayA[i], "ssrc", rtpA.SSRC)
+				addFields(rtpStArrayA[i], "dst_ip", rtpA.Dst.String())
+				addFields(rtpStArrayA[i], "dst_port", rtpA.DPort)
+				addFields(rtpStArrayA[i], "src_ip", rtpA.Src.String())
+				addFields(rtpStArrayA[i], "src_port", rtpA.SPort)
+
+				addFields(rtpStArrayB[i], "bytes", rtpB.RTPbytes)
+				addFields(rtpStArrayB[i], "total_bytes", rtpB.Bytes)
+				addFields(rtpStArrayB[i], "packets", rtpB.RTPpkts)
+				addFields(rtpStArrayB[i], "non_rtp_pkts",
+					rtpB.Pkts-rtpB.RTPpkts)
+				addFields(rtpStArrayB[i], "expected", rtpB.Expected)
+				addFields(rtpStArrayB[i], "jitter", rtpB.Jitter)
+				addFields(rtpStArrayB[i], "loss", rtpB.Loss)
+
+				addFields(rtpStArrayB[i], "ssrc", rtpB.SSRC)
+				addFields(rtpStArrayB[i], "dst_ip", rtpB.Dst.String())
+				addFields(rtpStArrayB[i], "dst_port", rtpB.DPort)
+				addFields(rtpStArrayB[i], "src_ip", rtpB.Src.String())
+				addFields(rtpStArrayB[i], "src_port", rtpB.SPort)
+			}
+			addFields(event.Fields, "attrs.rtp-stats-a", rtpStArrayA)
+			addFields(event.Fields, "attrs.rtp-stats-b", rtpStArrayB)
+		}
 
 	case calltr.EvRegDel, calltr.EvRegExpired, calltr.EvSubDel:
 		// add duration only on events that make sense, and only
