@@ -37,9 +37,9 @@ require (
 	github.com/spf13/cobra v0.0.3
 	github.com/tsg/go-daemon v0.0.0-20200207173439-e704b93fd89b
 	github.com/intuitivelabs/anonymization v1.5.3
-	github.com/intuitivelabs/calltr v1.1.15-0.20250414124614-96aa4f5f6623
+	github.com/intuitivelabs/calltr v1.1.15-0.20250603081317-c0475776a82d
 	github.com/intuitivelabs/counters v0.3.3
-	github.com/intuitivelabs/sipcallmon v0.8.24-0.20250414124744-949da825cc71
+	github.com/intuitivelabs/sipcallmon v0.8.24-0.20250603100925-cc1d1caff5da
 	github.com/intuitivelabs/sipsp v1.1.6
 	github.com/intuitivelabs/slog v0.0.3
 	github.com/intuitivelabs/timestamp v0.0.4

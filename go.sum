@@ -493,6 +493,8 @@ github.com/intuitivelabs/calltr v1.1.14 h1:X0tTjJ6VcGzSoCdI4yfrZYTedLfSx15dZYEKf
 github.com/intuitivelabs/calltr v1.1.14/go.mod h1:FFKWQuaq+gklCCNce+Wj04KrqCVR6jRgqPNeSLh6AWY=
 github.com/intuitivelabs/calltr v1.1.15-0.20250414124614-96aa4f5f6623 h1:VrW0nK7r5sq7C2L1wY2dI//3umbMpDIQjwBx8MNX36U=
 github.com/intuitivelabs/calltr v1.1.15-0.20250414124614-96aa4f5f6623/go.mod h1:qiF9Mu09jVnO7A960QAyUgYyVA7uNviDhq+exB2j2HE=
+github.com/intuitivelabs/calltr v1.1.15-0.20250603081317-c0475776a82d h1:wUVGSGTYxp9ocla4dhgVNEuOOUrgND9ZHqPCdfiDcto=
+github.com/intuitivelabs/calltr v1.1.15-0.20250603081317-c0475776a82d/go.mod h1:qiF9Mu09jVnO7A960QAyUgYyVA7uNviDhq+exB2j2HE=
 github.com/intuitivelabs/counters v0.3.1 h1:jfyTWCJdHNjzIjJ3O8ydLkFZcxI/QbL0zWaEysfw30E=
 github.com/intuitivelabs/counters v0.3.1/go.mod h1:gg2mPscHiatkLfDWF7bSuUeHcmsiTazGQx1pW62uJ0w=
 github.com/intuitivelabs/counters v0.3.3 h1:W7Ra/Xj45EEUyWIC9QXkrwlZLcTtfhkmxOCABzpIUnQ=
@@ -515,6 +517,8 @@ github.com/intuitivelabs/sipcallmon v0.8.23 h1:FduYfzpARX2XVmvf4uoIYogPOSBtV+6m+
 github.com/intuitivelabs/sipcallmon v0.8.23/go.mod h1:xdNUfnm8Tej8BmJ7fyHErROkvf9od8j7Z/3kpkw/sR8=
 github.com/intuitivelabs/sipcallmon v0.8.24-0.20250414124744-949da825cc71 h1:Au25OgNYh7jRJqvZdi8U0kk1WWObHCMMfu1SUatZNt4=
 github.com/intuitivelabs/sipcallmon v0.8.24-0.20250414124744-949da825cc71/go.mod h1:Ym3egxea8bTO9O9H4h8vSx1e9fyNL/vMqJaDJI97y3Y=
+github.com/intuitivelabs/sipcallmon v0.8.24-0.20250603100925-cc1d1caff5da h1:m9OjIloBN+fbt2FMYvxYe6rxR/0sDfra4xocMghy9tg=
+github.com/intuitivelabs/sipcallmon v0.8.24-0.20250603100925-cc1d1caff5da/go.mod h1:1ATWbfVCG29ejkZAlbnkfGIStYkST0Zw05rzcIR4O+8=
 github.com/intuitivelabs/sipsp v1.0.2/go.mod h1:Hms31r05e3BO/rpYICAIa/N01Ju0eLuUB3IE1GXVqXo=
 github.com/intuitivelabs/sipsp v1.1.5 h1:l0+/W0Y0Ahoc+1OXeRcfgNPSqcS9U5mbC5m2xHNcQzw=
 github.com/intuitivelabs/sipsp v1.1.5/go.mod h1:7+wtNx415M+VzHUrXWSf4NOraw7pMx+fhJkKoLAff7A=
