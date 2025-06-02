@@ -30,12 +30,12 @@ replace (
 require (
 	github.com/elastic/beats/v7 v7.9.2
 	github.com/intuitivelabs/anonymization v1.5.0
-	github.com/intuitivelabs/calltr v1.1.14-0.20250414124614-66256fcc7dcf
+	github.com/intuitivelabs/calltr v1.1.14-0.20250602142020-f68546bde0c3
 	github.com/intuitivelabs/counters v0.3.1
-	github.com/intuitivelabs/sipcallmon v0.8.22-0.20250414125119-f67da3df8ee4
+	github.com/intuitivelabs/sipcallmon v0.8.22-0.20250602142552-d586623e904b
 	github.com/intuitivelabs/sipsp v1.1.5
 	github.com/intuitivelabs/slog v0.0.2
-	github.com/intuitivelabs/timestamp v0.0.3
+	github.com/intuitivelabs/timestamp v0.0.4
 	github.com/magefile/mage v1.15.0
 	github.com/oschwald/maxminddb-golang v1.8.0
 	github.com/pkg/errors v0.9.1

@@ -1078,38 +1078,8 @@ add_attrs:
 				rtpStArrayA[i] = make(common.MapStr)
 				rtpStArrayB[i] = make(common.MapStr)
 
-				rtpA := &ed.RTP[i][0]
-				rtpB := &ed.RTP[i][1]
-
-				addFields(rtpStArrayA[i], "bytes", rtpA.RTPbytes)
-				addFields(rtpStArrayA[i], "total_bytes", rtpA.Bytes)
-				addFields(rtpStArrayA[i], "packets", rtpA.RTPpkts)
-				addFields(rtpStArrayA[i], "non_rtp_pkts",
-					rtpA.Pkts-rtpA.RTPpkts)
-				addFields(rtpStArrayA[i], "expected", rtpA.Expected)
-				addFields(rtpStArrayA[i], "jitter", rtpA.Jitter)
-				addFields(rtpStArrayA[i], "loss", rtpA.Loss)
-
-				addFields(rtpStArrayA[i], "ssrc", rtpA.SSRC)
-				addFields(rtpStArrayA[i], "dst_ip", rtpA.Dst.String())
-				addFields(rtpStArrayA[i], "dst_port", rtpA.DPort)
-				addFields(rtpStArrayA[i], "src_ip", rtpA.Src.String())
-				addFields(rtpStArrayA[i], "src_port", rtpA.SPort)
-
-				addFields(rtpStArrayB[i], "bytes", rtpB.RTPbytes)
-				addFields(rtpStArrayB[i], "total_bytes", rtpB.Bytes)
-				addFields(rtpStArrayB[i], "packets", rtpB.RTPpkts)
-				addFields(rtpStArrayB[i], "non_rtp_pkts",
-					rtpB.Pkts-rtpB.RTPpkts)
-				addFields(rtpStArrayB[i], "expected", rtpB.Expected)
-				addFields(rtpStArrayB[i], "jitter", rtpB.Jitter)
-				addFields(rtpStArrayB[i], "loss", rtpB.Loss)
-
-				addFields(rtpStArrayB[i], "ssrc", rtpB.SSRC)
-				addFields(rtpStArrayB[i], "dst_ip", rtpB.Dst.String())
-				addFields(rtpStArrayB[i], "dst_port", rtpB.DPort)
-				addFields(rtpStArrayB[i], "src_ip", rtpB.Src.String())
-				addFields(rtpStArrayB[i], "src_port", rtpB.SPort)
+				addRTPstreamStats(rtpStArrayA[i], &ed.RTP[i][0])
+				addRTPstreamStats(rtpStArrayB[i], &ed.RTP[i][1])
 			}
 			addFields(event.Fields, "attrs.rtp-stats-a", rtpStArrayA)
 			addFields(event.Fields, "attrs.rtp-stats-b", rtpStArrayB)
@@ -1237,4 +1207,47 @@ func (bt *Sipcmbeat) addVersionToEv(event beat.Event) {
 	addFields(event.Fields, "agent.version_base", bt.BaseVer)
 	addFields(event.Fields, "agent.commit_hash", bt.CommitH)
 	addFields(event.Fields, "agent.build_time", bt.BuildT)
+}
+
+// adds rtp stats to an "event" map
+func addRTPstreamStats(m common.MapStr, rtpS *calltr.EvRTPstreamDataT) {
+	addFields(m, "ssrc", rtpS.SSRC)
+	addFields(m, "dst_ip", rtpS.Dst.String())
+	addFields(m, "dst_port", rtpS.DPort)
+	addFields(m, "src_ip", rtpS.Src.String())
+	addFields(m, "src_port", rtpS.SPort)
+
+	// unique packets
+	addFields(m, "packets", rtpS.DjStats.TotalQueued)
+	// total RTP packets
+	addFields(m, "seen_packets", rtpS.RTPpkts)
+	// add packet related stats only if packets seen
+	if rtpS.Pkts != 0 {
+		addFields(m, "non_rtp_pkts", rtpS.Pkts-rtpS.RTPpkts)
+		addFields(m, "expected", rtpS.Expected)
+
+		addFields(m, "bytes", rtpS.RTPbytes)
+		addFields(m, "total_bytes", rtpS.Bytes)
+
+		addFields(m, "jitter", rtpS.Jitter)
+
+		addFields(m, "lost_percentage", rtpS.Loss)
+		addFields(m, "last_seq_nr", rtpS.LastSeqNo)
+		addFields(m, "duplicate_packets", rtpS.DjStats.Dups)
+		// dropped due to "old" sequence numbers
+		addFields(m, "dropped", rtpS.DjStats.DropOld)
+		// TODO: reordered or out_of_order
+		addFields(m, "reordered_packets", rtpS.DjStats.OutOfOrder)
+
+		// extras (optional?)
+		addFields(m, "rtp_pkt_rate", rtpS.RateRTPpkts)
+		addFields(m, "data_rate", rtpS.RateBytes)
+		addFields(m, "data_rate_last_sec", rtpS.RateBytesLastS)
+		addFields(m, "payload_type", rtpS.Payload)
+	}
+	// extras
+	// clk_rate is non zero only if there were packets received
+	addFields(m, "clk_rate", rtpS.ClkRate)
+	addFields(m, "media_type", rtpS.Type.String())
+	addFields(m, "protocol", rtpS.Proto.String())
 }
