@@ -373,8 +373,8 @@ github.com/intuitivelabs/bytescase v1.0.2 h1:Yz2aO9cw3Erdnyb9k7/SS/ckFkOG8KWr4Uc
 github.com/intuitivelabs/bytescase v1.0.2/go.mod h1:Gr+B79bV8+mDKvYr4hja6qPVHtYG4Knem0K8gzZKHHU=
 github.com/intuitivelabs/bytespool v0.0.3 h1:sPR8Y3ipOgLUtfLVlgXlJ4AsYIC+z2Rzwe/KSUm+tCc=
 github.com/intuitivelabs/bytespool v0.0.3/go.mod h1:LoAZMZ/ztsXMI5dZx5Qy3tLAh6kte54BBOJN931GRew=
-github.com/intuitivelabs/calltr v1.1.14-0.20250602142020-f68546bde0c3 h1:Rjr8ZLUa4rBMamp4rG+//vIr1bRhLVZcQLNetArUZB0=
-github.com/intuitivelabs/calltr v1.1.14-0.20250602142020-f68546bde0c3/go.mod h1:tx/YXinlYy3rKuz89eYR0E1NOuKVAvQ88ELciG+11ac=
+github.com/intuitivelabs/calltr v1.1.14-0.20250811062943-99db7d9499dd h1:9A44FlXGVN/plBSwGpk7Wq1ib5XHOJ3Zs/IFeA6WPhc=
+github.com/intuitivelabs/calltr v1.1.14-0.20250811062943-99db7d9499dd/go.mod h1:tx/YXinlYy3rKuz89eYR0E1NOuKVAvQ88ELciG+11ac=
 github.com/intuitivelabs/counters v0.3.1 h1:jfyTWCJdHNjzIjJ3O8ydLkFZcxI/QbL0zWaEysfw30E=
 github.com/intuitivelabs/counters v0.3.1/go.mod h1:gg2mPscHiatkLfDWF7bSuUeHcmsiTazGQx1pW62uJ0w=
 github.com/intuitivelabs/httpsp v0.0.9 h1:QNiIGg3u+7jBRbHbPxuPGb6r9viziaOMqKeNRwn8uZQ=
@@ -383,8 +383,8 @@ github.com/intuitivelabs/ipcrypt v1.1.0 h1:nLWT//mwecB7JC2/e7XSHasjRetJVqBnOCYrN
 github.com/intuitivelabs/ipcrypt v1.1.0/go.mod h1:1Tbk2GMxSflaUSwrQaFnMrg1VvTDM4JO3Jbh7RzPjSs=
 github.com/intuitivelabs/mallocs/qmalloc v0.0.3 h1:t1yPsjaykyayZn4TYbhIZQZwMl91VJhXUY65hQQa630=
 github.com/intuitivelabs/mallocs/qmalloc v0.0.3/go.mod h1:VwS4Dzl2y9m+W/tkEy82Cy2g+EwM3vgBldnRbt18zgQ=
-github.com/intuitivelabs/sipcallmon v0.8.22-0.20250602142552-d586623e904b h1:fH8qgJqwPmVQx+g8kh6/uns3PgEhi6pnCjHuRVrnBDE=
-github.com/intuitivelabs/sipcallmon v0.8.22-0.20250602142552-d586623e904b/go.mod h1:tk1YMLcNPLD9D9wjgxPuKG/mVhtr9Xe6a2vtuJJ+/BU=
+github.com/intuitivelabs/sipcallmon v0.8.22-0.20250811063419-24518fd249ca h1:cA6PkIF3kCSZACoMFODMt53c00Y8hde9OM+1iL9ExWQ=
+github.com/intuitivelabs/sipcallmon v0.8.22-0.20250811063419-24518fd249ca/go.mod h1:tkDec7Z5WhyWGdMe9/W57H3BkB+Leedq4w/uHH3oQJg=
 github.com/intuitivelabs/sipsp v1.0.2/go.mod h1:Hms31r05e3BO/rpYICAIa/N01Ju0eLuUB3IE1GXVqXo=
 github.com/intuitivelabs/sipsp v1.1.5 h1:l0+/W0Y0Ahoc+1OXeRcfgNPSqcS9U5mbC5m2xHNcQzw=
 github.com/intuitivelabs/sipsp v1.1.5/go.mod h1:7+wtNx415M+VzHUrXWSf4NOraw7pMx+fhJkKoLAff7A=
