@@ -93,21 +93,6 @@ require (
 	github.com/haya14busa/go-actions-toolkit v0.0.0-20200105081403-ca0307860f01
 	github.com/imdario/mergo v0.3.6
 	github.com/inconshreveable/mousetrap v1.1.0
-	github.com/intuitivelabs/anonymization v1.5.3
-	github.com/intuitivelabs/bytescase v1.0.3
-	github.com/intuitivelabs/bytespool v0.0.4
-	github.com/intuitivelabs/calltr v1.1.15-0.20250901075216-d65b5f8604e7
-	github.com/intuitivelabs/counters v0.3.3
-	github.com/intuitivelabs/httpsp v0.0.10
-	github.com/intuitivelabs/ipcrypt v1.1.0
-	github.com/intuitivelabs/mallocs/qmalloc v0.0.4
-	github.com/intuitivelabs/sipcallmon v0.8.24-0.20250901091400-b3f10b3a2547
-	github.com/intuitivelabs/sipsp v1.1.6
-	github.com/intuitivelabs/slog v0.0.3
-	github.com/intuitivelabs/timestamp v0.0.4
-	github.com/intuitivelabs/unsafeconv v0.0.3
-	github.com/intuitivelabs/websocket v0.0.2
-	github.com/intuitivelabs/wtimer v0.0.3
 	github.com/jcmturner/gofork v1.0.0
 	github.com/joeshaw/multierror v0.0.0-20140124173710-69b34d4ec901
 	github.com/josharian/intern v1.0.0
@@ -142,6 +127,21 @@ require (
 	github.com/urso/magetools v0.0.0-20190919040553-290c89e0c230
 	github.com/xanzy/go-gitlab v0.32.1
 	github.com/zeebo/xxh3 v1.0.2
+	github.com/intuitivelabs/anonymization v1.5.3
+	github.com/intuitivelabs/bytescase v1.0.3
+	github.com/intuitivelabs/bytespool v0.0.4
+	github.com/intuitivelabs/calltr v1.1.15-0.20250901075216-d65b5f8604e7
+	github.com/intuitivelabs/counters v0.3.3
+	github.com/intuitivelabs/httpsp v0.0.10
+	github.com/intuitivelabs/ipcrypt v1.1.0
+	github.com/intuitivelabs/mallocs/qmalloc v0.0.4
+	github.com/intuitivelabs/sipcallmon v0.8.24-0.20250901091400-b3f10b3a2547
+	github.com/intuitivelabs/sipsp v1.1.6
+	github.com/intuitivelabs/slog v0.0.3
+	github.com/intuitivelabs/timestamp v0.0.4
+	github.com/intuitivelabs/unsafeconv v0.0.3
+	github.com/intuitivelabs/websocket v0.0.2
+	github.com/intuitivelabs/wtimer v0.0.3
 	go.elastic.co/apm v1.7.2
 	go.elastic.co/apm/module/apmelasticsearch v1.7.2
 	go.elastic.co/apm/module/apmhttp v1.7.2
@@ -196,6 +196,7 @@ require (
 )
 
 tool github.com/golangci/golangci-lint/v2/cmd/golangci-lint
+
 
 require (
 	cloud.google.com/go/compute v1.29.0 // indirect
