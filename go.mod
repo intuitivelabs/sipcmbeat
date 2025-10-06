@@ -30,9 +30,9 @@ replace (
 require (
 	github.com/elastic/beats/v7 v7.9.2
 	github.com/intuitivelabs/anonymization v1.5.0
-	github.com/intuitivelabs/calltr v1.1.14-0.20250827110728-9b569fe0107f
+	github.com/intuitivelabs/calltr v1.1.14-0.20250929072313-55b39808cb1e
 	github.com/intuitivelabs/counters v0.3.1
-	github.com/intuitivelabs/sipcallmon v0.8.22-0.20250901070859-fed9bae14046
+	github.com/intuitivelabs/sipcallmon v0.8.22-0.20251006123658-8a14fb9c4f8a
 	github.com/intuitivelabs/sipsp v1.1.5
 	github.com/intuitivelabs/slog v0.0.2
 	github.com/intuitivelabs/timestamp v0.0.4

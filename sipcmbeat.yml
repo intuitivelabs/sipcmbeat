@@ -73,6 +73,9 @@ sipcmbeat:
   http_port: 8080
   # listen address for the internal http server
   http_addr: "127.0.0.1"
+  # rtp tracking support (default on).
+  # Depends on sdp.
+  rtp: off
   # sdp support
   # If on sdp information will be stored allong the call state. It will
   # cause extra memory usage.
@@ -219,6 +222,9 @@ sipcmbeat:
   # enable writing messages that caused errors if the call-id could 
   # be retrieved and there is an existing dump for the corresponding call-id
   pcap_dump_onerr: false
+  # enable/disable adding RTP messages to the pcaps (default true)
+  # Depends on pcap_dump_on, sdp_support and rtp.
+  pcap_dump_rtp: false
   # pcap dump directory, must be non-empty if pcap_dump_on is set to true
   pcap_dump_dir: ""
   # prefix added to each pcap dump filename 
