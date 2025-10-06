@@ -130,12 +130,12 @@ require (
 	github.com/intuitivelabs/anonymization v1.5.3
 	github.com/intuitivelabs/bytescase v1.0.3
 	github.com/intuitivelabs/bytespool v0.0.4
-	github.com/intuitivelabs/calltr v1.1.15-0.20250901075216-d65b5f8604e7
+	github.com/intuitivelabs/calltr v1.1.15-0.20251006131420-b70eb09c0831
 	github.com/intuitivelabs/counters v0.3.3
 	github.com/intuitivelabs/httpsp v0.0.10
 	github.com/intuitivelabs/ipcrypt v1.1.0
 	github.com/intuitivelabs/mallocs/qmalloc v0.0.4
-	github.com/intuitivelabs/sipcallmon v0.8.24-0.20250901091400-b3f10b3a2547
+	github.com/intuitivelabs/sipcallmon v0.8.24-0.20251006133432-4b6a77a8c58e
 	github.com/intuitivelabs/sipsp v1.1.6
 	github.com/intuitivelabs/slog v0.0.3
 	github.com/intuitivelabs/timestamp v0.0.4
