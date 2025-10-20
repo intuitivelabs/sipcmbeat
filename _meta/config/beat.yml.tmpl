@@ -216,8 +216,8 @@ sipcmbeat:
   geo_ip_on: false
   # geoip database file, maxmind format, default empty
   geo_ip_db: ""
-  # enable writing per call pcap (pcap_dump_dir must also be set),
-  #default false
+  # enable writing per call pcap (pcap_dump_dir or pcap_dump_upload must also be set),
+  # default false
   pcap_dump_on: false
   # enable writing messages that caused errors if the call-id could 
   # be retrieved and there is an existing dump for the corresponding call-id
@@ -225,7 +225,7 @@ sipcmbeat:
   # enable/disable adding RTP messages to the pcaps (default true)
   # Depends on pcap_dump_on, sdp_support and rtp.
   pcap_dump_rtp: false
-  # pcap dump directory, must be non-empty if pcap_dump_on is set to true
+  # pcap dump directory, requires pcap_dump_on set to true
   pcap_dump_dir: ""
   # prefix added to each pcap dump filename 
   # (filename = prefix + escape(callid)+pcap_dump_suffix + pcap_dump_extension)
@@ -235,6 +235,21 @@ sipcmbeat:
   # number of auto-created subdirectories for distributing the pcap files
   # (default 0 - write everything directly in pcap_dump_dir)
   pcap_dump_subdirs: 0
+  # pcap dump upload url, requires pcap_dump_on set to true
+  #  e.g.: "http://127.0.0.1/api/upload/"
+  #  set to "" to disable
+  pcap_dump_upload: ""
+  # pcap upload read timeout
+  pcap_dump_upload_rd_timeout: 2s
+  # pcap upload write timeout
+  pcap_dump_upload_wr_timeout: 2s
+  # maximum http redirects followed
+  pcap_dump_upload_max_redir: 1
+  # hashing algorithm for generating the upload ids:
+  #   none (callid is used directly), md5, sha256, xxhash, xxhash128,
+  #   blake3_256, blake3_384
+  # xxh* are the fastest, but non crypto; blake3* are fast an cryptj
+  pcap_dump_upload_id_hash: "xxhash128"
   # flags for configuring pcap dump. Reserved for future use.
   pcap_dump_flags: 0
   # number of pcap dump "threads", writing in parallel

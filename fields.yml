@@ -5518,4 +5518,8 @@
               filename for the generated pcap file corresponding to this
               event call-id
             example: "3/tcp_1E24EFE3-5A7882E8000CECE6-2AD5E700_sipcm.pcap"
+          - name: upload_id
+            description: >
+              id used for the uploaded pcap packets, corresponding to this
+              event call-id (missing if pcap uploading is not configured)
 
