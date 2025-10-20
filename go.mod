@@ -33,7 +33,7 @@ require (
 	github.com/intuitivelabs/anonymization v1.5.3
 	github.com/intuitivelabs/calltr v1.1.15-0.20251015125106-85051cd8295b
 	github.com/intuitivelabs/counters v0.3.3
-	github.com/intuitivelabs/sipcallmon v0.8.24-0.20251020084400-7a15c04e7e0d
+	github.com/intuitivelabs/sipcallmon v0.8.24-0.20251020124805-a2c5521763f9
 	github.com/intuitivelabs/sipsp v1.1.6
 	github.com/intuitivelabs/slog v0.0.3
 	github.com/intuitivelabs/timestamp v0.0.4
