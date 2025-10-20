@@ -1187,10 +1187,23 @@ add_attrs:
 
 	// pcap dump file
 	if bt.Config.WpcapDumpOn && !bt.Config.UseAnonymization() &&
-		len(callID) > 4 {
-		fname := sipcallmon.PcapDumperCfg.PcapFileRelPath(callID)
-		if len(fname) > 0 {
-			addFields(event.Fields, "attrs.filename", fname)
+		len(callID) >= 4 {
+		var tmpBuf [256]byte
+		// if pcap output to file configured add attrs.filename
+		if sipcallmon.PcapDumperCfg.Dir != "" {
+			fLen, err := sipcallmon.PcapDumperCfg.PcapFileRelPath(tmpBuf[:], callID)
+			if err != nil && fLen > 0 {
+				fname := tmpBuf[:fLen]
+				addFields(event.Fields, "attrs.filename", fname)
+			}
+		}
+		// if pcap upload configured add attrs.upload_id
+		if sipcallmon.PcapDumperCfg.Upload != "" {
+			idLen, err := sipcallmon.PcapDumperCfg.PcapUploadId(tmpBuf[:], callID)
+			if err != nil && idLen > 0 {
+				uploadId := tmpBuf[:idLen]
+				addFields(event.Fields, "attrs.upload_id", uploadId)
+			}
 		}
 	}
 
