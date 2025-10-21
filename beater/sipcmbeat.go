@@ -1192,17 +1192,23 @@ add_attrs:
 		// if pcap output to file configured add attrs.filename
 		if sipcallmon.PcapDumperCfg.Dir != "" {
 			fLen, err := sipcallmon.PcapDumperCfg.PcapFileRelPath(tmpBuf[:], callID)
-			if err != nil && fLen > 0 {
+			if err == nil && fLen > 0 {
 				fname := tmpBuf[:fLen]
-				addFields(event.Fields, "attrs.filename", fname)
+				addFields(event.Fields, "attrs.filename", string(fname))
+			} else {
+				Log.ERR("failed to get pcap dump rel path for %q: output len %d err: %v\n",
+					callID, fLen, err)
 			}
 		}
 		// if pcap upload configured add attrs.upload_id
 		if sipcallmon.PcapDumperCfg.Upload != "" {
 			idLen, err := sipcallmon.PcapDumperCfg.PcapUploadId(tmpBuf[:], callID)
-			if err != nil && idLen > 0 {
+			if err == nil && idLen > 0 {
 				uploadId := tmpBuf[:idLen]
-				addFields(event.Fields, "attrs.upload_id", uploadId)
+				addFields(event.Fields, "attrs.upload_id", string(uploadId))
+			} else {
+				Log.ERR("failed to get pcap dump upload_id for %q: output len %d err: %v\n",
+					callID, idLen, err)
 			}
 		}
 	}
