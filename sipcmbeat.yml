@@ -125,6 +125,11 @@ sipcmbeat:
   #                  sub-new, sub-del, other-failed, other-timeout, other-ok,
   #                  parse-error, msg-probe, sdp-update
   event_types_blst: ["msg-probe", "other-failed", "other-timeout", "other-ok", "parse-error", "sdp-update"]
+  # include or exclude dbg.* fields 
+  # WARNING: some fields might be used by event consumers
+  event_dbg_fields: true
+  # include internal message trace in dbg.msg_trace
+  event_dbg_msg_trace: true
   # maximum tracked event rates
   evr_max_entries: 1048576
   # event rate max values list (if any exceeded the event will be blacklisted)
