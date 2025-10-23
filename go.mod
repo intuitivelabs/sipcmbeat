@@ -33,7 +33,7 @@ require (
 	github.com/intuitivelabs/anonymization v1.5.3
 	github.com/intuitivelabs/calltr v1.1.15-0.20251015125106-85051cd8295b
 	github.com/intuitivelabs/counters v0.3.3
-	github.com/intuitivelabs/sipcallmon v0.8.24-0.20251021170313-dcfab366001a
+	github.com/intuitivelabs/sipcallmon v0.8.24-0.20251023204604-441858bdaea2
 	github.com/intuitivelabs/sipsp v1.1.6
 	github.com/intuitivelabs/slog v0.0.3
 	github.com/intuitivelabs/timestamp v0.0.4
@@ -172,8 +172,6 @@ require (
 	sigs.k8s.io/structured-merge-diff/v4 v4.2.3 // indirect
 	sigs.k8s.io/yaml v1.3.0 // indirect
 )
-
-tool github.com/golangci/golangci-lint/v2/cmd/golangci-lint
 
 
 require (
