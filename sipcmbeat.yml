@@ -33,13 +33,13 @@ sipcmbeat:
   # do not put the interface into promiscuous mode (default: false)
   no_promiscuous_mode: false
   # capture buffer size in kb
-  pcap_buf_kb: 4096  # 4Mb
+  pcap_buf_kb: 4096 # 4Mb
   # berkley packet filter for capture
   bpf: ""
   # destination ports used for sip on udp and tcp.
   # Packets arriving on these ports will be attempted to be parsed as sip.
-  # An empty lists means every packet will be treated as sip and 
-  # a attempted to be parsed (this conflicts with having rtp support
+  # An empty lists means every packet will be treated as sip and
+  # attempted to be parsed (this conflicts with having rtp support
   # enabled).
   sip_ports: []
   # udp destination ports used for vxlan (tunnel endpoint).
@@ -57,7 +57,7 @@ sipcmbeat:
   # acme/oracle sbc minimum io timeout, 0 for disable
   ipfix_timeout_min: 0
   # acme/oracle sbc maximum io timeout, 0 for disable
-  # The actual io timeout value will be be set depending on the 
+  # The actual io timeout value will be be set depending on the
   # remote/probe proposed keepalive (during the connection handshake)
   # and the ipfix_timeout_min and ipfix_timeout_max. If the keepalive
   # value multiplied by 2 is withing the timeout interval it will be used
@@ -119,7 +119,7 @@ sipcmbeat:
   # E.g.:  {inv_1st: 30s, inv_early_dlg: 2m, inv_established: 2h}
   calls_timeouts: {}
   # how many events will be buffered
-  event_buffer_size:  10240
+  event_buffer_size: 10240
   # list of event types that should be blacklisted : [ event1, event2...]
   # e.g.: [[msg-probe, other-failed, other-timeout, other-ok, parse-error]
   # blacklisted events will not be generated
@@ -137,10 +137,10 @@ sipcmbeat:
   evr_max_entries: 1048576
   # event rate max values list (if any exceeded the event will be blacklisted)
   # 0 disables a rate (e.g. for 2 rates: [20,240,0])
-  evr_limits: [20,240,3600]
+  evr_limits: [20, 240, 3600]
   # event rate time intervals for the corresponding limits and also intervals
   # on which the rates will be calculated (0 disables)
-  evr_intervals: [1s,1m,1h]
+  evr_intervals: [1s, 1m, 1h]
   # report blacklisted events only if the number of "repetitions" is a multiple
   # of this value  and 2^k and n < evr_conseq_report_max
   # To disable exponential back-off for the blacklist re-reporting, set the
@@ -227,7 +227,7 @@ sipcmbeat:
   # enable writing per call pcap (pcap_dump_dir or pcap_dump_upload must also be set),
   # default false
   pcap_dump_on: false
-  # enable writing messages that caused errors if the call-id could 
+  # enable writing messages that caused errors if the call-id could
   # be retrieved and there is an existing dump for the corresponding call-id
   pcap_dump_onerr: false
   # enable/disable adding RTP messages to the pcaps (default true)
@@ -235,7 +235,7 @@ sipcmbeat:
   pcap_dump_rtp: false
   # pcap dump directory, requires pcap_dump_on set to true
   pcap_dump_dir: ""
-  # prefix added to each pcap dump filename 
+  # prefix added to each pcap dump filename
   # (filename = prefix + escape(callid)+pcap_dump_suffix + pcap_dump_extension)
   pcap_dump_prefix: "callid_"
   pcap_dump_suffix: ""
@@ -328,16 +328,16 @@ setup.kibana:
 
 # ---------------------------- Elasticsearch Output ----------------------------
 #output.elasticsearch:
-  # Array of hosts to connect to.
-  #hosts: ["localhost:9200"]
+# Array of hosts to connect to.
+#hosts: ["localhost:9200"]
 
-  # Protocol - either `http` (default) or `https`.
-  #protocol: "https"
+# Protocol - either `http` (default) or `https`.
+#protocol: "https"
 
-  # Authentication credentials - either API key or username/password.
-  #api_key: "id:api_key"
-  #username: "elastic"
-  #password: "changeme"
+# Authentication credentials - either API key or username/password.
+#api_key: "id:api_key"
+#username: "elastic"
+#password: "changeme"
 
 # ------------------------------ Logstash Output -------------------------------
 output.logstash:
@@ -401,23 +401,22 @@ processors:
 
 # Instrumentation support for the sipcmbeat.
 #instrumentation:
-    # Set to true to enable instrumentation of sipcmbeat.
-    #enabled: false
+# Set to true to enable instrumentation of sipcmbeat.
+#enabled: false
 
-    # Environment in which sipcmbeat is running on (eg: staging, production, etc.)
-    #environment: ""
+# Environment in which sipcmbeat is running on (eg: staging, production, etc.)
+#environment: ""
 
-    # APM Server hosts to report instrumentation results to.
-    #hosts:
-    #  - http://localhost:8200
+# APM Server hosts to report instrumentation results to.
+#hosts:
+#  - http://localhost:8200
 
-    # API Key for the APM Server(s).
-    # If api_key is set then secret_token will be ignored.
-    #api_key:
+# API Key for the APM Server(s).
+# If api_key is set then secret_token will be ignored.
+#api_key:
 
-    # Secret token for the APM Server(s).
-    #secret_token:
-
+# Secret token for the APM Server(s).
+#secret_token:
 
 # ================================= Migration ==================================
 
