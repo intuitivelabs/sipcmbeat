@@ -1108,7 +1108,8 @@ add_attrs:
 			addFields(event.Fields, "sip.originator", "caller-terminated")
 		}
 		fallthrough // continue with common fileds for call-start & attempt
-	case calltr.EvCallStart, calltr.EvCallAttempt:
+	case calltr.EvCallStart, calltr.EvCallAttempt,
+		calltr.EvRTPstats1, calltr.EvRTPstats2:
 		// hack for using different event field name for call-end last resp.
 		if ed.Type == calltr.EvCallEnd {
 			if ed.ReplStatus == 0 || ed.EvFlags&calltr.EvCallStartF == 0 {
