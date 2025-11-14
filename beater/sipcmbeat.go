@@ -1322,6 +1322,7 @@ func (bt *Sipcmbeat) addVersionToEv(event beat.Event) {
 // adds rtp stats to an "event" map
 func addRTPstreamStats(m common.MapStr, rtpS *calltr.EvRTPstreamDataT) {
 	addFields(m, "ssrc", rtpS.SSRC)
+	addFields(m, "ssrc_changes", rtpS.SSRCupd)
 	addFields(m, "dst_ip", rtpS.Dst.String())
 	addFields(m, "dst_port", rtpS.DPort)
 	addFields(m, "src_ip", rtpS.Src.String())
