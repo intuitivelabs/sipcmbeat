@@ -16,7 +16,6 @@ grouped in the following categories:
 * <<exported-fields-cloud>>
 * <<exported-fields-docker-processor>>
 * <<exported-fields-ecs>>
-* <<exported-fields-ecs>>
 * <<exported-fields-host-processor>>
 * <<exported-fields-jolokia-autodiscover>>
 * <<exported-fields-kubernetes-processor>>
@@ -225,8 +224,15 @@ type: object
 [[exported-fields-ecs]]
 == ECS fields
 
-ECS Fields.
 
+This section defines Elastic Common Schema (ECS) fields—a common set of fields
+to be used when storing event data in {es}.
+
+This is an exhaustive list, and fields listed here are not necessarily used by {beatname_uc}.
+The goal of ECS is to enable and encourage users of {es} to normalize their event data,
+so that they can better analyze, visualize, and correlate the data represented in their events.
+
+See the {ecs-ref}[ECS reference] for more information.
 
 *`@timestamp`*::
 +
@@ -7048,61 +7054,6 @@ example: Critical
 
 --
 
-[[exported-fields-ecs]]
-== ECS fields
-
-ECS sipcmbeat extra Fields
-
-
-
-*`agent.version_base`*::
-+
---
-base version
-
-
-type: keyword
-
-example: v0.7.0
-
---
-
-*`agent.version_long`*::
-+
---
-long version, including possible commit ids
-
-
-type: keyword
-
-example: v0.6.14-108-g340e63c
-
---
-
-*`agent.commit_hash`*::
-+
---
-top commit hash for the code used to built this agent
-
-
-type: keyword
-
-example: 340e63c2
-
---
-
-*`agent.build_time`*::
-+
---
-build time for this agent
-
-
-type: keyword
-
-example: 2021/09/16 08:29 UTC
-
---
-
 [[exported-fields-host-processor]]
 == Host fields
 
@@ -8059,4 +8010,315 @@ message trace (last messages seen)
 type: keyword
 
 --
+
+[float]
+=== agent
+
+sipcmbeat extra agent version fields
+
+
+*`agent.version_base`*::
++
+--
+base version
+
+
+type: keyword
+
+example: v0.7.0
+
+--
+
+*`agent.version_long`*::
++
+--
+long version, including possible commit ids
+
+
+type: keyword
+
+example: v0.6.14-108-g340e63c
+
+--
+
+*`agent.commit_hash`*::
++
+--
+top commit hash for the code used to built this agent
+
+
+type: keyword
+
+example: 340e63c2
+
+--
+
+*`agent.build_time`*::
++
+--
+build time for this agent
+
+
+type: keyword
+
+example: 2021/09/16 08:29 UTC
+
+--
+
+
+*`attrs.filename`*::
++
+--
+filename for the generated pcap file corresponding to this event call-id
+
+
+type: keyword
+
+example: 3/tcp_1E24EFE3-5A7882E8000CECE6-2AD5E700_sipcm.pcap
+
+--
+
+*`attrs.upload_id`*::
++
+--
+id used for the uploaded pcap packets, corresponding to this event call-id (missing if pcap uploading is not configured)
+
+
+--
+
+[float]
+=== rtp-stats-a
+
+RTP statistics for the first RTP stream, present only in call-start, call-end, call-attempt, rtp-stats1 and rtp-stats2 events and only if there are active rtp sessions
+
+
+*`attrs.rtp-stats-a.src_ip`*::
++
+--
+source IP for the RTP stream
+
+type: keyword
+
+--
+
+*`attrs.rtp-stats-a.src_port`*::
++
+--
+source port for the RTP stream
+
+type: keyword
+
+--
+
+*`attrs.rtp-stats-a.dst_ip`*::
++
+--
+destination IP for the RTP stream
+
+type: keyword
+
+--
+
+*`attrs.rtp-stats-a.dst_port`*::
++
+--
+destination port for the RTP stream
+
+type: keyword
+
+--
+
+*`attrs.rtp-stats-a.protocol`*::
++
+--
+protocol for the stream, e.g. RTP/AVP
+
+type: keyword
+
+--
+
+*`attrs.rtp-stats-a.media_type`*::
++
+--
+media_type for the stream, e.g. audio
+
+type: keyword
+
+--
+
+*`attrs.rtp-stats-a.payload_type`*::
++
+--
+RTP payload type, e.g. 8
+
+type: keyword
+
+--
+
+*`attrs.rtp-stats-a.clk_rate`*::
++
+--
+clock rate for the stream, e.g. 8000
+
+type: keyword
+
+--
+
+*`attrs.rtp-stats-a.ssrc`*::
++
+--
+current RTP SSRC
+
+type: keyword
+
+--
+
+*`attrs.rtp-stats-a.ssrc_changes`*::
++
+--
+number of types SSRC has changed
+
+type: keyword
+
+--
+
+*`attrs.rtp-stats-a.packets`*::
++
+--
+unique RTP packets seen
+
+type: keyword
+
+--
+
+*`attrs.rtp-stats-a.seen_packets`*::
++
+--
+total RTP packets seen, including duplicates
+
+type: keyword
+
+--
+
+*`attrs.rtp-stats-a.non_rtp_pkts`*::
++
+--
+non RTP packets seen on the stream, e.g. STUN
+
+type: keyword
+
+--
+
+*`attrs.rtp-stats-a.expected`*::
++
+--
+expected RTP packets
+
+type: keyword
+
+--
+
+*`attrs.rtp-stats-a.jitter`*::
++
+--
+average jitter
+
+type: keyword
+
+--
+
+*`attrs.rtp-stats-a.lost_percentage`*::
++
+--
+lost RTP packets percentage
+
+type: keyword
+
+--
+
+*`attrs.rtp-stats-a.duplicate_packets`*::
++
+--
+duplicate RTP packets
+
+type: keyword
+
+--
+
+*`attrs.rtp-stats-a.reordered_packets`*::
++
+--
+reordered or out-of-order RTP packets
+
+type: keyword
+
+--
+
+*`attrs.rtp-stats-a.dropped`*::
++
+--
+old RTP packets that would be dropped by the simulated de-jitter buffer
+
+type: keyword
+
+--
+
+*`attrs.rtp-stats-a.last_seq_nr`*::
++
+--
+sequence number of the last received RTP packet
+
+type: keyword
+
+--
+
+*`attrs.rtp-stats-a.total_bytes`*::
++
+--
+total bytes received on the RTP stream (including non-RTP traffic on the same ports)
+
+type: keyword
+
+--
+
+*`attrs.rtp-stats-a.bytes`*::
++
+--
+total size of all the received RTP packets
+
+type: keyword
+
+--
+
+*`attrs.rtp-stats-a.rtp_pkt_rate`*::
++
+--
+average RTP packet rate in packets per second
+
+type: keyword
+
+--
+
+*`attrs.rtp-stats-a.data_rate`*::
++
+--
+average data rate for the RTP traffic in bytes per second
+
+type: keyword
+
+--
+
+*`attrs.rtp-stats-a.data_rate_last_sec`*::
++
+--
+data rate for the RTP traffic in the last second
+
+type: keyword
+
+--
+
+[float]
+=== rtp-stats-b
+
+RTP statistics for the 2nd RTP stream, present only in call-start, call-end, call-attempt, rtp-stats1 and rtp-stats2 events and only if there are active rtp sessions. The fields are the same as for rtp-stats-a.
 

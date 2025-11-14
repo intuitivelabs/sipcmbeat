@@ -363,14 +363,106 @@
     - name: attrs
       type: group
       fields:
-          - name: filename
-            type: keyword
-            description: >
-              filename for the generated pcap file corresponding to this
-              event call-id
-            example: "3/tcp_1E24EFE3-5A7882E8000CECE6-2AD5E700_sipcm.pcap"
-          - name: upload_id
-            description: >
-              id used for the uploaded pcap packets, corresponding to this
-              event call-id (missing if pcap uploading is not configured)
-
+        - name: filename
+          type: keyword
+          description: >
+            filename for the generated pcap file corresponding to this
+            event call-id
+          example: "3/tcp_1E24EFE3-5A7882E8000CECE6-2AD5E700_sipcm.pcap"
+        - name: upload_id
+          description: >
+            id used for the uploaded pcap packets, corresponding to this
+            event call-id (missing if pcap uploading is not configured)
+        - name: rtp-stats-a
+          type: group
+          description: RTP statistics for the first RTP stream,
+            present only in call-start, call-end, call-attempt,
+            rtp-stats1 and rtp-stats2 events and only if there
+            are active rtp sessions
+          fields:
+            - name: src_ip
+              type: keyword
+              description: source IP for the RTP stream
+            - name: src_port
+              type: keyword
+              description: source port for the RTP stream
+            - name: dst_ip
+              type: keyword
+              description: destination IP for the RTP stream
+            - name: dst_port
+              type: keyword
+              description: destination port for the RTP stream
+            - name: protocol
+              type: keyword
+              description: protocol for the stream, e.g. RTP/AVP
+            - name: media_type
+              type: keyword
+              description: media_type for the stream, e.g. audio
+            - name: payload_type
+              type: keyword
+              description: RTP payload type, e.g. 8
+            - name: clk_rate
+              type: keyword
+              description: clock rate for the stream, e.g. 8000
+            - name: ssrc
+              type: keyword
+              description: current RTP SSRC
+            - name: ssrc_changes
+              type: keyword
+              description: number of types SSRC has changed
+            - name: packets
+              type: keyword
+              description: unique RTP packets seen
+            - name: seen_packets
+              type: keyword
+              description: total RTP packets seen, including duplicates
+            - name: non_rtp_pkts
+              type: keyword
+              description: non RTP packets seen on the stream, e.g. STUN
+            - name: expected
+              type: keyword
+              description: expected RTP packets
+            - name: jitter
+              type: keyword
+              description: average jitter
+            - name: lost_percentage
+              type: keyword
+              description: lost RTP packets percentage
+            - name: duplicate_packets
+              type: keyword
+              description: duplicate RTP packets
+            - name: reordered_packets
+              type: keyword
+              description: reordered or out-of-order RTP packets
+            - name: dropped
+              type: keyword
+              description: old RTP packets that would be dropped by the
+                simulated de-jitter buffer
+            - name: last_seq_nr
+              type: keyword
+              description: sequence number of the last received RTP packet
+            - name: total_bytes
+              type: keyword
+              description: total bytes received on the RTP stream
+                (including non-RTP traffic on the same ports)
+            - name: bytes
+              type: keyword
+              description: total size of all the received RTP packets
+            - name: rtp_pkt_rate
+              type: keyword
+              description: average RTP packet rate in packets per second
+            - name: data_rate
+              type: keyword
+              description: average data rate for the RTP traffic in
+                bytes per second
+            - name: data_rate_last_sec
+              type: keyword
+              description: data rate for the RTP traffic in the last
+                second
+        - name: rtp-stats-b
+          type: group
+          description: RTP statistics for the 2nd RTP stream,
+            present only in call-start, call-end, call-attempt,
+            rtp-stats1 and rtp-stats2 events and only if there are
+            active rtp sessions.
+            The fields are the same as for rtp-stats-a.
