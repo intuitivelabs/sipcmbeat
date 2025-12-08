@@ -79,6 +79,8 @@ sipcmbeat:
   # rtp tracking support (default on).
   # Depends on sdp.
   rtp: off
+  # rtp statistics interval, in s (default 0 = disabled)
+  rtp_stats_interval: 0
   # sdp support
   # If on sdp information will be stored allong the call state. It will
   # cause extra memory usage.
