@@ -536,6 +536,8 @@ github.com/intuitivelabs/calltr v1.1.15-0.20251114191818-55d38e67924e h1:yJR+5c5
 github.com/intuitivelabs/calltr v1.1.15-0.20251114191818-55d38e67924e/go.mod h1:qiF9Mu09jVnO7A960QAyUgYyVA7uNviDhq+exB2j2HE=
 github.com/intuitivelabs/calltr v1.1.15-0.20251205162027-9a8d61e986f0 h1:ebXXysn9zVkEIIDjMfv99IiRHtbHz7fD0Rs+LI6vy5I=
 github.com/intuitivelabs/calltr v1.1.15-0.20251205162027-9a8d61e986f0/go.mod h1:qiF9Mu09jVnO7A960QAyUgYyVA7uNviDhq+exB2j2HE=
+github.com/intuitivelabs/calltr v1.1.15-0.20260206101009-e4b0b9b42a51 h1:6JpWbK6FsEgiknFHM8jiSznwW37Lu3519A3IQuYSu60=
+github.com/intuitivelabs/calltr v1.1.15-0.20260206101009-e4b0b9b42a51/go.mod h1:pxo7x1CibXX/9LkVWI1/IG0jhW5OJjbjV/x4PfOYv/4=
 github.com/intuitivelabs/counters v0.3.1 h1:jfyTWCJdHNjzIjJ3O8ydLkFZcxI/QbL0zWaEysfw30E=
 github.com/intuitivelabs/counters v0.3.1/go.mod h1:gg2mPscHiatkLfDWF7bSuUeHcmsiTazGQx1pW62uJ0w=
 github.com/intuitivelabs/counters v0.3.3 h1:W7Ra/Xj45EEUyWIC9QXkrwlZLcTtfhkmxOCABzpIUnQ=
@@ -582,6 +584,8 @@ github.com/intuitivelabs/sipcallmon v0.8.24-0.20251114193245-e4e165c93ecc h1:ZDk
 github.com/intuitivelabs/sipcallmon v0.8.24-0.20251114193245-e4e165c93ecc/go.mod h1:nQ1KlSbgn2Z6ua+mho4W0w9HPnXLT8Yq9OCYcqpu6Q8=
 github.com/intuitivelabs/sipcallmon v0.8.24-0.20251205162841-d913717d9e96 h1:KJeOH/1yFbaFpiK5tPxaTfaW/5h0awwRrbvkhH4tVGQ=
 github.com/intuitivelabs/sipcallmon v0.8.24-0.20251205162841-d913717d9e96/go.mod h1:h+jCcYXUhreCEk3JT6LYknZyVSD3po/OPRGLNkjbwIk=
+github.com/intuitivelabs/sipcallmon v0.8.24-0.20260206101324-17d67277f94f h1:oEWzC6PRZbUelrUGQeosEdn1muuVyZAy7fy4sFQcNB8=
+github.com/intuitivelabs/sipcallmon v0.8.24-0.20260206101324-17d67277f94f/go.mod h1:I1J7XRxFe/w6edXtO4jfSCSut8/dRYxgJnFuaSko8rI=
 github.com/intuitivelabs/sipsp v1.0.2/go.mod h1:Hms31r05e3BO/rpYICAIa/N01Ju0eLuUB3IE1GXVqXo=
 github.com/intuitivelabs/sipsp v1.1.5 h1:l0+/W0Y0Ahoc+1OXeRcfgNPSqcS9U5mbC5m2xHNcQzw=
 github.com/intuitivelabs/sipsp v1.1.5/go.mod h1:7+wtNx415M+VzHUrXWSf4NOraw7pMx+fhJkKoLAff7A=
@@ -610,6 +614,8 @@ github.com/intuitivelabs/wtimer v0.0.2 h1:cow+iYQCww021YeMPY+nsYVQv/W4Igsc3PRG3C
 github.com/intuitivelabs/wtimer v0.0.2/go.mod h1:69mqpDr+n8bmUUMPT2IES/bSZSFdg5kR4aENUrLNS3s=
 github.com/intuitivelabs/wtimer v0.0.3 h1:1ziVNpwuWNaD6tXw74LA9VAvrCpTlMd84FGsw9E/x/A=
 github.com/intuitivelabs/wtimer v0.0.3/go.mod h1:WrrvfXJ1yBcbsxvfwmRGBS1uzuUV5EDATUh619lEaMI=
+github.com/intuitivelabs/wtimer v0.0.4-0.20260206100613-922fb41058fa h1:1nbu9un6xSVSIp3nI15M6grxzMd+pS1kD2U3ckwbW0I=
+github.com/intuitivelabs/wtimer v0.0.4-0.20260206100613-922fb41058fa/go.mod h1:WrrvfXJ1yBcbsxvfwmRGBS1uzuUV5EDATUh619lEaMI=
 github.com/jcmturner/gofork v1.0.0 h1:J7uCkflzTEhUZ64xqKnkDxq3kzc96ajM1Gli5ktUem8=
 github.com/jcmturner/gofork v1.0.0/go.mod h1:MK8+TM0La+2rjBD4jE12Kj1pCCxK7d2LK/UM3ncEo0o=
 github.com/jellevandenhooff/dkim v0.0.0-20150330215556-f50fe3d243e1/go.mod h1:E0B/fFc00Y+Rasa88328GlI/XbtyysCtTHZS8h7IrBU=

@@ -31,9 +31,9 @@ require (
 	github.com/pkg/errors v0.9.1
 	github.com/spf13/cobra v0.0.3
 	github.com/intuitivelabs/anonymization v1.5.3
-	github.com/intuitivelabs/calltr v1.1.15-0.20251205162027-9a8d61e986f0
+	github.com/intuitivelabs/calltr v1.1.15-0.20260206101009-e4b0b9b42a51
 	github.com/intuitivelabs/counters v0.3.3
-	github.com/intuitivelabs/sipcallmon v0.8.24-0.20251205162841-d913717d9e96
+	github.com/intuitivelabs/sipcallmon v0.8.24-0.20260206101324-17d67277f94f
 	github.com/intuitivelabs/sipsp v1.1.6
 	github.com/intuitivelabs/slog v0.0.3
 	github.com/intuitivelabs/timestamp v0.0.4
@@ -132,7 +132,7 @@ require (
 	github.com/intuitivelabs/mallocs/qmalloc v0.0.4 // indirect
 	github.com/intuitivelabs/unsafeconv v0.0.3 // indirect
 	github.com/intuitivelabs/websocket v0.0.2 // indirect
-	github.com/intuitivelabs/wtimer v0.0.3 // indirect
+	github.com/intuitivelabs/wtimer v0.0.4-0.20260206100613-922fb41058fa // indirect
 	go.elastic.co/apm v1.7.2
 	go.elastic.co/apm/module/apmelasticsearch v1.7.2 // indirect
 	go.elastic.co/apm/module/apmhttp v1.7.2 // indirect
