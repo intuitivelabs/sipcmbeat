@@ -31,9 +31,9 @@ require (
 	github.com/pkg/errors v0.9.1
 	github.com/spf13/cobra v0.0.3
 	github.com/intuitivelabs/anonymization v1.5.3
-	github.com/intuitivelabs/calltr v1.1.15-0.20260206101009-e4b0b9b42a51
+	github.com/intuitivelabs/calltr v1.1.15-0.20260220133446-e3a8438b2bcc
 	github.com/intuitivelabs/counters v0.3.3
-	github.com/intuitivelabs/sipcallmon v0.8.24-0.20260206101324-17d67277f94f
+	github.com/intuitivelabs/sipcallmon v0.8.24-0.20260220142622-70bcca79e5a3
 	github.com/intuitivelabs/sipsp v1.1.6
 	github.com/intuitivelabs/slog v0.0.3
 	github.com/intuitivelabs/timestamp v0.0.4
