@@ -266,6 +266,44 @@ sipcmbeat:
   pcap_dump_workers: 1
   # pcap dump message queue size per worker
   pcap_dump_queue_len: 10240
+  # number of hash buckets for the per-worker open-file tracker; enables fd
+  # tracking (keeping pcap files open across writes) when > 0;
+  # 0 = disabled, open/write/close per message (default 0)
+  pcap_dump_fd_buckets: 0
+  # number of pre-allocated fd tracker entries per worker (default 2048)
+  pcap_dump_fd_prealloc: 2048
+  # maximum total tracked open pcap file descriptors across all workers;
+  # 0 = unlimited (default 0)
+  pcap_dump_fd_max_open: 0
+  # close and rename/move pcap files after this interval from first write;
+  # requires pcap_dump_fd_buckets > 0 (default 10s)
+  pcap_dump_rotate_interval: 10s
+  # extension to use when renaming rotated files (e.g. ".pcap"), default ""
+  pcap_dump_rotate_suffix: ""
+  # directory to move rotated pcap files to; default "" (leave in place)
+  pcap_dump_rotate_dir: ""
+  # format string for the rotated filename; default "" (equivalent to %b_%s%e)
+  # Specifiers: %b=base, %e=ext, %f=full, %s=unix-s, %ms=ms, %ns=ns,
+  #   %t{layout}=Go time, %r=random-hex, %i=upload-id, %n=seq,
+  #   %R=conflict-rand, %N=conflict-seq, %U=conflict-retry, %%=literal-%
+  pcap_dump_rotate_fmt: ""
+  # number of workers for automatically uploading rotated pcap files to
+  # pcap_dump_upload; requires pcap_dump_rotate_dir and pcap_dump_upload to
+  # be set; default 0 (disabled)
+  pcap_dump_file_upload_workers: 0
+  # upload request channel and pool size (default 1000)
+  pcap_dump_file_upload_queue: 1000
+  # action on successful upload: "" = delete file (default), "leave" = keep,
+  # or a directory path to move the uploaded file to
+  pcap_dump_file_upload_done_dir: ""
+  # action on failed upload: "" = leave file as-is (default), "delete" = remove,
+  # or a directory path to move the file to
+  pcap_dump_file_upload_err_dir: ""
+  # how upload workers are notified of new rotated files:
+  #   "channel" = inline after rotation (default), "watch" = fsnotify on
+  #   pcap_dump_rotate_dir (picks up pre-existing files on start),
+  #   "both" = channel + watch; default "" (equivalent to "channel")
+  pcap_dump_file_upload_notify: ""
 
 
 
