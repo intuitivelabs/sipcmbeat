@@ -597,6 +597,8 @@ github.com/intuitivelabs/sipcallmon v0.8.24-0.20260220142622-70bcca79e5a3 h1:yg1
 github.com/intuitivelabs/sipcallmon v0.8.24-0.20260220142622-70bcca79e5a3/go.mod h1:r/ws3dbsF2I3nZK5vbLlWAIckB8qYU5keee0YcTC9L4=
 github.com/intuitivelabs/sipcallmon v0.8.24-0.20260323212329-b8e88435a519 h1:Ya/PY14CYEiX/pRPmyb/tEinEuXSM2ZbWXZRX1+tPxo=
 github.com/intuitivelabs/sipcallmon v0.8.24-0.20260323212329-b8e88435a519/go.mod h1:kiSx00onlKC58Z6+o9OcneYlsrSEmCssgB48t80GdIw=
+github.com/intuitivelabs/sipcallmon v0.8.24-0.20260326220328-d5e38e70630d h1:b3vmo25n+E//IhvkV/UOz9YDFFlf7g0co0t2tvlPpaA=
+github.com/intuitivelabs/sipcallmon v0.8.24-0.20260326220328-d5e38e70630d/go.mod h1:kiSx00onlKC58Z6+o9OcneYlsrSEmCssgB48t80GdIw=
 github.com/intuitivelabs/sipsp v1.0.2/go.mod h1:Hms31r05e3BO/rpYICAIa/N01Ju0eLuUB3IE1GXVqXo=
 github.com/intuitivelabs/sipsp v1.1.5 h1:l0+/W0Y0Ahoc+1OXeRcfgNPSqcS9U5mbC5m2xHNcQzw=
 github.com/intuitivelabs/sipsp v1.1.5/go.mod h1:7+wtNx415M+VzHUrXWSf4NOraw7pMx+fhJkKoLAff7A=
