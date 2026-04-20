@@ -103,25 +103,69 @@ var Log slog.Log = slog.New(slog.LERR, slog.LbackTraceS|slog.LlocInfoS,
 	slog.LStdErr)
 
 // returns a list of all struct tags.
-// if no tag is found, the field name will be returned.
-// sub-structs tags will be of the form parent.child.tag1
+// If no tag is found, the field name will be returned.
+// sub-structs tags will be of the form parent.child.tag1 (unless "squash"
+// or "inline" are set for the parent).
+// Fields are completely skipped if "ignore" is set.
+// It supports 2 formats for squash/ignore: as separate tags
+// (e.g. `ignore:"true"`) or as part of the `config:` tag, like
+// elastic/go-ucfg (e.g. `config:"option_foo,ignore"`)
 func getStructTags(t reflect.Type) []string {
 	if t.Kind() != reflect.Struct {
 		return nil
 	}
 	lst := make([]string, 0, 48)
+next_field:
 	for i := 0; i < t.NumField(); i++ {
 		f := t.Field(i)
-		tag := f.Tag.Get("config")
-		if len(tag) == 0 {
-			tag = f.Name
+		if _, found := f.Tag.Lookup("ignore"); found {
+			continue next_field
 		}
-		lst = append(lst, tag)
-		if f.Type.Kind() == reflect.Struct {
-			chldTags := getStructTags(f.Type)
-			for _, subtag := range chldTags {
-				lst = append(lst, tag+"."+subtag)
+
+		// tag format: config:"name"[,ignore][,squash][,inline]
+		var name string     // content of config:"name"
+		var values []string // all the rest of the tag values e.g "ignore"
+		var squash bool = false
+		var inline bool = false
+
+		s := f.Tag.Get("config")
+		if len(s) == 0 {
+			name = f.Name
+		} else {
+			values = strings.Split(s, ",")
+			name = values[0]
+			values = values[1:]
+		}
+		for _, v := range values {
+			if v == "ignore" {
+				continue next_field
 			}
+			if v == "squash" || v == "inline" {
+				squash = true
+			}
+		}
+		if f.Type.Kind() == reflect.Struct {
+			// if Struct, don't add the name of the struct separately
+			// (add only name.fieldname1, name.fieldname2...)
+			chldTags := getStructTags(f.Type)
+			if !squash {
+				_, squash = f.Tag.Lookup("squash")
+				_, inline = f.Tag.Lookup("inline")
+			}
+			if squash || inline {
+				// namespace inline / squashed =>
+				//    add directly the struct fields names into
+				//    the current namespace
+				lst = append(lst, chldTags...)
+			} else {
+				// add the struct fields names under
+				//  the struct name namespace
+				for _, subtag := range chldTags {
+					lst = append(lst, name+"."+subtag)
+				}
+			}
+		} else { // not reflect.Struct
+			lst = append(lst, name)
 		}
 	}
 	return lst
@@ -130,14 +174,16 @@ func getStructTags(t reflect.Type) []string {
 // check if all the options loaded from the configuration correspond
 // to defined config option.
 // Returns the first unknown option or "" if all are defined.
-func unknownCfgOption(cfg *common.Config, c *sipcallmon.Config) string {
+func unknownCfgOption(cfg *common.Config, c *SipcmbeatConfig) string {
 	for _, ign := range c.CfgIgnUnknown {
 		if strings.EqualFold(ign, "all") {
 			return ""
 		}
 	}
 	cfgFlds := cfg.GetFields()
-	defFlds := getStructTags(reflect.TypeOf((*sipcallmon.Config)(nil)).Elem())
+	defFlds := getStructTags(reflect.TypeOf((*SipcmbeatConfig)(nil)).Elem())
+	// defFlds = append(defFlds,
+	//	getStructTags(reflect.TypeOf((*sipcallmon.Config)(nil)).Elem())...)
 
 cfg_val_chk:
 	for _, o := range cfgFlds {
@@ -225,6 +271,36 @@ func (p eventer) DroppedOnPublish(beat.Event) {
 	p.stats.Inc(p.cnts.EvPubDropped)
 }
 
+// SipcmbeatConfig holds the sipcallmon config and the sipcmbeat
+// specific config.
+// Note: the `config:` tag values used by the beats (via beats.com
+// and github.com/elastic/go-ucfg) have some special extra keywords
+// that can be added immediately after the config option name (
+// under the same quotes), e.g. `config:"option_foo,ignore".
+// The possible values are:
+//   - ignore - ignore the option (behave as if not seen)
+//   - squash or inline - if the field is a struct, put all its subfields
+//     in the same namespace as the parent.
+//   - merge
+//   - replace
+//   - append
+//   - prepend
+//
+// (see https://github.com/elastic/go-ucfg/blob/main/reify.go#L76)
+type SipcmbeatConfig struct {
+	sipcallmon.Config `config:"sipcallmon,squash"` // sipcallmon cfg inline
+
+	// add dbg fields to generated events (sipcmbeat specific) (default: true)
+	EvDbgFields bool `config:"event_dbg_fields"`
+	// add dbg.msg_trace to events (default: true)
+	EvDbgMsgTrace bool `config:"event_dbg_msg_trace"`
+}
+
+var defaultSipcmbeatConfig = SipcmbeatConfig{
+	EvDbgFields:   true,
+	EvDbgMsgTrace: true,
+}
+
 // Sipcmbeat configuration.
 type Sipcmbeat struct {
 	done   chan struct{}
@@ -235,7 +311,7 @@ type Sipcmbeat struct {
 
 	pStatsInfo publishStatsInfo // stats event publish internal stuff
 
-	Config     sipcallmon.Config
+	Config     SipcmbeatConfig
 	anonymizer anonymization.Anonymizer
 	client     beat.Client
 	// stats
@@ -459,7 +535,9 @@ func (bt *Sipcmbeat) initEncryption(b *beat.Beat) error {
 
 // New creates an instance of sipcmbeat.
 func New(b *beat.Beat, cfg *common.Config) (beat.Beater, error) {
-	c := sipcallmon.GetDefaultCfg()
+	var c SipcmbeatConfig
+	c = defaultSipcmbeatConfig            // default sipcmbeat specific options
+	c.Config = sipcallmon.GetDefaultCfg() // default sipcallmon options
 	if c.MaxBlockedTo > 5*time.Second {
 		c.MaxBlockedTo = 5 * time.Second // lower timeout to see Stop() sooner
 	}
@@ -467,8 +545,16 @@ func New(b *beat.Beat, cfg *common.Config) (beat.Beater, error) {
 		if err := cfg.Unpack(&c); err != nil {
 			return nil, fmt.Errorf("Error reading config file: %v", err)
 		}
+		/*  if SipcmbeatConfig has ",ignore" instead of ",squash"
+		 *  uncomment the following lines: */
+		/*
+			    // unpack the sipcallmon part of the config
+				if err := cfg.Unpack(&c.Config); err != nil {
+					return nil, fmt.Errorf("Error reading config file: %v", err)
+				}
+		*/
 	}
-	if err := sipcallmon.CfgFix(&c); err != nil && cfg != nil {
+	if err := sipcallmon.CfgFix(&c.Config); err != nil && cfg != nil {
 		return nil, fmt.Errorf("Invalid Config: error fixing: %v", err)
 	}
 
@@ -490,7 +576,7 @@ func New(b *beat.Beat, cfg *common.Config) (beat.Beater, error) {
 		return nil, errors.WithMessage(err, "sipcmbeat.New")
 	}
 
-	if err := sipcallmon.CfgCheck(&c); err != nil && cfg != nil {
+	if err := sipcallmon.CfgCheck(&c.Config); err != nil && cfg != nil {
 		return nil, fmt.Errorf("Invalid Config: %v", err)
 	}
 
@@ -502,7 +588,7 @@ func New(b *beat.Beat, cfg *common.Config) (beat.Beater, error) {
 	slog.Init(&Log, slog.LogLevel(c.LogLev), slog.LogOptions(c.LogOpt),
 		slog.LStdErr)
 
-	if err := sipcallmon.Init(&bt.Config); err != nil {
+	if err := sipcallmon.Init(&bt.Config.Config); err != nil {
 		return nil, fmt.Errorf("sipcallmon: %v", err)
 	}
 	bt.evRing = &sipcallmon.EventsRing
@@ -562,7 +648,7 @@ func (bt *Sipcmbeat) Run(b *beat.Beat) error {
 		bt.pStatsInfo.statsT = &time.Ticker{}
 	}
 	go bt.consumeEv()
-	err = sipcallmon.Run(&bt.Config)
+	err = sipcallmon.Run(&bt.Config.Config)
 	if err != nil {
 		return err
 	}
@@ -1022,7 +1108,8 @@ add_attrs:
 			addFields(event.Fields, "sip.originator", "caller-terminated")
 		}
 		fallthrough // continue with common fileds for call-start & attempt
-	case calltr.EvCallStart, calltr.EvCallAttempt:
+	case calltr.EvCallStart, calltr.EvCallAttempt,
+		calltr.EvRTPstats1, calltr.EvRTPstats2:
 		// hack for using different event field name for call-end last resp.
 		if ed.Type == calltr.EvCallEnd {
 			if ed.ReplStatus == 0 || ed.EvFlags&calltr.EvCallStartF == 0 {
@@ -1146,28 +1233,32 @@ add_attrs:
 		bt.getSrcIP(&ed, &encFlags).String())
 
 	// dbg
-	addFields(event.Fields, "dbg.state", ed.State.String())
-	addFields(event.Fields, "dbg.prev_state", ed.PrevState.String())
-	addFields(event.Fields, "dbg.lastev", ed.LastEv.String())
-	addFields(event.Fields, "dbg.evflags", ed.EvFlags.String())
-	addFields(event.Fields, "dbg.evgen", ed.EvGen.String())
-	addFields(event.Fields, "dbg.created", ed.CreatedTS)
-	addFields(event.Fields, "dbg.call_start", ed.FinReplTS)
-	addFields(event.Fields, "dbg.cseq", ed.CSeq)
-	addFields(event.Fields, "dbg.rcseq", ed.RCSeq)
-	addFields(event.Fields, "dbg.forked", ed.ForkedTS)
-	addFields(event.Fields, "dbg.call_flags", ed.CFlags)
-	addFields(event.Fields, "dbg.req_no", ed.Reqs)
-	addFields(event.Fields, "dbg.repl_no", ed.Repls)
-	addFields(event.Fields, "dbg.req_retr", ed.ReqsRetr)
-	addFields(event.Fields, "dbg.repl_retr", ed.ReplsRetr)
-	addFields(event.Fields, "dbg.last_method", ed.LastMethod)
-	addFields(event.Fields, "dbg.last_status", ed.LastStatus)
-	addFields(event.Fields, "dbg.msg_trace", ed.LastMsgs.String())
-	// event uniquenes dbg: current ev no , idx in ring and next idx
-	addFields(event.Fields, "dbg.event_cnt", bt.stats.Get(bt.cnts.EvPub))
-	addFields(event.Fields, "dbg.event_idx", evIdx)
-	addFields(event.Fields, "dbg.event_next_idx", nxtIdx)
+	if bt.Config.EvDbgFields {
+		addFields(event.Fields, "dbg.state", ed.State.String())
+		addFields(event.Fields, "dbg.prev_state", ed.PrevState.String())
+		addFields(event.Fields, "dbg.lastev", ed.LastEv.String())
+		addFields(event.Fields, "dbg.evflags", ed.EvFlags.String())
+		addFields(event.Fields, "dbg.evgen", ed.EvGen.String())
+		addFields(event.Fields, "dbg.created", ed.CreatedTS)
+		addFields(event.Fields, "dbg.call_start", ed.FinReplTS)
+		addFields(event.Fields, "dbg.cseq", ed.CSeq)
+		addFields(event.Fields, "dbg.rcseq", ed.RCSeq)
+		addFields(event.Fields, "dbg.forked", ed.ForkedTS)
+		addFields(event.Fields, "dbg.call_flags", ed.CFlags)
+		addFields(event.Fields, "dbg.req_no", ed.Reqs)
+		addFields(event.Fields, "dbg.repl_no", ed.Repls)
+		addFields(event.Fields, "dbg.req_retr", ed.ReqsRetr)
+		addFields(event.Fields, "dbg.repl_retr", ed.ReplsRetr)
+		addFields(event.Fields, "dbg.last_method", ed.LastMethod)
+		addFields(event.Fields, "dbg.last_status", ed.LastStatus)
+		if bt.Config.EvDbgMsgTrace {
+			addFields(event.Fields, "dbg.msg_trace", ed.LastMsgs.String())
+		}
+		// event uniquenes dbg: current ev no , idx in ring and next idx
+		addFields(event.Fields, "dbg.event_cnt", bt.stats.Get(bt.cnts.EvPub))
+		addFields(event.Fields, "dbg.event_idx", evIdx)
+		addFields(event.Fields, "dbg.event_next_idx", nxtIdx)
+	}
 
 	// geoip info
 	if bt.Config.GeoIPLookup {
@@ -1187,10 +1278,29 @@ add_attrs:
 
 	// pcap dump file
 	if bt.Config.WpcapDumpOn && !bt.Config.UseAnonymization() &&
-		len(callID) > 4 {
-		fname := sipcallmon.PcapDumperCfg.PcapFileRelPath(callID)
-		if len(fname) > 0 {
-			addFields(event.Fields, "attrs.filename", fname)
+		len(callID) >= 4 {
+		var tmpBuf [256]byte
+		// if pcap output to file configured add attrs.filename
+		if sipcallmon.PcapDumperCfg.Dir != "" {
+			fLen, err := sipcallmon.PcapDumperCfg.PcapFileRelPath(tmpBuf[:], callID)
+			if err == nil && fLen > 0 {
+				fname := tmpBuf[:fLen]
+				addFields(event.Fields, "attrs.filename", string(fname))
+			} else {
+				Log.ERR("failed to get pcap dump rel path for %q: output len %d err: %v\n",
+					callID, fLen, err)
+			}
+		}
+		// if pcap upload configured add attrs.upload_id
+		if sipcallmon.PcapDumperCfg.Upload != "" {
+			idLen, err := sipcallmon.PcapDumperCfg.PcapUploadId(tmpBuf[:], callID)
+			if err == nil && idLen > 0 {
+				uploadId := tmpBuf[:idLen]
+				addFields(event.Fields, "attrs.upload_id", string(uploadId))
+			} else {
+				Log.ERR("failed to get pcap dump upload_id for %q: output len %d err: %v\n",
+					callID, idLen, err)
+			}
 		}
 	}
 
@@ -1212,6 +1322,7 @@ func (bt *Sipcmbeat) addVersionToEv(event beat.Event) {
 // adds rtp stats to an "event" map
 func addRTPstreamStats(m common.MapStr, rtpS *calltr.EvRTPstreamDataT) {
 	addFields(m, "ssrc", rtpS.SSRC)
+	addFields(m, "ssrc_changes", rtpS.SSRCupd)
 	addFields(m, "dst_ip", rtpS.Dst.String())
 	addFields(m, "dst_port", rtpS.DPort)
 	addFields(m, "src_ip", rtpS.Src.String())

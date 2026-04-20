@@ -8,13 +8,24 @@
 
 # vi swaps
 .*.swp
+.*.swo
+.*.swn
 # Emacs backup files
 *~
 # Emacs file loc
 .#*
+#various backup files
+*.bak
+*.bak[0-9]
 # tags
 tags
 TAGS
+*.pcap
+logs/
+pcap_dir/
+go.work
+go.work.sum
+go.work.old
 # archives
 *.tar.gz
 *.deb
