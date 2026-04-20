@@ -9,6 +9,7 @@ package beater
 import (
 	"fmt"
 	"strconv"
+
 	//	"runtime/pprof"
 	"net"
 	"reflect"
@@ -258,12 +259,12 @@ type Sipcmbeat struct {
 }
 
 /*
-func dbg_fileno() uintptr {
-	file, _ := os.Open("/dev/zero")
-	fd := file.Fd()
-	file.Close()
-	return fd
-}
+	func dbg_fileno() uintptr {
+		file, _ := os.Open("/dev/zero")
+		fd := file.Fd()
+		file.Close()
+		return fd
+	}
 */
 func (bt *Sipcmbeat) initCounters() error {
 	cntDefs := [...]counters.Def{
@@ -679,7 +680,7 @@ waitsig:
 	}
 }
 
-//quick hack to avoid copying
+// quick hack to avoid copying
 func str(b []byte) (s string) {
 	s = *(*string)(unsafe.Pointer(&b))
 	return
@@ -1065,6 +1066,25 @@ add_attrs:
 		// note: fr_delay == pdd+ring_time can also be computed from
 		//       dbg.call_start - dbg.created
 
+		// add rtp related fields
+		if ed.RTPsessNo != 0 {
+			// they are added as 2 array of values, one array per
+			// side (a and b). Each array element corresponds to
+			// a rtp session (linked to an m-line in the sdp)
+			// Eg.: rtp-stats-a : [ { packets: 0, ...}, ... ]
+			rtpStArrayA := make([]common.MapStr, ed.RTPsessNo)
+			rtpStArrayB := make([]common.MapStr, ed.RTPsessNo)
+			for i := 0; i < int(ed.RTPsessNo); i++ {
+				rtpStArrayA[i] = make(common.MapStr)
+				rtpStArrayB[i] = make(common.MapStr)
+
+				addRTPstreamStats(rtpStArrayA[i], &ed.RTP[i][0])
+				addRTPstreamStats(rtpStArrayB[i], &ed.RTP[i][1])
+			}
+			addFields(event.Fields, "attrs.rtp-stats-a", rtpStArrayA)
+			addFields(event.Fields, "attrs.rtp-stats-b", rtpStArrayB)
+		}
+
 	case calltr.EvRegDel, calltr.EvRegExpired, calltr.EvSubDel:
 		// add duration only on events that make sense, and only
 		// if call-start is known. Use seconds.
@@ -1187,4 +1207,47 @@ func (bt *Sipcmbeat) addVersionToEv(event beat.Event) {
 	addFields(event.Fields, "agent.version_base", bt.BaseVer)
 	addFields(event.Fields, "agent.commit_hash", bt.CommitH)
 	addFields(event.Fields, "agent.build_time", bt.BuildT)
+}
+
+// adds rtp stats to an "event" map
+func addRTPstreamStats(m common.MapStr, rtpS *calltr.EvRTPstreamDataT) {
+	addFields(m, "ssrc", rtpS.SSRC)
+	addFields(m, "dst_ip", rtpS.Dst.String())
+	addFields(m, "dst_port", rtpS.DPort)
+	addFields(m, "src_ip", rtpS.Src.String())
+	addFields(m, "src_port", rtpS.SPort)
+
+	// unique packets
+	addFields(m, "packets", rtpS.DjStats.TotalQueued)
+	// total RTP packets
+	addFields(m, "seen_packets", rtpS.RTPpkts)
+	// add packet related stats only if packets seen
+	if rtpS.Pkts != 0 {
+		addFields(m, "non_rtp_pkts", rtpS.Pkts-rtpS.RTPpkts)
+		addFields(m, "expected", rtpS.Expected)
+
+		addFields(m, "bytes", rtpS.RTPbytes)
+		addFields(m, "total_bytes", rtpS.Bytes)
+
+		addFields(m, "jitter", rtpS.Jitter)
+
+		addFields(m, "lost_percentage", rtpS.Loss)
+		addFields(m, "last_seq_nr", rtpS.LastSeqNo)
+		addFields(m, "duplicate_packets", rtpS.DjStats.Dups)
+		// dropped due to "old" sequence numbers
+		addFields(m, "dropped", rtpS.DjStats.DropOld)
+		// TODO: reordered or out_of_order
+		addFields(m, "reordered_packets", rtpS.DjStats.OutOfOrder)
+
+		// extras (optional?)
+		addFields(m, "rtp_pkt_rate", rtpS.RateRTPpkts)
+		addFields(m, "data_rate", rtpS.RateBytes)
+		addFields(m, "data_rate_last_sec", rtpS.RateBytesLastS)
+		addFields(m, "payload_type", rtpS.Payload)
+	}
+	// extras
+	// clk_rate is non zero only if there were packets received
+	addFields(m, "clk_rate", rtpS.ClkRate)
+	addFields(m, "media_type", rtpS.Type.String())
+	addFields(m, "protocol", rtpS.Proto.String())
 }
