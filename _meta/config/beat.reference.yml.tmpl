@@ -71,7 +71,7 @@ sipcmbeat:
   # ipfix_ignore_egress:  false
   # generate an rtp-stats2 event immediately after
   # processing an ipfix RTP QoS report
-  ipfix_rtp_quick_ev: false
+  ipfix_rtp_quick_ev: true
   # port for the internal http server, 0 == disable
   http_port: 8080
   # listen address for the internal http server
@@ -79,6 +79,8 @@ sipcmbeat:
   # rtp tracking support (default on).
   # Depends on sdp.
   rtp: off
+  # rtp statistics interval, in s (default 0 = disabled)
+  rtp_stats_interval: 0
   # sdp support
   # If on sdp information will be stored allong the call state. It will
   # cause extra memory usage.
