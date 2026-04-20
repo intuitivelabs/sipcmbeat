@@ -358,14 +358,15 @@ func (bt *Sipcmbeat) initCounters() error {
 			"invalid events entries, skipped"},
 		{&bt.cnts.EvNilTotal, 0, nil, nil, "nil_total",
 			"empty events received (debugging)"},
-		{&bt.cnts.EvNilConsec, counters.CntMaxF, nil, nil, "nil_crt",
+		{&bt.cnts.EvNilConsec, counters.CntNonMonoF | counters.CntMaxF,
+			nil, nil, "nil_crt",
 			"empty events received consecutively (debugging)"},
 		{&bt.cnts.EvSigs, 0, nil, nil, "signals",
 			"new events signals received"},
 		{&bt.cnts.EvTrunc, 0, nil, nil, "truncated",
 			"truncated event"},
-		{&bt.cnts.EvMaxQ, 0, nil, nil, "max_queued",
-			"maximum number of queued events"},
+		{&bt.cnts.EvMaxQ, counters.CntNonMonoF | counters.CntMaxF, nil, nil,
+			"max_queued", "maximum number of queued events"},
 		// acker based counters
 		{&bt.ackCnts.EvPubAdd, 0, nil, nil, "publish_add",
 			"events that passed the output pipeline processors filters"},
@@ -376,7 +377,8 @@ func (bt *Sipcmbeat) initCounters() error {
 		{&bt.pubCnts.EvPubOk, 0, nil, nil, "publish_ok",
 			"events successfully forwarded to the publisher pipeline" +
 				" (should be the same as publish_add)"},
-		{&bt.ackCnts.EvBatchAck, counters.CntMaxF, nil, nil, "batch_acks",
+		{&bt.ackCnts.EvBatchAck, counters.CntNonMonoF | counters.CntMaxF,
+			nil, nil, "batch_acks",
 			"event acks received in a batch (debugging)"},
 		{&bt.pubCnts.EvPubFiltered, 0, nil, nil, "publish_filtered2",
 			"events filtered out by the output pipeline processors" +
