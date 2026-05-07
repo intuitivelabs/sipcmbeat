@@ -10,7 +10,7 @@ import (
 // Name of this beat
 const Name = "sipcmbeat"
 
-var fallbackVer = "0.7.29" // fallback version
+var fallbackVer = "0.7.31" // fallback version
 var fallbackTopVer = "unknown"
 
 //const FullVer = Version + " sipcallmon " + sipcallmon.Version

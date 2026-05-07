@@ -249,6 +249,14 @@ sipcmbeat:
   #  e.g.: "http://127.0.0.1/api/upload/"
   #  set to "" to disable
   pcap_dump_upload: ""
+  # stream each captured packet via the per-call upload API; requires
+  # pcap_dump_upload to be set; mutually exclusive with pcap_dump_upload_file
+  # (default false)
+  pcap_dump_upload_packet: false
+  # upload whole rotated pcap files; requires pcap_dump_upload to be set;
+  # sets pcap_dump_file_upload_workers to 16 if it is 0; mutually exclusive
+  # with pcap_dump_upload_packet (default false)
+  pcap_dump_upload_file: false
   # pcap upload read timeout
   pcap_dump_upload_rd_timeout: 2s
   # pcap upload write timeout
@@ -304,6 +312,10 @@ sipcmbeat:
   #   pcap_dump_rotate_dir (picks up pre-existing files on start),
   #   "both" = channel + watch; default "" (equivalent to "channel")
   pcap_dump_file_upload_notify: ""
+  # on startup, scan pcap_dump_rotate_dir and upload any pre-existing
+  # files left over from a previous run (recovery); requires
+  # pcap_dump_rotate_dir; works in any notify mode (default true)
+  pcap_dump_file_upload_startup_scan: true
 
 # ================================== General ===================================
 

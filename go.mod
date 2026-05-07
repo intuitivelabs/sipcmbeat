@@ -28,16 +28,16 @@ replace (
 
 require (
 	github.com/elastic/beats/v7 v7.9.2
-	github.com/intuitivelabs/anonymization v1.5.3
-	github.com/intuitivelabs/calltr v1.1.19
-	github.com/intuitivelabs/counters v0.3.3
-	github.com/intuitivelabs/sipcallmon v0.8.30
-	github.com/intuitivelabs/sipsp v1.1.6
-	github.com/intuitivelabs/slog v0.0.3
-	github.com/intuitivelabs/timestamp v0.0.4
 	github.com/oschwald/maxminddb-golang v1.8.0
 	github.com/pkg/errors v0.9.1
 	github.com/spf13/cobra v0.0.3
+	github.com/intuitivelabs/anonymization v1.5.3
+	github.com/intuitivelabs/calltr v1.1.19
+	github.com/intuitivelabs/counters v0.3.3
+	github.com/intuitivelabs/sipcallmon v0.8.31
+	github.com/intuitivelabs/sipsp v1.1.6
+	github.com/intuitivelabs/slog v0.0.3
+	github.com/intuitivelabs/timestamp v0.0.4
 )
 
 require (
@@ -72,6 +72,7 @@ require (
 	github.com/emicklei/go-restful/v3 v3.10.1 // indirect
 	github.com/fatih/color v1.9.0 // indirect
 	github.com/frankban/quicktest v1.14.3 // indirect
+	github.com/fsnotify/fsnotify v1.9.0 // indirect
 	github.com/garyburd/redigo v1.0.1-0.20160525165706-b8dc90050f24 // indirect
 	github.com/go-logr/logr v1.4.2 // indirect
 	github.com/go-openapi/jsonpointer v0.19.6 // indirect
@@ -93,14 +94,6 @@ require (
 	github.com/hashicorp/go-uuid v1.0.2 // indirect
 	github.com/imdario/mergo v0.3.6 // indirect
 	github.com/inconshreveable/mousetrap v1.0.0 // indirect
-	github.com/intuitivelabs/bytescase v1.0.3 // indirect
-	github.com/intuitivelabs/bytespool v0.0.4 // indirect
-	github.com/intuitivelabs/httpsp v0.0.10 // indirect
-	github.com/intuitivelabs/ipcrypt v1.1.0 // indirect
-	github.com/intuitivelabs/mallocs/qmalloc v0.0.4 // indirect
-	github.com/intuitivelabs/unsafeconv v0.0.3 // indirect
-	github.com/intuitivelabs/websocket v0.0.2 // indirect
-	github.com/intuitivelabs/wtimer v0.0.5 // indirect
 	github.com/jcmturner/gofork v1.0.0 // indirect
 	github.com/joeshaw/multierror v0.0.0-20140124173710-69b34d4ec901 // indirect
 	github.com/josharian/intern v1.0.0 // indirect
@@ -134,6 +127,14 @@ require (
 	github.com/valyala/fasthttp v1.65.0 // indirect
 	github.com/zeebo/blake3 v0.2.4 // indirect
 	github.com/zeebo/xxh3 v1.0.2 // indirect
+	github.com/intuitivelabs/bytescase v1.0.3 // indirect
+	github.com/intuitivelabs/bytespool v0.0.4 // indirect
+	github.com/intuitivelabs/httpsp v0.0.10 // indirect
+	github.com/intuitivelabs/ipcrypt v1.1.0 // indirect
+	github.com/intuitivelabs/mallocs/qmalloc v0.0.4 // indirect
+	github.com/intuitivelabs/unsafeconv v0.0.3 // indirect
+	github.com/intuitivelabs/websocket v0.0.2 // indirect
+	github.com/intuitivelabs/wtimer v0.0.5 // indirect
 	go.elastic.co/apm v1.8.0 // indirect
 	go.elastic.co/apm/module/apmelasticsearch v1.7.2 // indirect
 	go.elastic.co/apm/module/apmhttp v1.7.2 // indirect
@@ -172,9 +173,9 @@ require (
 	sigs.k8s.io/yaml v1.3.0 // indirect
 )
 
+
 require (
 	github.com/akavel/rsrc v0.9.0 // indirect
-	github.com/fsnotify/fsnotify v1.9.0 // indirect
 	github.com/josephspurrier/goversioninfo v1.2.0 // indirect
 	github.com/jstemmer/go-junit-report v0.9.1 // indirect
 	google.golang.org/appengine v1.6.7 // indirect
